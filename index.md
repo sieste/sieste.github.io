@@ -7,4 +7,4 @@ layout: default
 
 test text
 
-{% post_url 2014-05-31-first-post %}
+[first post]({% post_url 2014-05-31-first-post %})
