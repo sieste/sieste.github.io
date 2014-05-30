@@ -1,0 +1,7 @@
+name: "blog.fokust.org"
+description: "The Blog of Fokust.org"
+author: "fokust.org"
+author_email: info@fokust.org
+url: http://blog.fokust.org
+markdown: rdiscount
+
