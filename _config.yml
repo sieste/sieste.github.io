@@ -4,4 +4,5 @@ author: "fokust.org"
 author_email: info@fokust.org
 url: http://blog.fokust.org
 markdown: rdiscount
+paginate: 5
 
