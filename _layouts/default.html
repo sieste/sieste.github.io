@@ -1,0 +1,47 @@
+<!DOCTYPE HTML> 
+
+<html>
+<head>
+<meta charset=utf8 />
+
+<title>{% if page.title %} {{ page.title }} | {% endif %} {{ site.name }}</title>
+
+<style type="text/css">
+body {background:#fff; font-family: helvetica-neue, helvetica, sans-serif; font-size: 1em; line-height: .1em; float: left; width:580px; margin-top:60px; margin-left:64px;}
+p {line-height: 1.0em;}
+h2 {font-size: 2em; color:#333; line-height:50px; font-weight:normal;}
+h2 a:link {border-style: none;}
+h3 {font-weight:normal; font-size: .7em; color:#303030; line-height:2.8em;}
+h3 a:link {border-style: none;}
+
+ol {margin:1em 0 2em 0;}
+li {line-height: 1.5em;}
+p {line-height:1.2em;}
+
+a:link {color: #303030; text-decoration: none; border-width: 0 0 1px 0; border-style: none none solid none; border-color: #C0C0C0;}
+a:visited {color: #303030; text-decoration: none; border-width: 0 0 1px 0; border-style: none none solid none; border-color: #C0C0C0;}
+a:hover {color: #999; border-width: 0 0 1px 0; border-style: none none solid none; border-color: #C0C0C0; text-decoration: none;}
+</style>
+
+< meta name="description" href="{{site.description}}" />
+
+</head>
+
+<body>
+
+<header>
+  <h2><a href="{{site.baseurl}}/">Welcome to {{ site.name }}</a></h2>
+</header>
+ 
+
+<main>
+
+{{ content }}
+
+</main>
+
+
+
+</body>
+</html>
+
