@@ -8,6 +8,8 @@ layout: default
 
 
 {% for post in paginator:posts %}
-* [{{ post.url }}]({{ post.title }})
+
+[{{ post.url }}]({{ post.title }})
+
 {% end for %}
 
