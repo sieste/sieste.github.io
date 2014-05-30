@@ -1,10 +1,13 @@
 ---
-title: test
+title: Home 
 layout: default
 ---
 
-# Hello world
 
-test text
+# List of posts
 
-[first post]({% post_url 2014-05-31-first-post %})
+
+{% for post in paginator:posts %}
+* [{{ post.title }}]({{ post.url }})
+{% end for %}
+
