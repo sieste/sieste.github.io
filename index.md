@@ -11,5 +11,5 @@ layout: default
 
 [{{ post.url }}]({{ post.title }})
 
-{% end for %}
+{% endfor %}
 
