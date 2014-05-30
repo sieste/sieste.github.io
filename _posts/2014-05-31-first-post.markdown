@@ -1,5 +1,6 @@
 ---
 title: first post
+layout: default
 ---
 
 # The first post
