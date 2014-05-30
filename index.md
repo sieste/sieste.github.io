@@ -7,9 +7,5 @@ layout: default
 # List of posts
 
 
-{% for post in paginator:posts %}
 
-[{{ post.url }}]({{ post.title }})
-
-{% endfor %}
-
+[first post]({% post_url 2014-05-31-first-post %})

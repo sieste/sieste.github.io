@@ -1,8 +1,7 @@
-name: "blog.fokust.org"
-description: "The Blog of Fokust.org"
-author: "fokust.org"
-author_email: info@fokust.org
-url: http://blog.fokust.org
+name: "sieste blog"
+description: "The Blog of Sieste"
+author: "sieste"
+author_email: 
+url: 
 markdown: rdiscount
-paginate: 5
 
