@@ -7,8 +7,8 @@ layout: default
 
 with a bit of text and [a link](http://sieste.github.io)
 
-{% highlight r %}
+```r
 lm(y ~ x)
 source("test.R")
-{% endhighlight %}
+```
 
