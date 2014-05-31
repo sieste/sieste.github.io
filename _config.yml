@@ -3,4 +3,4 @@ description: "The Blog of Sieste"
 author: "sieste"
 baseurl: "http://sieste.github.io"
 markdown: kramdown
-highlighter: pygments
+pygments: true
