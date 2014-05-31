@@ -2,7 +2,7 @@
 layout: plain
 ---
 
-# All articles:
+# All posts:
 
 {% for post in site.posts %}
 {% capture currentyear %}{{post.date | date: "%B %Y"}}{% endcapture %}
