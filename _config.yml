@@ -2,5 +2,5 @@ name: "sieste blog"
 description: "The Blog of Sieste"
 author: "sieste"
 baseurl: "http://sieste.github.io"
-markdown: kramdown
 pygments: true
+markdown: kramdown
