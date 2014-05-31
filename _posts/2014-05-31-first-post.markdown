@@ -7,15 +7,10 @@ layout: default
 
 with a bit of text and [a link](http://sieste.github.io)
 
-```R
+{% highlight r %}
+a <- 5
 lm(y ~ x)
 source("test.R")
-```
+{% endhighlight %}
 
-```ruby
-# This is highlighted code
-def foo
-  puts 'foo'
-end
-```
 
