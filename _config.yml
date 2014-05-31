@@ -2,4 +2,5 @@ name: "sieste blog"
 description: "The Blog of Sieste"
 author: "sieste"
 port: 4000
+markdown: kramdown
 
