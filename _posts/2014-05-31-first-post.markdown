@@ -7,7 +7,7 @@ layout: default
 
 with a bit of text and [a link](http://sieste.github.io)
 
-```r
+```R
 lm(y ~ x)
 source("test.R")
 ```
