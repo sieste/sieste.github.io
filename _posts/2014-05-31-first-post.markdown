@@ -12,3 +12,10 @@ lm(y ~ x)
 source("test.R")
 ```
 
+```ruby
+# This is highlighted code
+def foo
+  puts 'foo'
+end
+```
+
