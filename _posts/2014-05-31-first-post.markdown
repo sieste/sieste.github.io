@@ -1,5 +1,5 @@
 ---
-title: first post really
+title: Hello world
 layout: default
 ---
 
