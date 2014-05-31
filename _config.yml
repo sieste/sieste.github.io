@@ -2,4 +2,4 @@ name: "sieste blog"
 description: "The Blog of Sieste"
 author: "sieste"
 baseurl: "http://sieste.github.io"
-
+highlighter: redcarpet
