@@ -1,6 +1,6 @@
-name: "sieste blog"
-description: "The Blog of Sieste"
-author: "sieste"
+name: "Stefan Siegert, University of Exeter"
+description: ""
+author: "Stefan Siegert"
 port: 4000
 markdown: kramdown
 
