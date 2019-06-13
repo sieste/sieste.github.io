@@ -10,8 +10,8 @@ I am a lecturer in the Mathematics Department (Statistical Science group) at
 the University of Exeter. 
 
 My research is on statistical methodology for environmental problems. I develop
-mathematical and computations tools to assess and improve the skill of computer
-model forecasts of weather and climate. [More ...](research)
+mathematical and computational tools to assess and improve the skill of
+computer model forecasts of weather and climate. [More ...](research)
 
 I teach courses on selected topics in Statistics, such as Advanced Statistical
 modelling and Statistical inference, and I supervise student projects at all
