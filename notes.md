@@ -5,7 +5,7 @@ layout: default
 # Notes
 
 {% for post in site.posts %}
-{% capture currentyear %}{{post.date | date: "%B %Y"}}{% endcapture %}
+{% capture currentyear %}{{post.date | date: "%Y"}}{% endcapture %}
 {% if currentyear != year %}
 **{{ currentyear }}**
 {% capture year %}{{currentyear}}{% endcapture %} 

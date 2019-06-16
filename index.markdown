@@ -14,8 +14,8 @@ mathematical and computational tools to assess and improve the skill of
 computer model forecasts of weather and climate. [More ...](research)
 
 I teach courses on selected topics in Statistics, such as Advanced Statistical
-modelling and Statistical inference, and I supervise student projects at all
-levels. [More ...](teaching)
+modelling, Statistical inference, and Statistical methods for climate science.
+I supervise student projects at all levels. [More ...](teaching)
 
 For **contact information** please visit my [staff profile
 page](http://emps.exeter.ac.uk/mathematics/staff/ss610).
