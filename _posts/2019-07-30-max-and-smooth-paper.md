@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Hrafnkelsson et al "Max-and-Smooth: a two-step approach for approximate Bayesian inference in latent Gaussian models"
+title: Hrafnkelsson et al "Max-and-Smooth - A two-step approach for approximate Bayesian inference in latent Gaussian models"
 category: publication
 ---
 
