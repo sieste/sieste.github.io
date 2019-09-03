@@ -6,8 +6,10 @@ category: publication
 
 Siegert, S., Ferro, C. A., Stephenson, D. B., & Leutbecher, M. (2018). **The
 ensemble‐adjusted Ignorance Score for forecasts issued as normal
-distributions.** Quarterly Journal of the Royal Meteorological Society.
+distributions.** Quarterly Journal of the Royal Meteorological Society, 
+145(S1), 129-139.
 
+- [QJRMS Special Supplement on 25 Years of Ensemble Forecasting](https://rmets.onlinelibrary.wiley.com/toc/1477870x/2019/145/S1)
 - [journal link](https://rmets.onlinelibrary.wiley.com/doi/abs/10.1002/qj.3447)
 
 **Abstract**
