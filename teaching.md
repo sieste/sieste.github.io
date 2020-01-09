@@ -4,6 +4,13 @@ layout: default
 
 # Teaching
 
+## Modules 2019/2020
+
+{% for post in site.categories.modules2019 %}
+- [{{ post.title }}]({{ post.url }})
+{% endfor %}
+
+
 ## M-Level projects for 2019/2020
 
 Below are M-Level projects I am offering for the next academic year, for the
