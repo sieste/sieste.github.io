@@ -8,12 +8,18 @@
 <style>
 
 .slidecontainer {
-  width: 90%;
+  width: 80%;
 }
 
 .noUi-target {
   margin-top: 50px;
   margin-bottom: 50px;
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.noUi-connect {
+  background: #2d6;
 }
 
 h1 {
@@ -30,12 +36,55 @@ h3 {
   color: #777;
 }
 
+#resultat {
+ position: fixed;
+ bottom: 0;
+ height: 50px;
+ background: white;
+ z-index: 100;
+}
+
+#topwhite {
+ position: fixed;
+ top: 0;
+ height: 75px;
+ width: 100%;
+ background: white;
+ z-index: 99;
+}
+
+#bottomwhite {
+ position: fixed;
+ bottom: 0;
+ height: 75px;
+ width: 100%;
+ background: white;
+ z-index: 99;
+}
+
+#header {
+ position: fixed;
+ top: 0;
+ height: 50px;
+ background: white;
+ z-index: 100;
+}
+
 
 </style>
 </head>
 <body>
 
-<h1>Insurance Risk Survey Environmental Impact Calculator</h1>
+<div id="topwhite">
+<h1 id="header">Insurance Risk Survey Environmental Impact Calculator</h1>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 <div class="slidecontainer">
   <h2>Total number of insured properties (* 1,000,000)</h2>
@@ -44,7 +93,7 @@ h3 {
   <div id="sli_frac_sur"></div>
   <h2>Avg. total distance travelled per survey (km)</h2>
   <div id="sli_dist_per_sur"></div>
-  <h2>Hotel nights per 100 surveys</h2>
+  <h2>Hotel nights per survey</h2>
   <div id="sli_n_hotel"></div>
   <h2>Percentage of trips by air travel</h2>
   <div id="sli_frac_air"></div>
@@ -54,55 +103,19 @@ h3 {
   <div id="sli_cf_air"></div>
   <h2>Avg. carbon footprint hotel (kgCO2e/night)</h2>
   <div id="sli_cf_hotel"></div>
-  <h2>Total carbon footprint: <span id="result" style="color:#f00;"></span> tonnes of CO2e per year.</h2>
+
+  <div id="bottomwhite"><h1 id="resultat">Total carbon footprint: <span id="result" style="color:#f00;"></span> tonnes of CO2e per year.</h1></div>
 </div>
 
 <div id="multislider"></div>
 
-<h3>End notes:</h3>
-<ol>
-  <li>About 500,000 insured objects in the UK are risk-surveyed each year, and about 5% of all insured property surveyed every 2-3 years.
-  </li>
-  <li>
-    Carbon footprint estimates of different types of vehicles (upper estimates include life-cycle of car, emissions from fuel production, and exhaust emissions) 
-    <ul>
-      <li>Petrol: 200 - 240 gCO2e/km</li>
-      <li>Diesel: 160 - 210  gCO2e/km</li>
-      <li>Hybrid: 16 - ??? gCO2e/km</li>
-      <li>Electric (100% renewable): 8 - 80 gCO2e/km</li>
-      <li>Electric (mixed): 8 - 180 gCO2e/km</li>
-    </ul>
-  
-    Sources: 
-  <ul>
-  <li>lower estimates from <a href="https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2019" target="_blank">UK Department for Business, Energy & Industrial Strategy: Greenhouse Gas reporting conversion factors 2019</a> using scope 3 standard (see below)</li>
-  <li>upper estimates from <a target="_blank" href="https://www.eea.europa.eu/signals/signals-2017/infographics/range-of-life-cycle-co2/view">eea.europa.eu</a> (no calculation details)</li>
-  </ul>
-  </li>
 
-<li>
-Carbon footprint of hotel (includes food, drinks, bed, breakfast)
-<ul>
-<li>low carbon: 3kg CO2e / night</li>
-<li>average: 24kg CO2e / night</li>
-<li>high carbon: 60kg CO2e / night</li>
-<li>Catering industry emits on average 400g CO2e per pound spent (pubs, restaurants, hotels).  Source: Berners-Lee "How Bad Are Bananas? - The Carbon Footprint of Everything" (2011)</li>
-<li><a href="https://www.sciencedirect.com/science/article/pii/S0959652611002435" target='_blank'>Filimonau et al (2011)</a> report 11.7 and 8.3 kg CO2e/guest/night on detailed analysis of 2 big UK hotels</li>
-<li>UK average hotel carbon footprint 34.3 kgCO2e/guest/night according to <a href="https://www.sciencedirect.com/science/article/abs/pii/S0959652611002435" target='_blank'>Chenoweth (2009)</a> but without providing calculation details</li>
-</ul>
-</li>
-<li>
-Domestic air travel UK
-<ul>
-<li>255g CO2e / km / passenger <a href="https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2019" target='_blank'>UK Department for Business, Energy & Industrial Strategy: Greenhouse Gas reporting conversion factors 2019</a></li>
-<li>For air travel, emission factors are multiplied by a factor of about 2 compared to ground transport to account for the effect of emitting greenhouse gases directly into the stratosphere. This has been done in the estimate above.</li>
-<li>The UKDBEIS estimates include well-to-tank production costs of kerosine. I did not find estimates of total life-cycle carbon footprint for air travel as are included in the car travel estimates. Assuming a multiplier of 1.5 compared to exhaust and fuel production only, we arrive at an estimate of <b>375-500g CO2e / km / passenger</b> for domestic air travel.
-<li>More recent air travel reference: <a href="https://www.sciencedirect.com/science/article/pii/S1352231020305689" target="_blank">Lee et al (2021)</a></li>
-</ul>
-<li>"Released in 2011, the <b>Scope 3 Standard</b> is the only internationally accepted method for companies to account for these types of value chain emissions. Users of the standard can now account for emissions from 15 categories of Scope 3 activities, both upstream and downstream of their operations." <a href="https://ghgprotocol.org/standards/scope-3-standard" target="_blank">ghgprotocol.org/standards/scope-3-standard</a></li>
-<li>A big UK university has a carbon footprint of about 50,000 tons CO2e per year </li>
-</ol>
-
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 
 
@@ -167,11 +180,11 @@ noUiSlider.create(sli_dist_per_sur, {
 });
 
 noUiSlider.create(sli_n_hotel, {
-    start: [5, 10],
+    start: [3, 6],
     connect: true,
     range: {
         'min': 0,
-        'max': 100
+        'max': 20
     },
     pips: {mode: 'range', density: 3},
     behaviour: 'drag',
@@ -220,7 +233,7 @@ update_result = function() {
   var n_insu = sli_n_insu.noUiSlider.get().map(parseFloat).map((x)=>x*1000000);
   var frac_sur = sli_frac_sur.noUiSlider.get().map(parseFloat).map((x)=>x/100);
   var dist_per_sur = sli_dist_per_sur.noUiSlider.get().map(parseFloat);
-  var n_hotel = sli_n_hotel.noUiSlider.get().map(parseFloat).map((x)=>x/100);
+  var n_hotel = sli_n_hotel.noUiSlider.get().map(parseFloat);
   var cf_car = sli_cf_car.noUiSlider.get().map(parseFloat);
   var cf_air = sli_cf_air.noUiSlider.get().map(parseFloat);
   var cf_hotel = sli_cf_hotel.noUiSlider.get().map(parseFloat).map((x)=>x*1000);
