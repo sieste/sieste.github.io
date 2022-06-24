@@ -4,32 +4,32 @@ layout: default
 
 # Dr Stefan Siegert
 
-![Stefan Siegert]({{ site.url }}/assets/stefan.png)
+![Stefan Siegert]({{ site.url }}/assets/Stefan1.jpg)
 
 I am a lecturer in the Mathematics Department (Statistical Science group) at
 the University of Exeter. 
 
-My research is on statistical methodology for environmental problems. I develop
-mathematical and computational tools to evaluate and improve the skill of
-weather forecasts and climate projections. [More...](research)
+Research topics:
 
-I teach courses on selected topics in Statistics, such as Advanced Statistical
-modelling, Statistical inference, and Statistical methods for climate science.
-I supervise student projects at all levels. [More...](teaching)
-
-For **contact information** please visit my [UoE staff profile
-page](http://emps.exeter.ac.uk/mathematics/staff/ss610).
+- Bayesian Statistics
+- Spatio-temporal statistical modelling 
+- Applications to environmental problems, mostly weather and climate forecasting
+- Forecast verification
+- Epidemiological modelling
 
 
+Teaching: 
 
-### Useful links:
+- MTH1000 Foundations (U Exeter, 1st year)
+- MTH1004 Probability, Statistics, and Data (U Exeter, 1st year)
+- MTH3028 Statistical Inference (U Exeter, 3rd year)
+- MTHM503 Applications of Data Science and Statistics (U Exeter, 4th year)
 
-- [University of Exeter](https://www.exeter.ac.uk) 
-  - [Mathematics Department](https://www.exeter.ac.uk/mathematics) 
-  - [Statistical Science group](https://emps.exeter.ac.uk/mathematics/research/statistical-science/)
-  - [Stefan Siegert (staff profile)](http://emps.exeter.ac.uk/mathematics/staff/ss610)
-- [github.com/sieste](https://www.github.com/sieste)
-- [researchgate profile](https://www.researchgate.net/profile/Stefan_Siegert)
-- [linkedin profile](https://www.linkedin.com/in/stefan-siegert)
+
+Contact:
+
+- Please visit my [UoE staff profile page](http://emps.exeter.ac.uk/mathematics/staff/ss610).
+
+
 
 
