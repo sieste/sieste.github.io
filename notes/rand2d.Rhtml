@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>2D generative art in R</h2>
+
+<i>Last update: 2022-06-25</i>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+<h3>Random Fourier modes</h3>
+
+<!--begin.rcode
+set.seed(123)
+n = 200
+nmod = 5
+mat = matrix(0, n, n)
+mat[1:nmod, 1:nmod] = rnorm(nmod^2) + 1i * rnorm(nmod^2)
+imat = Re(fft(mat, inverse=TRUE))
+image(imat, axes=FALSE)
+end.rcode-->
+
+
+<h3>Random Voronoi Tesselation</h3>
+
+<!--begin.rcode eval=FALSE
+library(tidyverse)
+library(ggvoronoi) # install_github("garretrc/ggvoronoi")
+end.rcode-->
+
+<!--begin.rcode include=FALSE
+library(tidyverse)
+library(ggvoronoi) 
+end.rcode-->
+
+<!--begin.rcode
+set.seed(123)
+n = 200
+dat = tibble(x = runif(n), y=runif(n), z=sin(pi*x)*y)
+ggplot(dat) + 
+  geom_voronoi(aes(x=x, y=y, fill=z), show.legend=FALSE) +
+  scale_fill_viridis_c() +
+  theme_void()
+end.rcode-->
+
+
+
+

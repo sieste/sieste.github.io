@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>A useful proof concerning the CRPS</h2>
+
+<p>
+The continuous ranked probability score (CRPS) is a proper scoring rule that measures how well the cumulative distribution function (cdf) \(F(x)\) predicted the event that materialised in the measured outcome \(y\).
+It is defined as the integrated squared difference between the forecast distribution \(F(x)\) and the hypothetical "perfect" forecast distribution for the outcome \(y\) which would be a Heaviside step function centered on \(y\):
+
+\[\begin{aligned}
+CRPS & = \int dt [F(t) - H(t - y)]^2.
+\end{aligned}\]
+
+<p>
+An analytical result that is sometimes found in the literature is 
+
+\[\begin{aligned}
+CRPS & = E|X-y| - \frac12 E|X-X'|
+\end{aligned}\]
+
+where the expectation is taken over the independent random variables \(X\) and \(X'\) with distribution \(F(x)\).
+The proof can be found in <a href=http://dx.doi.org/10.1016/S0047-259X(03)00079-4>Baringhaus and Franz (2004)</a>, but it might be older than that.
+
+<p>
+The crucial result to realize is that the absolute difference \(|x-y|\) can be written as an integral over indicator functions as follows
+
+\[\begin{aligned}
+|x-y| & = \int dt [ I(x \le t \lt y) + I(y \le t \lt x) ] \\
+& = \int dt [ I(x \le t) I(y \gt t) + I(y \le t) I(x \gt t) ].
+\end{aligned}\]
+
+<p>
+Suppose \(X\) and \(Y\) are independent random variables with pdfs \(f(x)\) and \(g(y)\), and distribution functions \(F(x)\) and \(G(y)\).
+Then
+
+\[\begin{aligned}
+E|X-Y| & = \int dx \int dy \int dt [ I(x \le t) I(y \gt t) + I(y \le t) I(x \gt t) ] f(x) f(y)\\
+& = \int dt \Big\{ \Big[ \int dx I(x \le t) f(x)\Big] \Big[ \int dy I(y \gt t) g(y) \Big] \\
+& \quad \quad \quad + \Big[ \int dy I(y \le t) f(y)\Big] \Big[ \int dx I(x \gt t) f(x) \Big] \Big\}\\
+& = \int dt \Big[ F(t)(1-G(t)) + G(t)(1-F(t)) \Big].
+\end{aligned}\]
+
+<p>
+When \(X\) and \(X'\) are identically and independently distributed random variables with cdf \(F(x)\), it follows that
+
+\[
+E|X-X'| = 2 \int dt [ F(t)(1-F(t)) ].
+\]
+
+<p>
+Therefore
+
+\[\begin{aligned}
+& E|X-Y| - \frac12 E|X-X'| - \frac12 E|Y-Y'| \\
+& = \int dt \Big[ F(t)(1-G(t)) + G(t) (1 - F(t)) \Big]\\
+&\quad - \int dt \Big[ F(t)(1-F(t))\Big] - \int dt \Big[ G(t)(1-G(t))\Big]\\
+& = \int dt [ F(t) - G(t) ]^2.
+\end{aligned}\]
+
+If \(Y\) is a constant, we have \(F(y) = H(t - y)\) and \(E|Y - Y'| = 0\) and so
+
+\[\begin{aligned}
+CRPS  & = \int dt [F(t) - H(t-y)]^2\\
+& = E|X-y| - \frac12 E|X-X'|.
+\end{aligned}\]
+
+
+

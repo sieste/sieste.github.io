@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>Animated 2D generative art</h2>
+
+<p>
+After my attempts at <a href="/notes/rand2d.html">static random art</a>, here is a psychedelic animation using generative art. 
+
+<p>
+It uses the random Fourier modes approach, where the Fourier modes change smoothly in time, following a 2nd order autoregressive processes. 
+
+<p>
+Enjoy.
+</p>
+
+<!--begin.rcode, eval=FALSE
+
+mat0 = mat1 = mat2 = matrix(0, 200, 200)
+mat2[1:4, 1:4] = rnorm(16) + 1i * rnorm(16)
+while (TRUE) {
+  mat2[1:4,1:4] = 1.9 * mat1[1:4,1:4] - mat0[1:4,1:4] + 
+                  rnorm(16) + 1i * rnorm(16)
+  image(Re(fft(mat2, inverse=TRUE))); dev.flush(); dev.hold()
+  mat0 = mat1; mat1 = mat2
+}
+
+end.rcode-->
+
+<img src="fig/fft.gif">
+
+
+
+<!--begin.rcode, include=FALSE
+
+dd = tempdir()
+dir.create(dd)
+set.seed(123)
+n = 100
+mat0 = mat1 = mat2 = matrix(0, n, n)
+mat2[1:4, 1:4] = rnorm(16) + 1i * rnorm(16)
+for (t in 1:100) {
+  fname = sprintf('%s/%03d.jpg', dd, t)
+  mat2[1:4,1:4] = 1.9 * mat1[1:4,1:4] - mat0[1:4,1:4] + rnorm(16) + 1i * rnorm(16)
+  jpeg(fname, width=250, height=250)
+  par(mar=c(1,1,1,1))
+  image(Re(fft(mat2, inverse=TRUE)), axes=FALSE)
+  dev.off()
+  mat0 = mat1; mat1 = mat2
+}
+# convert -delay 5 -loop 0 *.jpg anim.gif
+
+end.rcode-->
+
+
+
+

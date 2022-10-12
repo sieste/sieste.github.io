@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>Sampling the 2d random walk</h2>
+
+
+
+
+
+<p>The RW2D is a 2-dimensional random field \(u_{i,j}\) characterised by the intrinsic auto-regression
+
+\[u_{i,j} = \frac14 (u_{i-1,j} +  u_{i+1,j} + u_{i,j-1} + u_{i,j+1}) + \epsilon_{i,j}\]
+
+where \(\epsilon_{i,j} \sim N(0,\tau^{-1})\) is independent Gaussian noise with precision \(\tau\). The RW2D is widely used as a spatial prior in Bayesian hierarchical modelling.
+
+<p>
+Sampling realisations of the RW2D is not completely straightforward, since \(u_{i,j}\) depends on its neighbors, which in turn also depend on their neighbors. There is no natural starting point. Time series models like AR(1) or the random walk have a well-specified "forward direction" which makes sampling straightforward. Sampling the RW2D on the other hand needs a bit more work.
+
+<p>Let the \(n \times n\) matrix \(U\) denote a realisation of the RW2D random field. Define the tri-diagonal \(n \times n\) matrix \(D\) as
+
+\[D = \frac14 \begin{pmatrix} 2 & -1 &  \\ -1 & \ddots & \ddots \\  & \ddots \end{pmatrix}.\]
+
+<p>Then the matrix \(E\) defined by \[E = DU + UD \] is a \(n \times n\) matrix of iid Normal random variables with mean zero and precision \(\tau\).
+
+<p>This is a <a href=https://en.wikipedia.org/wiki/Sylvester_equation>Sylvester equation</a> so it can be rewritten in vectorised form as
+
+\[vec(E) = (1_n \otimes D + D \otimes 1_n) vec(U)\]
+
+where \(1_n\) is the \(n\)-dimensional identity matrix, \(\otimes\) is the Kronecker product, and the vectorisation operator \(vec(\cdot)\) transforms a matrix into a vector by column-stacking.
+
+<p>The vectorised equation suggests a way to simulate an RW2D random field \(U\) by first generating a vector \(e\) of \(n^2\) iid Normal variates, and multiplying it by the inverse of the 2d differencing matrix, i.e.
+
+\[u = (1_n \otimes D + D \otimes 1_n)^{-1} e.\]
+
+Recasting the \(n^2\) vector \(u\) back into a \(n \times n\) matrix \(U\) yields a realisation of an RW2D. 
+
+<p>In R, this is done as follows:</p>
+
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(Matrix)</span>
+<span class="hl kwd">set.seed</span><span class="hl std">(</span><span class="hl num">123</span><span class="hl std">)</span>
+<span class="hl std">n</span> <span class="hl kwb">=</span> <span class="hl num">100</span>
+<span class="hl std">In</span> <span class="hl kwb">=</span> <span class="hl kwd">Diagonal</span><span class="hl std">(n)</span>
+<span class="hl std">Dn</span> <span class="hl kwb">=</span> <span class="hl num">0.25</span> <span class="hl opt">*</span> <span class="hl kwd">bandSparse</span><span class="hl std">(</span><span class="hl kwc">n</span><span class="hl std">=n,</span> <span class="hl kwc">k</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">symmetric</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">,</span>
+                       <span class="hl kwc">diagonals</span><span class="hl std">=</span><span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">2</span><span class="hl std">, n),</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">, n</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)))</span>
+<span class="hl std">DD</span> <span class="hl kwb">=</span> <span class="hl kwd">kronecker</span><span class="hl std">(In, Dn)</span> <span class="hl opt">+</span> <span class="hl kwd">kronecker</span><span class="hl std">(Dn, In)</span>
+<span class="hl std">uu</span> <span class="hl kwb">=</span> <span class="hl kwd">solve</span><span class="hl std">(DD,</span> <span class="hl kwd">rnorm</span><span class="hl std">(n</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">))</span>
+<span class="hl std">U</span> <span class="hl kwb">=</span> <span class="hl kwd">matrix</span><span class="hl std">(uu, n, n)</span>
+<span class="hl kwd">image</span><span class="hl std">(U,</span> <span class="hl kwc">axes</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/rw2d.Rhtml-unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" class="plot" /></div></div>
+
+

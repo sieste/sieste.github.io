@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>Plotting coastlines with ggplot and rnaturalearth</h2>
+
+<i>Last update: 2022-06-25</i>
+
+<p>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=10, fig.height=6, fig.path=prefix)
+end.rcode-->
+
+<!--begin.rcode eval=FALSE
+library(tidyverse)
+library(rnaturalearth)
+end.rcode-->
+<!--begin.rcode include=FALSE
+library(tidyverse)
+library(rnaturalearth)
+end.rcode-->
+
+<!--begin.rcode
+# this code simulates some random data on a 2d lat/lon 
+# grid and puts them into a data frame
+set.seed(456)
+mat  = matrix(0, 360, 181)
+mat[1:5, 1:5] = rnorm(25) + 1i * rnorm(25)
+mat = Re(fft(mat, inverse=TRUE))
+dat = crossing(Latitude = -90:90, 
+               Longitude = -179:180) %>%
+  mutate(data = c(mat))
+
+# load coast lines from Rnaturalearth package and 
+# convert to tidy data frame
+coast = ne_coastline(scale = 'medium') %>% fortify
+
+# plot data and overlay add coastline
+ggplot(dat) + 
+  geom_raster(aes(x=Longitude, y=Latitude, fill=data), 
+              show.legend=FALSE) +
+  geom_path(data=coast, aes(x=long, y=lat, group=group), 
+            colour='white') +
+  scale_fill_viridis_c()
+end.rcode-->
+
+
+

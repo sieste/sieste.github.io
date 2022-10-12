@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>The multivariate Normal distribution in canonical form</h2>
+
+\(
+  \def\fat#1{\boldsymbol{#1}}
+\)
+
+<p>
+Let \(\fat{x}\) be a random vector with multivariate Normal distribution with expectation \(\fat{\mu}\) and variance matrix \(\Sigma\)
+\[\begin{aligned}
+& \fat{x} \sim \mathcal{N}(\fat{\mu}, \Sigma)
+\end{aligned}\]
+The pdf of \(\fat{x}\) is given by
+\[\begin{aligned}
+p(\fat{x}) = |2\pi\Sigma|^{-1/2} \exp-\frac{1}{2}\left\{ (\fat{x} - \fat{\mu})'\Sigma^{-1}(\fat{x} - \fat{\mu}) \right\}& 
+\end{aligned}\]
+
+<p>
+Defining the precision matrix \(Q=\Sigma^{-1}\), the log pdf of \(\fat{x}\) can be written as 
+\[\begin{aligned}
+\log p(\fat{x}) & = const - \frac{1}{2} (\fat{x} - \fat\mu)'Q(\fat{x}-\fat\mu)\\
+& = const' - \frac{1}{2} \fat{x}'Q\fat{x} + (Q\fat{\mu})'\fat{x}
+\end{aligned}\]
+where the additive constants do not depend on \(\fat{x}\).
+
+
+<p>
+That is whenever we have a random vector \(\fat{x}\) whose log-pdf can be written in the form
+\[\begin{aligned}
+& \log p(\fat{x}) = const - \frac{1}{2} \fat{x}'Q\fat{x} + \fat{b}' \fat{x},
+\end{aligned}\]
+for some constant (positive-definite) matrix \(Q\), and some constant vector \(\fat{b}\), then we know that \(\fat{x}\) has a multivariate Normal distribution with expectation \(Q^{-1}\fat{b}\) and variance matrix \(Q^{-1}\)
+\[\begin{aligned}
+& \fat{x} \sim \mathcal{N}(Q^{-1}\fat{b}, Q^{-1}).
+\end{aligned}\]
+
+<p>
+The Normal distribution written in terms of \(Q\) and \(\fat{b}\) is said to be in <b>canonical form</b>. For a Normal random vector with density given in canonical form with parametrs \(Q\) and \(\fat{b}\) we write 
+\[\begin{aligned}
+& \fat{x} \sim \mathcal{N}_c(\fat{b}, Q).
+\end{aligned}\]
+
+

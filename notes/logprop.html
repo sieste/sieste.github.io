@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>Why the logarithmic score is the only local proper utility function</h2>
+
+<i>Last update 2022-06-28</i>
+
+<p>
+The following is based on <a href="https://www.jstor.org/stable/2958753">Bernardo (1979) Expected Information as Expected Utility</a>. 
+I have added a bit of fluff to make the proof more palatable to a general audience. 
+
+
+<p>
+Suppose a forecaster predicts a probability density function \(p(x)\) for a future univariate, real-valued variable, and the value \(y\) materialises. 
+For example, let's say the forecaster is a weather forecaster who predicts a Gaussian distribution with mean 20 and standard deviation 1 for the next day's temperature, and the measured temperature on the day turns out to be 21 degrees. 
+Then \(p(x) = (2\pi)^{-1/2}e^{-\frac12 (x - 20)^2}\) and \(y=21\).
+
+<p>
+We are interested in <b>utility functions</b>.
+A utility function \(u(p(x), y)\) is a function of the issued forecast distribution \(p(x)\) and the observed outcome of the predicted variable \(y\).
+The goal of the utility function is to measure the "desirability" of the pair \(\{p(x), y\}\). 
+In other words, the utility function is used retrospectively as a measure of how good \(p(x)\) was at predicting the observed value \(y\).
+
+<p>
+For this discussion, we want to distinguish between two distributions.
+The first distribution \(q(x)\) represents the forecaster's <b>true belief</b>.
+The second distribution \(p(x)\) represents the forecaster's <b>reported probability forecast</b>.
+
+<p>
+Why make that distinction?
+Consider the situation where a forecaster, after evaluating all the available evidence and data, has concluded that the uncertainty about the future observation is best represented by a Normal distribution with mean 20 and variance 1. 
+But he knows that his employer and his clients don't like uncertainty very much. 
+They prefer very sharp forecasts over vague ones. 
+So the forecaster decides not to report his true belief, but instead a less uncertain Normal distribution, with the same mean 20, but with a smaller variance of 0.01. 
+In that scenario \(q(x)=(2\pi)^{-1/2}e^{-\frac12 \frac{(x-20)^2}{1}}\) and \(p(x)=(2\pi\times 0.01)^{-1/2}e^{-\frac12 \frac{(x-20)^2}{0.01}}\).
+
+
+<p>
+The forecaster's subjective <b>expected utility</b> when reporting \(p(x)\) but believing \(q(x)\) is given by
+
+\[E[u(p(x), y)] = \int u[p(x), y] q(y) dy\]
+
+The forecaster forecasts \(p(x)\), and so achieves the utility \(u(p(x), y)\) when the observed outcome is \(y\). 
+But at forecast time, before the value of the observation is known, \(y\) must be treated as an unknown random quantity. 
+The distribution of \(y\), according to the forecaster's best judgement, is encoded in the distribution \(q(x)\). 
+So the calculate the expected utility of a reported forecast \(p(x)\), he multiplies the utility \(u(p(x),y)\) by \(q(y)\) and integrates over all \(y\).
+
+Now here are two important properties that utility functions can have: Locality and Propriety.
+
+<p>
+<b>Locality</b>: A utility function \(u(p(x),y)\) is <b>local</b> if 
+
+\[u(p(x), y) = u(p(y), y)\]
+
+that is, the utility function depends only on the probability that the forecaster assigned to the actual outcome. 
+Under a local utility function, the probability that the forecast \(p(x)\) assigned to any value \(x\neq y\) is irrelevant for the forecaster's utility.
+
+
+<p>
+<b>Propriety</b>: A utility function \(u(p(x), y)\) is <b>proper</b> if
+
+\[E[u(p(x), y)] \le E[u(q(x), y)]\]
+
+where \(y\) has distribution \(q\). 
+A <b>strictly proper</b> utility function has equality only if \(p(x) = q(x)\) for all \(x\).
+A proper utility function is maximised (in expectation) if the forecaster use their true belief \(q(x)\) as their reported forecast \(p(x)\).
+A proper utility function discourages reporting a forecast distribution \(p(x)\) that differs from his true belief \(q(x)\), like the forecaster in the example who artificially reduced the uncertainty in his forecast.
+
+
+<p>
+With these definitions in mind, let's now assume we're a forecaster with belief \(q(x)\) for a not yet observed outcome \(y\). 
+Our client has given us a local utility function \(u(p(y), y)\) according to which the quality of our forecast will be judged once the observation \(y\) is known. 
+They did not tell us whether or not the utility function is proper, so we think that we can potentially improve our expected utility by reporting a \(p(x)\) that differs from our true belief \(q(x)\).
+That is, we want to find a function \(p(x)\) that maximises our expected utility \(\int u(p(y), y)q(y) dy\).
+The function \(p(x)\) should be a valid probability distribution function, and so the maximisation is subject to the constraint \(\int p(y) dy = 1\). 
+Finding that function \(p(x)\) is a problem in <b>variational calculus with integral constraints</b>.
+
+
+<p>
+Written as an equation, we must find a function \(p(x)\) that maximises the functional
+
+\[\begin{aligned}
+F[p] & = \int u(p(y), y)q(y)dy - \lambda \left[\int p(y)dy - 1\right]\\
+& = \int \left[ u(p(y), y)q(y) - \lambda p(y) \right] dy + \lambda
+\end{aligned}\]
+
+where \(\lambda\) is a Lagrange multiplier that enforces the constraint that \(p(x)\) must be a normalised probability density function.
+Solving this maximisation problem directly, by trying out different functions \(p(y)\) and seeing which one achieves the larges value of \(F\) is very hard in general.
+
+<p>
+A very useful result in variational calculus is that in order to maximise the functional \(F[p]\), the function \(p(x)\) must be a solution of the <b>Euler-Lagrange equation</b>. 
+Let \(F[p(x)] = \int L(x, p(x), p'(x)) dx\) be some functional to be maximised. 
+The function \(L\) is integrated, and it can depend on the independent variable \(x\), the function of interest \(p(x)\), and possibly also on the first derivative \(p'(x)\) (but this will not be relevant in our case).
+The general form of the Euler Lagrange equation is then
+
+\[\frac{\partial L}{\partial p} - \frac{d}{dx}\frac{\partial L}{\partial p'} = 0.\]
+
+If \(p(x)\) solves this equation, it also maximises the function \(F[p]\).
+
+<p>
+In our case, the integrand \(L\) in the functional is \(u(p(y), y)q(y) - \lambda p(y)\). 
+This function does not depend on \(p'(y)\). 
+Therefore the derivative in the Euler-Lagrange equation with respect to \(p'\) vanishes. 
+We have that the maximising function \(p(y)\) must be a solution of the differential equation
+
+\[\begin{aligned}
+& \frac{\partial}{\partial p(y)} [u(p(y), y)q(y) - \lambda p(y)]\\
+& = q(y) \frac{\partial}{\partial p(y)} u(p(y), y) - \lambda = 0.
+\end{aligned}\]
+
+
+<p>
+So our forecaster can now start trying different distributions \(p(y)\) and find one that satisfies this equation for all values of \(y\). 
+That \(p(y)\) will ensure that his expected utility is maximised.
+
+<p>
+Now suppose the client comes back to the forecaster and tells him 
+"Oh, by the way, the score we have given you is proper. 
+There is no point in trying to report a different distribution than your own belief to maximise the expected utility. 
+Only telling us your own true belief will maximise your expected utility." 
+So the forecaster plugs in his own distribution \(q(y)\) for \(p(y)\) into the Euler-Lagrange equation. 
+And voila, it satisfies the equation for all values of \(y\).
+He is now happy to report his true belief \(q(y)\).
+
+<p>
+From the forecaster's perspective, who was unsure what probability distribution to report, the job is done now. 
+Once he knows that the utility function is proper, he has no other choice than reporting his own belief, \(q(x)\). 
+End of story.
+
+<p>
+But: We (you, the reader, and I) can now solve a different problem. 
+In our story, the forecaster was told what the utility function is. 
+We, however, have not been given this information. 
+All we know up to here is that the utility function \(u(p(x),y)\) is local, it is proper, and we have derived that it must therefore be the solution to the differential equation
+
+\[\begin{aligned}
+& p(y) \frac{\partial}{\partial p(y)}  u(p(y), y) - \lambda = 0
+\end{aligned}\]
+
+Note how I have replaced \(q(y)\) by \(p(y)\) because propriety of the utility function implies that the two must be equal.
+The equation can be rearranged to
+
+\[\begin{aligned}
+& \frac{\partial}{\partial p(y)}  u(p(y), y) = \frac{\lambda}{p(y)}
+\end{aligned}\]
+
+<p>
+This equation puts quite strong constraints about the possible forms that the proper, local utility function \(u(p(y),y)\) can have.
+In fact we can say that in order to satisfy the differential equation, \(u(p(y),y)\) has to be of the form
+
+\[u(p(y),y) = \lambda \log p(y) + f(y)\]
+
+where \(f(y)\) is some arbitrary function that depends only on the verifying observation, but not on the forecast distribution.
+
+<p>
+In summary we have shown that <b>all utility functions that are both local and proper must be linear transformations of the logarithmic utility function.</b>
+
+

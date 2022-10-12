@@ -1,0 +1,44 @@
+body{
+  max-width:40em;
+  margin:0 auto;
+  padding:5px;
+  font-family:Georgia,serif;
+  font-size:20px;
+  line-height:30px;
+  background-color:#fff;
+  color:#000
+}
+
+h1,h2,h3,h1 a, h1 a:visited{
+  font-family:sans-serif;
+  font-variant: small-caps;
+  font-weight:normal;
+  font-style:normal;
+  margin-top:1.5em;
+  line-height:1em;
+  color:#a11;
+}
+
+h1{
+  font-size:2em
+}
+h2{
+  font-size:1.6em
+}
+h3{
+  font-size:1.3em;
+}
+
+
+a{
+  text-decoration:none;
+  color:#20b;
+}
+a:visited{
+  color:#606
+}
+a:hover{
+  text-decoration:underline
+}
+
+

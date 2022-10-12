@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>Plotting coastlines with ggplot and rnaturalearth</h2>
+
+<i>Last update: 2022-06-25</i>
+
+<p>
+
+
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
+<span class="hl kwd">library</span><span class="hl std">(rnaturalearth)</span>
+</pre></div>
+</div></div>
+
+
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># this code simulates some random data on a 2d lat/lon </span>
+<span class="hl com"># grid and puts them into a data frame</span>
+<span class="hl kwd">set.seed</span><span class="hl std">(</span><span class="hl num">456</span><span class="hl std">)</span>
+<span class="hl std">mat</span>  <span class="hl kwb">=</span> <span class="hl kwd">matrix</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">360</span><span class="hl std">,</span> <span class="hl num">181</span><span class="hl std">)</span>
+<span class="hl std">mat[</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">5</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl num">25</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl num">1i</span> <span class="hl opt">*</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl num">25</span><span class="hl std">)</span>
+<span class="hl std">mat</span> <span class="hl kwb">=</span> <span class="hl kwd">Re</span><span class="hl std">(</span><span class="hl kwd">fft</span><span class="hl std">(mat,</span> <span class="hl kwc">inverse</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">))</span>
+<span class="hl std">dat</span> <span class="hl kwb">=</span> <span class="hl kwd">crossing</span><span class="hl std">(</span><span class="hl kwc">Latitude</span> <span class="hl std">=</span> <span class="hl opt">-</span><span class="hl num">90</span><span class="hl opt">:</span><span class="hl num">90</span><span class="hl std">,</span>
+               <span class="hl kwc">Longitude</span> <span class="hl std">=</span> <span class="hl opt">-</span><span class="hl num">179</span><span class="hl opt">:</span><span class="hl num">180</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">data</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(mat))</span>
+
+<span class="hl com"># load coast lines from Rnaturalearth package and </span>
+<span class="hl com"># convert to tidy data frame</span>
+<span class="hl std">coast</span> <span class="hl kwb">=</span> <span class="hl kwd">ne_coastline</span><span class="hl std">(</span><span class="hl kwc">scale</span> <span class="hl std">=</span> <span class="hl str">'medium'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span> <span class="hl std">fortify</span>
+
+<span class="hl com"># plot data and overlay add coastline</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(dat)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_raster</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=Longitude,</span> <span class="hl kwc">y</span><span class="hl std">=Latitude,</span> <span class="hl kwc">fill</span><span class="hl std">=data),</span>
+              <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_path</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coast,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=long,</span> <span class="hl kwc">y</span><span class="hl std">=lat,</span> <span class="hl kwc">group</span><span class="hl std">=group),</span>
+            <span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'white'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">scale_fill_viridis_c</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/rnearth.Rhtml-unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" class="plot" /></div></div>
+
+
+
