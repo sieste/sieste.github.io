@@ -74,14 +74,13 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <p>This piece is inspired by the 1960 computer graphic <a href="http://www.medienkunstnetz.de/works/schotter/">Schotter</a>.
 
 
-<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(ggplot2)</span>
-<span class="hl kwd">library</span><span class="hl std">(dplyr)</span>
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
 </pre></div>
 </div></div>
 
 
 
-<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">crossing</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">,</span> <span class="hl kwc">y</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+<div class="chunk" id="schotter1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">crossing</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">,</span> <span class="hl kwc">y</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
   <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">dx</span> <span class="hl std">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">, (y</span><span class="hl opt">/</span><span class="hl num">30</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">1.5</span><span class="hl std">),</span>
          <span class="hl kwc">dy</span> <span class="hl std">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">, (y</span><span class="hl opt">/</span><span class="hl num">30</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">1.5</span><span class="hl std">))</span> <span class="hl opt">%&gt;%</span>
   <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
@@ -92,7 +91,28 @@ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <span class="hl kwd">scale_y_reverse</span><span class="hl std">()</span> <span class="hl opt">+</span>
     <span class="hl kwd">theme_void</span><span class="hl std">()</span>
 </pre></div>
-</div><div class="rimage default"><img src="fig/ggschotter.Rhtml-unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" class="plot" /></div></div>
+</div><div class="rimage default"><img src="fig/ggschotter.Rhtml-schotter1-1.png" title="plot of chunk schotter1" alt="plot of chunk schotter1" class="plot" /></div></div>
+
+
+
+<p>Here is another one with a nice color gradient:
+
+<div class="chunk" id="schotter2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">crossing</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">,</span> <span class="hl kwc">y</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">dx</span> <span class="hl std">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">, (y</span><span class="hl opt">/</span><span class="hl num">20</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">1.5</span><span class="hl std">),</span>
+         <span class="hl kwc">dy</span> <span class="hl std">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">, (y</span><span class="hl opt">/</span><span class="hl num">20</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">1.5</span><span class="hl std">))</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_tile</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=x</span><span class="hl opt">+</span><span class="hl std">dx,</span> <span class="hl kwc">y</span><span class="hl std">=y</span><span class="hl opt">+</span><span class="hl std">dy,</span> <span class="hl kwc">fill</span><span class="hl std">=y),</span> <span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'black'</span><span class="hl std">,</span>
+              <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">,</span> <span class="hl kwc">width</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">height</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">alpha</span><span class="hl std">=</span><span class="hl num">0.8</span><span class="hl std">,</span>
+              <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">scale_fill_gradient</span><span class="hl std">(</span><span class="hl kwc">high</span><span class="hl std">=</span><span class="hl str">'#9f025e'</span><span class="hl std">,</span> <span class="hl kwc">low</span><span class="hl std">=</span><span class="hl str">'#f9c929'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">scale_y_reverse</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">theme_void</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/ggschotter.Rhtml-schotter2-1.png" title="plot of chunk schotter2" alt="plot of chunk schotter2" class="plot" /></div></div>
+
+
+<p>Unfortunately it isn't straightforward to add rotation to any of the tile/rect/raster geometries.
+To include rotation I would use geom_polygon, but the code would become quite a bit more complicated.
 
 
 

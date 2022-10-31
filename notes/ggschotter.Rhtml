@@ -16,8 +16,7 @@ end.rcode-->
 
 
 <!--begin.rcode, eval=FALSE
-library(ggplot2)
-library(dplyr)
+library(tidyverse)
 end.rcode-->
 <!--begin.rcode, include=FALSE
 library(tidyverse)
@@ -26,7 +25,7 @@ set.seed(123)
 end.rcode-->
 
 
-<!--begin.rcode
+<!--begin.rcode schotter1
 crossing(x=0:10, y=0:10) %>%
   mutate(dx = rnorm(n(), 0, (y/30)^1.5),
          dy = rnorm(n(), 0, (y/30)^1.5)) %>%
@@ -38,6 +37,27 @@ crossing(x=0:10, y=0:10) %>%
     scale_y_reverse() +
     theme_void()
 end.rcode-->
+
+
+
+<p>Here is another one with a nice color gradient:
+
+<!--begin.rcode schotter2
+crossing(x=0:10, y=0:10) %>%
+  mutate(dx = rnorm(n(), 0, (y/20)^1.5),
+         dy = rnorm(n(), 0, (y/20)^1.5)) %>%
+  ggplot() +
+    geom_tile(aes(x=x+dx, y=y+dy, fill=y), colour='black',
+              lwd=2, width=1, height=1, alpha=0.8,
+              show.legend=FALSE) +
+    scale_fill_gradient(high='#9f025e', low='#f9c929') +
+    scale_y_reverse() +
+    theme_void()
+end.rcode-->
+
+
+<p>Unfortunately it isn't straightforward to add rotation to any of the tile/rect/raster geometries.
+To include rotation I would use geom_polygon, but the code would become quite a bit more complicated.
 
 
 
