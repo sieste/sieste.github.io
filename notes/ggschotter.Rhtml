@@ -12,7 +12,7 @@ end.rcode-->
 
 <h2>Schotter in ggplot</h2>
 
-<p>This piece is inspired by the 1960 computer graphic <a href="http://www.medienkunstnetz.de/works/schotter/">Schotter</a>.
+<p>This piece is inspired by the 1960 computer graphic <a href="http://www.medienkunstnetz.de/works/schotter/">Schotter</a>. The image is a simple square tiling that transitions from ordered to disorderd. It seemed straightforward to create something similar in R, with a few random numbers and some ggplot magic. And I'm really quite happy with the outcome.
 
 
 <!--begin.rcode, eval=FALSE
@@ -56,8 +56,8 @@ crossing(x=0:10, y=0:10) %>%
 end.rcode-->
 
 
-<p>Unfortunately it isn't straightforward to add rotation to any of the tile/rect/raster geometries.
-To include rotation I would use geom_polygon, but the code would become quite a bit more complicated.
-
+<p>It isn't straightforward to add rotation to any of the tile/rect/raster geometries in ggplot, as in the original image.
+To include rotation I would probably use geom_polygon, but the data generation and plotting code would become much more complicated.
+But honestly I really like the images without the rotation effect, so that's ok.
 
 
