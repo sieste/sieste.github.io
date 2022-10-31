@@ -1,0 +1,43 @@
+<!doctype html> <html lang=en> <head> <meta charset=utf-8> <title>Stefan
+Siegert</title> <link rel=stylesheet href=/style.css> <script
+id="MathJax-script" async
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head> <body> <h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=10, fig.height=10, fig.path=prefix)
+end.rcode-->
+
+
+<h2>Schotter in ggplot</h2>
+
+<p>This piece is inspired by the 1960 computer graphic <a href="http://www.medienkunstnetz.de/works/schotter/">Schotter</a>.
+
+
+<!--begin.rcode, eval=FALSE
+library(ggplot2)
+library(dplyr)
+end.rcode-->
+<!--begin.rcode, include=FALSE
+library(tidyverse)
+library(patchwork)
+set.seed(123)
+end.rcode-->
+
+
+<!--begin.rcode
+crossing(x=0:10, y=0:10) %>%
+  mutate(dx = rnorm(n(), 0, (y/30)^1.5),
+         dy = rnorm(n(), 0, (y/30)^1.5)) %>%
+  ggplot() +
+    geom_tile(aes(x=x+dx, y=y+dy),
+              fill='darkorange3', colour='black',                                                  
+              lwd=2, width=1, height=1, alpha=.7,
+              show.legend=FALSE) +
+    scale_y_reverse() +
+    theme_void()
+end.rcode-->
+
+
+
