@@ -1,0 +1,38 @@
+<!doctype html> <html lang=en> <head> <meta charset=utf-8> <title>Stefan
+Siegert</title> <link rel=stylesheet href=/style.css> <script
+id="MathJax-script" async
+src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head> <body> <h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=10, fig.height=10, fig.path=prefix)
+end.rcode-->
+
+
+<h2>Circular noise</h2>
+
+<p>Mapping noise intensity to geometric properties can generate cool visual effects. See also <a href=ggschotter.html>here</a>.
+
+<!--begin.rcode include=FALSE
+library(tidyverse)
+set.seed(123)
+end.rcode-->
+
+<!--begin.rcode eval=FALSE
+library(tidyverse)
+end.rcode-->
+
+<!--begin.rcode circnoise
+crossing(x=seq(-1,1,.01), y=seq(-1,1,.01)) %>%
+  mutate(sd = 0.005 + .005 * (x^2 + y^2 < 0.5)) %>%
+  mutate(dy = rnorm(n(), 0, sd)) %>%
+  ggplot() +
+    geom_line(aes(x=x, y=y+dy, group=y)) +
+    theme_void()
+end.rcode-->
+
+
+
+
+
