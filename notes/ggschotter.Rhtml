@@ -61,3 +61,19 @@ To include rotation I would probably use geom_polygon, but the data generation a
 But honestly I really like the images without the rotation effect, so that's ok.
 
 
+<h3>Some more variations:</h3>
+
+<!--begin.rcode schotter3
+crossing(x=0:20, y=0:20) %>%
+  mutate(sd = .3*exp(-(x-10)^2/16),
+         dx = rnorm(n(), 0, sd),
+         dy = rnorm(n(), 0, sd)) %>%
+  ggplot() +
+    geom_tile(aes(x=x+dx, y=y+dy), fill='white', colour='black',
+              lwd=.5, width=1, height=1) +
+    theme_void() +
+    theme(aspect=1)
+end.rcode-->
+
+
+

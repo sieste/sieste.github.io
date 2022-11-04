@@ -116,3 +116,19 @@ To include rotation I would probably use geom_polygon, but the data generation a
 But honestly I really like the images without the rotation effect, so that's ok.
 
 
+<h3>Some more variations:</h3>
+
+<div class="chunk" id="schotter3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">crossing</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">20</span><span class="hl std">,</span> <span class="hl kwc">y</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">20</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">sd</span> <span class="hl std">=</span> <span class="hl num">.3</span><span class="hl opt">*</span><span class="hl kwd">exp</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">(x</span><span class="hl opt">-</span><span class="hl num">10</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl num">16</span><span class="hl std">),</span>
+         <span class="hl kwc">dx</span> <span class="hl std">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">, sd),</span>
+         <span class="hl kwc">dy</span> <span class="hl std">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">, sd))</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_tile</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=x</span><span class="hl opt">+</span><span class="hl std">dx,</span> <span class="hl kwc">y</span><span class="hl std">=y</span><span class="hl opt">+</span><span class="hl std">dy),</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">'white'</span><span class="hl std">,</span> <span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'black'</span><span class="hl std">,</span>
+              <span class="hl kwc">lwd</span><span class="hl std">=</span><span class="hl num">.5</span><span class="hl std">,</span> <span class="hl kwc">width</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">height</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">theme_void</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">theme</span><span class="hl std">(</span><span class="hl kwc">aspect</span><span class="hl std">=</span><span class="hl num">1</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/ggschotter.Rhtml-schotter3-1.png" title="plot of chunk schotter3" alt="plot of chunk schotter3" class="plot" /></div></div>
+
+
+
