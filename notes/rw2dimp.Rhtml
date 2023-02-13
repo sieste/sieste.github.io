@@ -48,7 +48,7 @@ y = rbind(
  c(14, NA, NA, 17, 18),
  c(16, 17, 18, 19, 20),
  c(18, 19, 20, NA, NA),
- c(NA, 21, 22, 23, 24))
+ c(NA, 21, 22, 23, NA))
 
 end.rcode-->
 
@@ -131,7 +131,8 @@ theta = 1e-6
 colsA = which(!is.na(y_vec))
 rowsA = seq_along(colsA)
 valsA = rep(1, length(colsA))
-AA = sparseMatrix(i=rowsA, j=colsA, x=valsA)
+dimA = c(length(rowsA), length(y_vec))
+AA = sparseMatrix(i=rowsA, j=colsA, x=valsA, dims=dimA)
 AtA = crossprod(AA)
 # now `AA %*% x` returns the vector of non-missing values
 
@@ -193,7 +194,7 @@ tot_var = var(c(y), na.rm=TRUE)
 imp_err / tot_var
 end.rcode-->
 
-<p>So the error variance is less than 0.3% of the total variance, which I think should be acceptable in most use cases.
+<p>So the error variance is about 0.5% of the total variance, which I think should be acceptable in most use cases.
 
 <p>More advanced imputation models can include latent processes on multiple scales, and different degrees of spatial correlation in different parts of the domain. For small domains like the one used here, the simple model works well, and not much would be gained by fancier techniques. Of course the performance of the method depends on the data.
 

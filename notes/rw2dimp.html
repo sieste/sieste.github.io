@@ -101,7 +101,7 @@
  <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">14</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">,</span> <span class="hl num">17</span><span class="hl std">,</span> <span class="hl num">18</span><span class="hl std">),</span>
  <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">16</span><span class="hl std">,</span> <span class="hl num">17</span><span class="hl std">,</span> <span class="hl num">18</span><span class="hl std">,</span> <span class="hl num">19</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">),</span>
  <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">18</span><span class="hl std">,</span> <span class="hl num">19</span><span class="hl std">,</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">),</span>
- <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">NA</span><span class="hl std">,</span> <span class="hl num">21</span><span class="hl std">,</span> <span class="hl num">22</span><span class="hl std">,</span> <span class="hl num">23</span><span class="hl std">,</span> <span class="hl num">24</span><span class="hl std">))</span>
+ <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">NA</span><span class="hl std">,</span> <span class="hl num">21</span><span class="hl std">,</span> <span class="hl num">22</span><span class="hl std">,</span> <span class="hl num">23</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">))</span>
 </pre></div>
 </div></div>
 
@@ -182,7 +182,8 @@ where \(\theta = \tau / \kappa\) is the ratio of precisions. Since we assumed th
 <span class="hl std">colsA</span> <span class="hl kwb">=</span> <span class="hl kwd">which</span><span class="hl std">(</span><span class="hl opt">!</span><span class="hl kwd">is.na</span><span class="hl std">(y_vec))</span>
 <span class="hl std">rowsA</span> <span class="hl kwb">=</span> <span class="hl kwd">seq_along</span><span class="hl std">(colsA)</span>
 <span class="hl std">valsA</span> <span class="hl kwb">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwd">length</span><span class="hl std">(colsA))</span>
-<span class="hl std">AA</span> <span class="hl kwb">=</span> <span class="hl kwd">sparseMatrix</span><span class="hl std">(</span><span class="hl kwc">i</span><span class="hl std">=rowsA,</span> <span class="hl kwc">j</span><span class="hl std">=colsA,</span> <span class="hl kwc">x</span><span class="hl std">=valsA)</span>
+<span class="hl std">dimA</span> <span class="hl kwb">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwd">length</span><span class="hl std">(rowsA),</span> <span class="hl kwd">length</span><span class="hl std">(y_vec))</span>
+<span class="hl std">AA</span> <span class="hl kwb">=</span> <span class="hl kwd">sparseMatrix</span><span class="hl std">(</span><span class="hl kwc">i</span><span class="hl std">=rowsA,</span> <span class="hl kwc">j</span><span class="hl std">=colsA,</span> <span class="hl kwc">x</span><span class="hl std">=valsA,</span> <span class="hl kwc">dims</span><span class="hl std">=dimA)</span>
 <span class="hl std">AtA</span> <span class="hl kwb">=</span> <span class="hl kwd">crossprod</span><span class="hl std">(AA)</span>
 <span class="hl com"># now `AA %*% x` returns the vector of non-missing values</span>
 
@@ -220,7 +221,7 @@ where \(\theta = \tau / \kappa\) is the ratio of precisions. Since we assumed th
 ## [3,]   14   NA   NA   17   18
 ## [4,]   16   17   18   19   20
 ## [5,]   18   19   20   NA   NA
-## [6,]   NA   21   22   23   24
+## [6,]   NA   21   22   23   NA
 </pre></div>
 
 <div class="output"><pre class="knitr r">## imputed values
@@ -230,8 +231,8 @@ where \(\theta = \tau / \kappa\) is the ratio of precisions. Since we assumed th
 ## [2,] 12.00 12.69 13.79 15.00 15.77
 ## [3,] 14.00 14.79 15.86 17.00 18.00
 ## [4,] 16.00 17.00 18.00 19.00 20.00
-## [5,] 18.00 19.00 20.00 21.23 22.21
-## [6,] 19.83 21.00 22.00 23.00 24.00
+## [5,] 18.00 19.00 20.00 21.19 21.94
+## [6,] 19.83 21.00 22.00 23.00 23.38
 </pre></div>
 
 </div></div>
@@ -260,11 +261,11 @@ where \(\theta = \tau / \kappa\) is the ratio of precisions. Since we assumed th
 <span class="hl com"># imputation error vs total variance ratio</span>
 <span class="hl std">imp_err</span> <span class="hl opt">/</span> <span class="hl std">tot_var</span>
 </pre></div>
-<div class="output"><pre class="knitr r">## [1] 0.002884343
+<div class="output"><pre class="knitr r">## [1] 0.005397514
 </pre></div>
 </div></div>
 
-<p>So the error variance is less than 0.3% of the total variance, which I think should be acceptable in most use cases.
+<p>So the error variance is about 0.5% of the total variance, which I think should be acceptable in most use cases.
 
 <p>More advanced imputation models can include latent processes on multiple scales, and different degrees of spatial correlation in different parts of the domain. For small domains like the one used here, the simple model works well, and not much would be gained by fancier techniques. Of course the performance of the method depends on the data.
 
