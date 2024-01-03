@@ -1,3 +1,13 @@
+<!doctype html> 
+<html lang=en> 
+<head> 
+<meta charset=utf-8> <title>Stefan Siegert</title> 
+<link rel=stylesheet href=/style.css> 
+</head> 
+<body> 
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
 ## A list of important concepts in formal logic
 
 1. Modus Ponens:
