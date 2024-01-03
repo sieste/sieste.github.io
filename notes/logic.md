@@ -1,3 +1,5 @@
+## A list of important concepts in formal logic
+
 1. Modus Ponens:
     - Definition: A form of argument that if a conditional statement ("if P then Q") is accepted, and the antecedent (P) holds, then the consequent (Q) must also hold.
     - Example: If it rains, the ground will be wet. It is raining. Therefore, the ground is wet.
