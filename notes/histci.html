@@ -79,7 +79,7 @@
 
 
 
-<p>Doesn't it bother you if people don't put error bars on their histograms? They're the worst! Here is a quick and dirty way to approximate missing error bars on histogram bars. That is, we go from this
+<p>Doesn't it bother you when people don't put error bars on their histograms? They're the worst! Here is a quick and dirty way to approximate missing error bars on histogram bars. That is, we go from this
 
 <div class="chunk" id="hist1"><div class="rimage default"><img src="fig/histci.Rhtml-hist1-1.png" alt="plot of chunk hist1" class="plot" /></div></div>
 
@@ -87,7 +87,7 @@ to this, but quickly and without having to get out our calculator
 
 <div class="chunk" id="hist2"><div class="rimage default"><img src="fig/histci.Rhtml-hist2-1.png" alt="plot of chunk hist2" class="plot" /></div></div>
 
-<p>Normally, we would be using the standard error formula for Binomial proportions: Let \(k\) be the count and let \(n\) be the total sample size. Then the proportion corresponding to \(k\) is \(p = k/n\) and the standard error associated with \(k\) is
+<p>Normally, we would use the standard error formula for Binomial proportions: Let \(k\) be the count and let \(n\) be the total sample size. Then the proportion corresponding to \(k\) is \(p = k/n\) and the standard error associated with \(k\) is
 
 \[\sigma = \sqrt{n p(1-p)}\]
 
@@ -95,11 +95,11 @@ to this, but quickly and without having to get out our calculator
 
 \[\sqrt{p(1-p)} \approx \min\left(\frac12, 1 - |2p - 1|\right)\]
 
-<p>which looks as follows
+<p>which looks like this
 
 <div class="chunk" id="approx"><div class="rimage default"><img src="fig/histci.Rhtml-approx-1.png" alt="plot of chunk approx" class="plot" /></div></div>
 
-<p>The approximation looks quite complicated, but can be calculated quickly using the fold-double-cap-multiply-by-root-n algorithm:
+<p>The approximation seems quite complicated, but can be calculated quickly using the fold-double-cap-multiply-by-root-n algorithm:
 
 <ul>
 <li> Obtain (or approximate) \(k\) and \(n\) and the proportion \(p=k/n\)
