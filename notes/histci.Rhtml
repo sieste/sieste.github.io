@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>Quick and dirty error bars for histograms</h2>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+
+<!--begin.rcode, include=FALSE
+library(tidyverse)
+library(mvtnorm)
+end.rcode-->
+
+<p>Doesn't it bother you if people don't put error bars on their histograms? They're the worst! Here is a quick and dirty way to approximate missing error bars on histogram bars. That is, we go from this
+
+<!--begin.rcode hist1, fig.width=5, fig.height=3, echo=FALSE
+df = tibble(i=as.factor(c(1,2)), k=c(80, 150), n=sum(k), 
+       p=k/n, sd=sqrt(n * p * (1-p))) 
+ggplot(df) + geom_col(aes(x=i, y=k, fill=i), show.legend=FALSE) +labs(x=NULL)
+end.rcode-->
+
+to this, but quickly and without having to get out our calculator
+
+<!--begin.rcode hist2, fig.width=5, fig.height=3, echo=FALSE
+ggplot(df) + geom_col(aes(x=i, y=k, fill=i), show.legend=FALSE) +labs(x=NULL) + geom_errorbar(aes(x=i, ymin=k-sd, ymax=k+sd), width=.1)
+end.rcode-->
+
+<p>Normally, we would be using the standard error formula for Binomial proportions: Let \(k\) be the count and let \(n\) be the total sample size. Then the proportion corresponding to \(k\) is \(p = k/n\) and the standard error associated with \(k\) is
+
+\[\sigma = \sqrt{n p(1-p)}\]
+
+<p>The approximation I like to use is 
+
+\[\sqrt{p(1-p)} \approx \min\left(\frac12, 1 - |2p - 1|\right)\]
+
+<p>which looks as follows
+
+<!--begin.rcode approx, fig.width=5, fig.height=3, echo=FALSE
+pp = tibble(p=seq(0,1,.01), f= sqrt(p*(1-p)), g=pmin(.5, 1-abs(2*p-1))) 
+ggplot(pp) + 
+  geom_line(aes(x=p, y=f, colour='sqrt(p(1-p))')) +
+  geom_line(aes(x=p, y=g, colour='approximation')) + 
+  labs(colour=NULL, y=NULL)
+end.rcode-->
+
+<p>The approximation looks quite complicated, but can be calculated quickly using the fold-double-cap-multiply-by-root-n algorithm:
+
+<ul>
+<li> Obtain (or approximate) \(k\) and \(n\) and the proportion \(p=k/n\)
+<li> Calculate (or approximate) \(\sqrt{n}\)
+<li> Fold over \(p\): If \(p\) is bigger than \(1/2\) set it to \(1-p\).
+<li> Double and cap: Double \(p\) and if this exceeds \(0.5\) set it to \(0.5\).
+<li> Multiply the result by \(\sqrt{n}\). Done.
+</ul>
+
+<p>For example, in the first histogram, we have \(k \approx 80\) and \(n \approx 240\). For a quick approximation, let's say \(\sqrt{n} \approx 15\). Doubling \(p=1/3\) gives \(2/3\), which is bigger than \(1/2\) so we cap it to \(1/2\). Multiplying by \(15\) gives an estimate of the standard error of \(7.5\). The exact value in this example would have been \(7.22\). Pretty good.
+
+<p>Another useful heuristic comes from noticing that \(\sqrt{p(1-p)}\) is never bigger than \(1/2\). So the maximum width of any Binomial proportion error bar is \(\sqrt{n}/2\). This allows us to get a quick upper bound, which is enough if we're only interested in whether the difference in bar heights is significant.
+
