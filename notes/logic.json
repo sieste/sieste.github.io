@@ -1,0 +1,317 @@
+[
+    {
+        "concept": "Modus Ponens",
+        "definition": "A form of argument where if a conditional statement ('if P then Q') is accepted, and the antecedent (P) holds, then the consequent (Q) must also hold.",
+        "example": "If it rains, the ground will be wet. It is raining. Therefore, the ground is wet."
+    },
+    {
+        "concept": "Modus Tollens",
+        "definition": "A form of argument that if a conditional statement ('if P then Q') is accepted, and the consequent (Q) does not hold, then the antecedent (P) must also not hold.",
+        "example": "If it is a dog, it has four legs. This animal does not have four legs. Therefore, this animal is not a dog."
+    },
+    {
+        "concept": "Affirming the Consequent",
+        "definition": "A logical fallacy where a conditional statement is incorrectly used by affirming the consequent rather than the antecedent.",
+        "example": "If it is a cat, it has four legs. This animal has four legs. Therefore, this animal is a cat."
+    },
+    {
+        "concept": "Denying the Antecedent",
+        "definition": "A logical fallacy where a conditional statement is incorrectly used by denying the antecedent.",
+        "example": "If it's a bird, it can fly. This animal is not a bird. Therefore, it cannot fly."
+    },
+    {
+        "concept": "Syllogism",
+        "definition": "A form of reasoning in which a conclusion is drawn from two given or assumed propositions (premises).",
+        "example": "All men are mortal. Socrates is a man. Therefore, Socrates is mortal."
+    },
+    {
+        "concept": "Categorical Syllogism",
+        "definition": "A syllogism where each statement is a categorical proposition (e.g., All A are B, Some B are C).",
+        "example": "All mammals are warm-blooded. All whales are mammals. Therefore, all whales are warm-blooded."
+    },
+    {
+        "concept": "Hypothetical Syllogism",
+        "definition": "A syllogism having a conditional statement for one or both of its premises.",
+        "example": "If it rains, the ground gets wet. If the ground gets wet, the plants grow. Therefore, if it rains, the plants grow."
+    },
+    {
+        "concept": "Disjunctive Syllogism",
+        "definition": "A syllogism using a disjunctive ('either/or') proposition.",
+        "example": "Either the battery is dead or the bulb is burnt out. The battery is not dead. Therefore, the bulb is burnt out."
+    },
+    {
+        "concept": "Law of Excluded Middle",
+        "definition": "A principle stating that for any proposition, either that proposition is true, or its negation is true.",
+        "example": "Either it will rain tomorrow, or it will not rain tomorrow."
+    },
+    {
+        "concept": "Law of Non-Contradiction",
+        "definition": "A principle that a statement and its negation cannot both be true at the same time.",
+        "example": "It cannot be both raining and not raining at the same time and in the same place."
+    },
+    {
+        "concept": "Law of Identity",
+        "definition": "A principle stating that every object is identical with itself; essentially, 'A is A.'",
+        "example": "If something is a cat, then it is a cat."
+    },
+    {
+        "concept": "Conditional Statement",
+        "definition": "A statement of the 'if-then' form, expressing a hypothesis and a conclusion.",
+        "example": "If it is raining (hypothesis), then the ground is wet (conclusion)."
+    },
+    {
+        "concept": "Biconditional Statement",
+        "definition": "A statement where both the conditional and its converse are true; expressed as 'P if and only if Q.'",
+        "example": "A figure is a square if and only if it is a rectangle with equal sides."
+    },
+    {
+        "concept": "Fallacy of Composition",
+        "definition": "Assuming that what is true of a part is true for the whole.",
+        "example": "Each brick in this wall is light; therefore, the wall is light."
+    },
+    {
+        "concept": "Fallacy of Division",
+        "definition": "Assuming that what is true of the whole is true for the parts.",
+        "example": "That machine is heavy, so every part of it is heavy."
+    },
+    {
+        "concept": "Argumentum ad Hominem",
+        "definition": "A fallacy where an argument is rebutted by attacking the character, motive, or other attribute of the person making the argument, rather than addressing the substance of the argument itself.",
+        "example": "You can't believe John's argument on climate change because he failed high school science."
+    },
+    {
+        "concept": "Straw Man Fallacy",
+        "definition": "Misrepresenting someone's argument to make it easier to attack.",
+        "example": "Person A: We should improve public healthcare. Person B: Person A believes we should put all our resources into health care and ignore all other important issues."
+    },
+    {
+        "concept": "Red Herring Fallacy",
+        "definition": "Introducing an irrelevant topic to divert the argument from the actual issue.",
+        "example": "In a debate about environmental policy, one speaker might divert to the economy, which, while related, doesn’t address the environmental issues directly."
+    },
+    {
+        "concept": "Circular Reasoning",
+        "definition": "An argument that commits the logical fallacy of assuming what it is attempting to prove.",
+        "example": "The Bible is true because it's the word of God. We know it's the word of God because the Bible says so."
+    },
+    {
+        "concept": "False Dilemma",
+        "definition": "A fallacy in which an argument presents two options and ignores, either purposefully or out of ignorance, other alternatives.",
+        "example": "You're either with us, or you're against us."
+    },
+    {
+        "concept": "Inductive Reasoning",
+        "definition": "A type of reasoning that involves making generalizations based on specific observations or instances.",
+        "example": "Every cat I have seen has four legs; therefore, all cats must have four legs."
+    },
+    {
+        "concept": "Deductive Reasoning",
+        "definition": "A type of reasoning that moves from general premises to a specific conclusion.",
+        "example": "All birds lay eggs. A swan is a bird. Therefore, swans lay eggs."
+    },
+    {
+        "concept": "Abductive Reasoning",
+        "definition": "A form of reasoning which starts with an observation or set of observations and then seeks to find the simplest and most likely explanation.",
+        "example": "The lawn is wet. The simplest and most likely explanation is that it rained."
+    },
+    {
+        "concept": "Post hoc ergo propter hoc",
+        "definition": "A logical fallacy that states 'since event Y followed event X, event Y must have been caused by event X.'",
+        "example": "It rained after we danced the rain dance; therefore, the rain dance caused the rain."
+    },
+    {
+        "concept": "Slippery Slope",
+        "definition": "A fallacy in which a relatively small first step is assumed to lead to a chain of related events culminating in some significant effect.",
+        "example": "If we allow students to redo this test, they will expect to redo every test, leading to a complete breakdown of academic standards."
+    },
+    {
+        "concept": "Appeal to Authority",
+        "definition": "A fallacy in which an argument is based on unsound appeal to authority.",
+        "example": "My doctor says this medicine works, so it must be the best choice."
+    },
+    {
+        "concept": "Appeal to Tradition",
+        "definition": "A fallacy where something is accepted as true or better because it's the 'way it's always been done.'",
+        "example": "We should continue to use this software because we’ve always used it."
+    },
+    {
+        "concept": "Begging the Question",
+        "definition": "A logical fallacy in which the writer or speaker assumes the statement under examination to be true.",
+        "example": "Paranormal activity is real because I have experienced what can only be described as paranormal activity."
+    },
+    {
+        "concept": "Hasty Generalization",
+        "definition": "Making a rushed conclusion without considering all of the variables.",
+        "example": "My father smoked four packs of cigarettes a day and lived until age 90, so smoking probably isn’t that bad for you."
+    },
+    {
+        "concept": "False Equivalence",
+        "definition": "A fallacy in which two opposing arguments appear to be logically equivalent when in fact they are not.",
+        "example": "Claiming that a surgeon cutting into a patient to perform surgery is the same as an assault with a knife."
+    },
+    {
+        "concept": "Equivalence",
+        "definition": "The relationship between two statements that are either both true or both false.",
+        "example": "'The ball is red' is equivalent to 'The color of the ball is red.'"
+    },
+    {
+        "concept": "Contradiction",
+        "definition": "A logical inconsistency between two or more propositions, where if one is true, the others must be false.",
+        "example": "'It is raining' and 'It is not raining' are in contradiction."
+    },
+    {
+        "concept": "Tautology",
+        "definition": "A statement that is true by necessity or by virtue of its logical form.",
+        "example": "'It will either rain tomorrow, or it will not rain tomorrow' is a tautology."
+    },
+    {
+        "concept": "Logical Consequence",
+        "definition": "A relationship between statements that holds true when if the first statement is true, the second statement must be true.",
+        "example": "If 'All humans are mortal' and 'Socrates is a human,' then it logically follows that 'Socrates is mortal.'"
+    },
+    {
+        "concept": "Soundness",
+        "definition": "A property of a deductive argument when it is both valid (the conclusion logically follows from the premises) and the premises are true.",
+        "example": "All mammals breathe. Whales are mammals. Therefore, whales breathe."
+    },
+    {
+        "concept": "Validity",
+        "definition": "A feature of a deductive argument that is structured in such a way that if the premises are true, the conclusion must be true.",
+        "example": "All birds can fly. Penguins are birds. Therefore, penguins can fly."
+    },
+    {
+        "concept": "Non Sequitur",
+        "definition": "A fallacy in which a conclusion does not follow logically from what preceded it.",
+        "example": "She's wearing red shoes. She must be a fun person."
+    },
+    {
+        "concept": "Ad Populum (Bandwagon Fallacy)",
+        "definition": "A fallacy that occurs when something is considered true or good solely because it is popular.",
+        "example": "Everyone I know uses this brand of phone, so it must be the best."
+    },
+    {
+        "concept": "Appeal to Ignorance (Argumentum ad Ignorantiam)",
+        "definition": "A fallacy that occurs when it is assumed that a claim is true because it has not been proven false or vice versa.",
+        "example": "There's no evidence that ghosts don't exist, therefore they must exist."
+    },
+    {
+        "concept": "Loaded Question",
+        "definition": "Asking a question that contains an assumption within it, which can corner the respondent into appearing guilty.",
+        "example": "Have you stopped taking illegal substances?"
+    },
+    {
+        "concept": "Argument from Analogy",
+        "definition": "Making a comparison between two similar cases and inferring that what is true for one is also true for the other.",
+        "example": "Just as a gardener nurtures and grows plants, a teacher shapes and develops students."
+    },
+    {
+        "concept": "Sufficient and Necessary Conditions",
+        "definition": "A necessary condition is something that must be true for the statement to be true. A sufficient condition is one that, if true, guarantees the truth of the statement.",
+        "example": "Being a bachelor is a necessary condition for being an unmarried man. Being an unmarried man is a sufficient condition for being a bachelor."
+    },
+    {
+        "concept": "Argumentum ad Misericordiam (Appeal to Pity)",
+        "definition": "A fallacy in which someone tries to win support for an argument by exploiting his or her opponent's feelings of pity or guilt.",
+        "example": "You should give me a higher grade on this paper because I was sick the week before it was due."
+    },
+    {
+        "concept": "Tu Quoque",
+        "definition": "A fallacy that attempts to discredit an opponent's position by asserting the opponent's failure to act consistently with that position.",
+        "example": "You say smoking is bad for health, but you smoke too."
+    },
+    {
+        "concept": "Necessary Condition",
+        "definition": "A condition that must be present for an event or statement to be true.",
+        "example": "Having four sides is a necessary condition for being a square."
+    },
+    {
+        "concept": "Sufficient Condition",
+        "definition": "A condition or set of conditions that, if met, guarantee the truth of a statement.",
+        "example": "Getting an A on every test is a sufficient condition for getting an A in the class."
+    },
+    {
+        "concept": "Antecedent",
+        "definition": "The first part of a conditional statement, the 'if' clause.",
+        "example": "In the statement 'If it rains, the ground will be wet,' 'it rains' is the antecedent."
+    },
+    {
+        "concept": "Consequent",
+        "definition": "The second part of a conditional statement, following the 'if' clause.",
+        "example": "In the statement 'If it rains, the ground will be wet,' 'the ground will be wet' is the consequent."
+    },
+    {
+        "concept": "Universal Quantification",
+        "definition": "A type of quantification that asserts that the proposition within its scope is true for all instances of a particular variable.",
+        "example": "The statement 'All swans are white' is a universal quantification."
+    },
+    {
+        "concept": "Existential Quantification",
+        "definition": "A type of quantification that asserts the existence of at least one instance of a particular variable for which the proposition in its scope is true.",
+        "example": "The statement 'There exists a black swan' is an existential quantification."
+    },
+    {
+        "concept": "Modus Ponens",
+        "definition": "A rule of inference which states that if 'If P then Q' is true and P is true, then Q must also be true.",
+        "example": "If a figure is a square, then it has four sides. This figure is a square. Therefore, it has four sides."
+    },
+    {
+        "concept": "Modus Tollens",
+        "definition": "A rule of inference which states that if 'If P then Q' is true and Q is false, then P must also be false.",
+        "example": "If it is a cat, then it purrs. This animal does not purr. Therefore, it is not a cat."
+    },
+    {
+        "concept": "Bivalence",
+        "definition": "The principle that there are only two truth values, true and false, for any proposition.",
+        "example": "The proposition 'The cat is on the mat' is either true or false, with no third option."
+    },
+    {
+        "concept": "Excluded Middle",
+        "definition": "The principle that for any proposition, either that proposition is true, or its negation is true.",
+        "example": "For the proposition 'It is raining,' either it is raining, or it is not raining (its negation)."
+    },
+    {
+        "concept": "Law of Non-Contradiction",
+        "definition": "A fundamental principle of classical logic stating that contradictory statements cannot both be true in the same sense at the same time.",
+        "example": "The two statements 'John is at the store' and 'John is not at the store' cannot both be true simultaneously."
+    },
+    {
+        "concept": "Inductive Reasoning",
+        "definition": "A reasoning process that involves making generalizations based on specific examples or instances.",
+        "example": "Observing that the sun has risen every morning and concluding it will rise every morning in the future."
+    },
+    {
+        "concept": "Deductive Reasoning",
+        "definition": "A logical process in which a conclusion follows necessarily from the stated premises; inference by reasoning from the general to the specific.",
+        "example": "All men are mortal. Socrates is a man. Therefore, Socrates is mortal."
+    },
+    {
+        "concept": "Abductive Reasoning",
+        "definition": "A form of reasoning that starts from a set of observations and seeks to find the simplest and most likely explanation.",
+        "example": "If you see a wet driveway, you might infer that it has rained recently."
+    },
+    {
+        "concept": "Hasty Generalization",
+        "definition": "A fallacy in which a conclusion is not logically justified by sufficient or unbiased evidence.",
+        "example": "Meeting two aggressive dogs and concluding that all dogs are aggressive."
+    },
+    {
+        "concept": "Logical Consequence",
+        "definition": "A relationship between statements that holds true when the truth of one statement necessitates the truth of another.",
+        "example": "If 'All humans are mortal' and 'Socrates is a human,' then the statement 'Socrates is mortal' is a logical consequence."
+    },
+    {
+        "concept": "No True Scotsman",
+        "definition": "A way of reinterpreting evidence in order to prevent the refutation of one's proposition, typically by changing the definition in an ad hoc fashion to exclude the counterexample.",
+        "example": "Person A: 'No Scotsman puts sugar on his porridge.' Person B: 'But my uncle Angus is a Scotsman and he puts sugar on his porridge.' Person A: 'Well, no true Scotsman puts sugar on his porridge.'"
+    },
+    {
+        "concept": "Cherry Picking",
+        "definition": "The act of pointing to individual cases or data that seem to confirm a particular position while ignoring a significant portion of related cases or data.",
+        "example": "Focusing only on statistics that support your argument about a drug's effectiveness while ignoring those that do not."
+    },
+    {
+        "concept": "False Compromise",
+        "definition": "A logical fallacy that assumes that the compromise between two opposing arguments must be the truth.",
+        "example": "Believing the best policy must lie exactly between the extreme positions of two opposing political parties."
+    }
+]
