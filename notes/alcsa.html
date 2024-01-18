@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>Simulating alcohol intoxication with a pharmacokinetic model</h2>
+
+
+
+
+
+<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
+<span class="hl kwd">library</span><span class="hl std">(deSolve)</span>
+</pre></div>
+</div></div>
+
+
+
+<div class="chunk" id="fig1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># model parameters</span>
+<span class="hl std">parameters</span> <span class="hl kwb">=</span> <span class="hl kwd">c</span><span class="hl std">(</span>
+  <span class="hl kwc">k_a</span> <span class="hl std">=</span> <span class="hl num">2.0</span><span class="hl std">,</span>      <span class="hl com"># per hour, absorption rate from GI tract into blood</span>
+  <span class="hl kwc">k_g</span> <span class="hl std">=</span> <span class="hl num">0.05</span><span class="hl std">,</span>     <span class="hl com"># per hour, GI tract own elimination rate</span>
+  <span class="hl kwc">k_e</span> <span class="hl std">=</span> <span class="hl num">0.5</span><span class="hl std">,</span>      <span class="hl com"># per hour, elimination rate from blood by liver</span>
+  <span class="hl kwc">duration</span> <span class="hl std">=</span> <span class="hl num">0.5</span><span class="hl std">,</span> <span class="hl com"># hours of dosing</span>
+  <span class="hl kwc">input</span> <span class="hl std">=</span> <span class="hl num">28</span>      <span class="hl com"># grams of alcohol per hour of dosing</span>
+<span class="hl std">)</span>
+
+<span class="hl com"># initial state</span>
+<span class="hl std">state</span> <span class="hl kwb">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwc">dose</span> <span class="hl std">=</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwc">gi</span> <span class="hl std">=</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwc">blood</span> <span class="hl std">=</span> <span class="hl num">0</span><span class="hl std">)</span>
+
+<span class="hl com"># model differential equations for use with deSolve</span>
+<span class="hl std">model</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">t</span><span class="hl std">,</span> <span class="hl kwc">state</span><span class="hl std">,</span> <span class="hl kwc">parameters</span><span class="hl std">) {</span>
+  <span class="hl kwd">with</span><span class="hl std">(</span><span class="hl kwd">as.list</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(state, parameters)),{</span>
+    <span class="hl std">dose</span> <span class="hl kwb">=</span> <span class="hl kwd">ifelse</span><span class="hl std">(t</span> <span class="hl opt">&lt;=</span> <span class="hl std">duration, input,</span> <span class="hl num">0</span><span class="hl std">)</span>  <span class="hl com"># dosing</span>
+    <span class="hl std">dgi</span> <span class="hl kwb">=</span> <span class="hl opt">-</span><span class="hl std">k_a</span> <span class="hl opt">*</span> <span class="hl std">gi</span> <span class="hl opt">-</span> <span class="hl std">k_g</span> <span class="hl opt">*</span> <span class="hl std">gi</span> <span class="hl opt">+</span> <span class="hl std">dose</span> <span class="hl com"># GI tract</span>
+    <span class="hl std">dblood</span> <span class="hl kwb">=</span> <span class="hl std">k_a</span> <span class="hl opt">*</span> <span class="hl std">gi</span> <span class="hl opt">-</span> <span class="hl std">k_e</span> <span class="hl opt">*</span> <span class="hl std">blood</span>     <span class="hl com"># blood</span>
+    <span class="hl kwd">return</span><span class="hl std">(</span><span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(dose, dgi, dblood)))</span>        <span class="hl com"># derivatives</span>
+  <span class="hl std">})</span>
+<span class="hl std">}</span>
+
+<span class="hl com"># simulate model, immediately convert output to long data frame</span>
+<span class="hl std">times</span> <span class="hl kwb">=</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">10</span><span class="hl std">,</span> <span class="hl kwc">by</span> <span class="hl std">=</span> <span class="hl num">0.01</span><span class="hl std">)</span>
+<span class="hl std">out</span> <span class="hl kwb">=</span> <span class="hl kwd">ode</span><span class="hl std">(</span><span class="hl kwc">y</span> <span class="hl std">= state,</span> <span class="hl kwc">times</span> <span class="hl std">= times,</span> <span class="hl kwc">func</span> <span class="hl std">= model,</span> <span class="hl kwc">parms</span> <span class="hl std">= parameters)</span> <span class="hl opt">%&gt;%</span>
+      <span class="hl std">as.data.frame</span> <span class="hl opt">%&gt;%</span>
+      <span class="hl kwd">pivot_longer</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">time,</span> <span class="hl kwc">names_to</span><span class="hl std">=</span><span class="hl str">'compartment'</span><span class="hl std">,</span> <span class="hl kwc">values_to</span><span class="hl std">=</span><span class="hl str">'concentration'</span><span class="hl std">)</span>
+
+<span class="hl kwd">ggplot</span><span class="hl std">(out)</span> <span class="hl opt">+</span> <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=time,</span> <span class="hl kwc">y</span><span class="hl std">=concentration,</span> <span class="hl kwc">colour</span><span class="hl std">=compartment))</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/alcsa.Rhtml-fig1-1.png" alt="plot of chunk fig1" class="plot" /></div></div>
+
+
+<p>Parameter interpretation: MORE HERE
+
+<p>Output interpretation: MORE HERE
+
+
+<h2>Sensitivity analysis</h2>
+
+interested only in maximum blood alcohol
+
+<div class="chunk" id="sensitivity"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">sim</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">parms</span><span class="hl std">) {</span>
+  <span class="hl com"># parms is a 3-vector of 3 rate parameters</span>
+  <span class="hl std">the_parameters</span> <span class="hl kwb">=</span> <span class="hl std">parameters</span>
+  <span class="hl std">the_parameters[</span><span class="hl str">'k_a'</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl std">parms[</span><span class="hl num">1</span><span class="hl std">]</span>
+  <span class="hl std">the_parameters[</span><span class="hl str">'k_g'</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl std">parms[</span><span class="hl num">2</span><span class="hl std">]</span>
+  <span class="hl std">the_parameters[</span><span class="hl str">'k_e'</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl std">parms[</span><span class="hl num">3</span><span class="hl std">]</span>
+  <span class="hl com"># the function simulates the 2 compartment model and returns the maximum</span>
+  <span class="hl com"># concentration obtained in the 2nd compartment</span>
+  <span class="hl std">out</span> <span class="hl kwb">=</span> <span class="hl kwd">ode</span><span class="hl std">(</span><span class="hl kwc">y</span> <span class="hl std">= state,</span> <span class="hl kwc">times</span> <span class="hl std">= times,</span> <span class="hl kwc">func</span> <span class="hl std">= model,</span> <span class="hl kwc">parms</span> <span class="hl std">= the_parameters)</span>
+  <span class="hl kwd">return</span><span class="hl std">(</span><span class="hl kwd">max</span><span class="hl std">(out[,</span><span class="hl str">'blood'</span><span class="hl std">]))</span>
+<span class="hl std">}</span>
+
+<span class="hl std">sim_mat</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">parms</span><span class="hl std">) {</span>
+  <span class="hl com"># parms is a n * 3 matrix of parameter settings</span>
+  <span class="hl com"># the function returns an n-vector of model outputs</span>
+  <span class="hl kwd">apply</span><span class="hl std">(parms,</span> <span class="hl num">1</span><span class="hl std">, sim)</span>
+<span class="hl std">}</span>
+
+
+<span class="hl kwd">library</span><span class="hl std">(sensobol)</span>
+<span class="hl kwd">library</span><span class="hl std">(sensitivity)</span>
+</pre></div>
+<div class="message"><pre class="knitr r">## Registered S3 method overwritten by 'sensitivity':
+##   method    from 
+##   print.src dplyr
+</pre></div>
+<div class="message"><pre class="knitr r">## 
+## Attaching package: 'sensitivity'
+</pre></div>
+<div class="message"><pre class="knitr r">## The following object is masked from 'package:dplyr':
+## 
+##     src
+</pre></div>
+<div class="message"><pre class="knitr r">## The following object is masked from 'package:tidyr':
+## 
+##     extract
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl std">N</span> <span class="hl kwb">=</span> <span class="hl num">100</span>
+<span class="hl std">params</span> <span class="hl kwb">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">'k_a'</span><span class="hl std">,</span> <span class="hl str">'k_g'</span><span class="hl std">,</span> <span class="hl str">'k_e'</span><span class="hl std">)</span>
+<span class="hl std">mat</span> <span class="hl kwb">=</span> <span class="hl kwd">sobol_matrices</span><span class="hl std">(</span><span class="hl kwc">N</span> <span class="hl std">= N,</span> <span class="hl kwc">params</span> <span class="hl std">= params)</span>
+<span class="hl com">#rescale to assumed parameter ranges</span>
+<span class="hl com"># mat[,'k_a'] = 0.5 + (2 - 0.5) * mat[,'k_a'] # U(0.5, 2)</span>
+<span class="hl com"># mat[,'k_g'] = 0.0 + (0.2 - 0) * mat[,'k_g'] # U(0, 0.2)</span>
+<span class="hl com"># mat[,'k_e'] = 0.05 + (0.3 - 0.05) * mat[,'k_e'] # U(0.05, 0.3)</span>
+<span class="hl std">Y</span> <span class="hl kwb">=</span> <span class="hl kwd">sim_mat</span><span class="hl std">(mat)</span>
+<span class="hl std">sensobol_ind</span> <span class="hl kwb">=</span> <span class="hl kwd">sobol_indices</span><span class="hl std">(</span><span class="hl kwc">Y</span> <span class="hl std">= Y,</span> <span class="hl kwc">N</span> <span class="hl std">= N,</span> <span class="hl kwc">params</span> <span class="hl std">= params,</span> <span class="hl kwc">order</span><span class="hl std">=</span><span class="hl str">'first'</span><span class="hl std">,</span>
+                             <span class="hl kwc">boot</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">,</span> <span class="hl kwc">R</span><span class="hl std">=</span><span class="hl num">5000</span><span class="hl std">)</span>
+
+<span class="hl com"># print the relevant results</span>
+<span class="hl std">sensobol_ind</span><span class="hl opt">$</span><span class="hl std">results</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">filter</span><span class="hl std">(sensitivity</span> <span class="hl opt">==</span> <span class="hl str">'Ti'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">select</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">bias,</span> <span class="hl opt">-</span><span class="hl std">sensitivity)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">print</span><span class="hl std">(</span><span class="hl kwc">digits</span><span class="hl std">=</span><span class="hl num">3</span><span class="hl std">)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##    original std.error low.ci high.ci parameters
+## 1:    0.616    0.0948 0.4236   0.795        k_a
+## 2:    0.129    0.0219 0.0853   0.171        k_g
+## 3:    0.281    0.0476 0.1850   0.372        k_e
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">cbind</span><span class="hl std">(mat, Y)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl std">as_tibble</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">pivot_longer</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">Y,</span> <span class="hl kwc">names_to</span><span class="hl std">=</span><span class="hl str">'parameter'</span><span class="hl std">,</span> <span class="hl kwc">values_to</span><span class="hl std">=</span><span class="hl str">'value'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=value,</span> <span class="hl kwc">y</span><span class="hl std">=Y,</span> <span class="hl kwc">colour</span><span class="hl std">=parameter),</span> <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span><span class="hl std">parameter,</span> <span class="hl kwc">scales</span><span class="hl std">=</span><span class="hl str">'free'</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/alcsa.Rhtml-sensitivity-1.png" alt="plot of chunk sensitivity" class="plot" /></div></div>
+
+<p><strong>Sensitivity analysis:</strong> We calculate Sobol Total Effect indices to quantify the sensitivity of the model output to the inputs. The \(i\)-th Total Effect index \(S_{T_i}\) quantifies what fraction of the variance in the output would be left if all inputs except the \(i\)-th one were fixed.
+
+<p>Specifically, we have \[S_{T_i} = \frac{E[Var(Y|X_1,\dots,X_{i-1},X_{i+1},\dots,X_d)] - Var(Y)}{Var(Y)}.\] 
+
+<p>The \(S_{T_i}\)'s for \(k_a\) and \(k_e\) are around 0.4-0.5, showing that the absorption rate of alcohol from GI tract to blood, and removal rate from the blood are approximately equally important. The \(S_{T_i}\) of \(k_g\), the removal rate of alcohol from the GI tract is less important. So to reduce uncertainty in the model output, we should focus our efforts on pinning down the values of \(k_a\) and \(k_e\).
+
+
+<h2>History Matching</h2>
+
+<p><strong>History matching</strong> on (vague) empirical data: MORE HERE
+
+<p>The same amount of alcohol can have different effects on different people. The subjective feeling of intoxication due to a certain amount of alcohol depends mostly on the person's weight, and to some extent on their sex.
+
+<p>Blood alcohol concentration (BAC) is calculated by taking the amount of alcohol in the blood (measured in grams, as in our simulation), and dividing this by the volume of distribution, which is basically the body's water content, calculated as \(0.6 * body\ weight\) for males and \(0.55 * body\ weight\) for females. So a 75kg male with 10g of alcohol in their blood has a BAC of \(0.01 / (75 * 0.6) = 0.00022\) that is, 0.22 permille.
+
+<p>A slight mood elevation, slightly relaxed feeling and mild impairment of coordination (feeling tipsy) is usually reported at between 0.1 and 0.3 permille BAC. At 0.4 to 0.6 permille lowered inhibition and impaired memory set in, 0.7 to 0.9 people get euphoria and slurred speech, and after about 1 permille (45g alcohol in blood for our 75kg guy) the chance of marriage proposals and pirate chants increases drastically.
+
+<p>So if you know that drinking one beer within half an hour makes you slightly tipsy at most, but never drunk, you know that you are at between 0.1 and 0.3 permille BAC which, depending on your weight and sex, translates into a certain maximum alcohol amount in your blood. For the 75kg dude this would be between 4.5 and 13.5 grams. 
+
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">mean</span><span class="hl std">(Y</span> <span class="hl opt">&gt;</span> <span class="hl num">4.5</span> <span class="hl opt">&amp;</span> <span class="hl std">Y</span> <span class="hl opt">&lt;</span> <span class="hl num">13.5</span><span class="hl std">)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 0.304
+</pre></div>
+</div></div>
+
+About 30% of our parameters produce maximum alcohol amounts in this range. In other words, we can rule our 70% of parameters. Let's see how the Not-Ruled-Out-Yet (NROY) region looks like:
+
+<div class="chunk" id="nroy"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">cbind</span><span class="hl std">(mat, Y)</span> <span class="hl opt">%&gt;%</span> <span class="hl std">as_tibble</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">pivot_longer</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">Y,</span> <span class="hl kwc">names_to</span><span class="hl std">=</span><span class="hl str">'parameter'</span><span class="hl std">,</span> <span class="hl kwc">values_to</span><span class="hl std">=</span><span class="hl str">'value'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=value,</span> <span class="hl kwc">y</span><span class="hl std">=Y,</span> <span class="hl kwc">colour</span><span class="hl std">=(Y</span><span class="hl opt">&gt;</span><span class="hl num">4.5</span> <span class="hl opt">&amp;</span> <span class="hl std">Y</span> <span class="hl opt">&lt;</span> <span class="hl num">13.5</span><span class="hl std">)))</span> <span class="hl opt">+</span> <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span><span class="hl std">parameter,</span> <span class="hl kwc">scales</span><span class="hl std">=</span><span class="hl str">'free'</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/alcsa.Rhtml-nroy-1.png" alt="plot of chunk nroy" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl kwd">cbind</span><span class="hl std">(mat, Y)</span> <span class="hl opt">%&gt;%</span> <span class="hl std">as_tibble</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">filter</span><span class="hl std">(Y</span><span class="hl opt">&gt;</span><span class="hl num">4.5</span> <span class="hl opt">&amp;</span> <span class="hl std">Y</span> <span class="hl opt">&lt;</span> <span class="hl num">13.5</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">select</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">Y)</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">as.matrix</span><span class="hl std">()</span> <span class="hl opt">%&gt;%</span>
+  <span class="hl kwd">pairs</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/alcsa.Rhtml-nroy-2.png" alt="plot of chunk nroy" class="plot" /></div></div>
+
+
+Maybe we can further constrain based on the duration of feeling tipsy. For most people, the effect of one beer wears off within about three hours. Let's see which of our simulations do not drop below 4.5 grams of blood alcohol within 3 hours.
+
+<div class="chunk" id="history-matching"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">sim2</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">parms</span><span class="hl std">) {</span>
+  <span class="hl com"># parms is a 3-vector of 3 rate parameters</span>
+  <span class="hl std">the_parameters</span> <span class="hl kwb">=</span> <span class="hl std">parameters</span>
+  <span class="hl std">the_parameters[</span><span class="hl str">'k_a'</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl std">parms[</span><span class="hl num">1</span><span class="hl std">]</span>
+  <span class="hl std">the_parameters[</span><span class="hl str">'k_g'</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl std">parms[</span><span class="hl num">2</span><span class="hl std">]</span>
+  <span class="hl std">the_parameters[</span><span class="hl str">'k_e'</span><span class="hl std">]</span> <span class="hl kwb">=</span> <span class="hl std">parms[</span><span class="hl num">3</span><span class="hl std">]</span>
+  <span class="hl com"># the function simulates the 2 compartment model and returns the maximum</span>
+  <span class="hl com"># concentration obtained in the 2nd compartment</span>
+  <span class="hl std">out</span> <span class="hl kwb">=</span> <span class="hl kwd">ode</span><span class="hl std">(</span><span class="hl kwc">y</span> <span class="hl std">= state,</span> <span class="hl kwc">times</span> <span class="hl std">= times,</span> <span class="hl kwc">func</span> <span class="hl std">= model,</span> <span class="hl kwc">parms</span> <span class="hl std">= the_parameters)</span>
+  <span class="hl kwa">if</span> <span class="hl std">(</span><span class="hl kwd">all</span><span class="hl std">(out[,</span><span class="hl str">'blood'</span><span class="hl std">]</span> <span class="hl opt">&lt;</span> <span class="hl num">4.5</span><span class="hl std">)) {</span>
+    <span class="hl kwd">return</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">)</span>
+  <span class="hl std">}</span> <span class="hl kwa">else</span> <span class="hl std">{</span>
+    <span class="hl kwd">return</span><span class="hl std">(</span><span class="hl kwd">tail</span><span class="hl std">(times[ out[,</span><span class="hl str">'blood'</span><span class="hl std">]</span> <span class="hl opt">&gt;</span> <span class="hl num">4.5</span> <span class="hl std">],</span> <span class="hl num">1</span><span class="hl std">))</span>
+  <span class="hl std">}</span>
+<span class="hl std">}</span>
+
+<span class="hl std">sim2_mat</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">parms</span><span class="hl std">) {</span>
+  <span class="hl com"># parms is a n * 3 matrix of parameter settings</span>
+  <span class="hl com"># the function returns an n-vector of model outputs</span>
+  <span class="hl kwd">apply</span><span class="hl std">(parms,</span> <span class="hl num">1</span><span class="hl std">, sim2)</span>
+<span class="hl std">}</span>
+
+<span class="hl std">Y2</span> <span class="hl kwb">=</span> <span class="hl kwd">sim2_mat</span><span class="hl std">(mat)</span>
+
+<span class="hl kwd">sobol_indices</span><span class="hl std">(</span><span class="hl kwc">Y</span> <span class="hl std">= Y2,</span> <span class="hl kwc">N</span> <span class="hl std">= N,</span> <span class="hl kwc">params</span> <span class="hl std">= params,</span> <span class="hl kwc">order</span><span class="hl std">=</span><span class="hl str">'first'</span><span class="hl std">,</span>
+                             <span class="hl kwc">boot</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">,</span> <span class="hl kwc">R</span><span class="hl std">=</span><span class="hl num">5000</span><span class="hl std">)</span><span class="hl opt">$</span><span class="hl std">results</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">filter</span><span class="hl std">(sensitivity</span> <span class="hl opt">==</span> <span class="hl str">'Ti'</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">select</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">bias,</span> <span class="hl opt">-</span><span class="hl std">sensitivity)</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">print</span><span class="hl std">(</span><span class="hl kwc">digits</span><span class="hl std">=</span><span class="hl num">3</span><span class="hl std">)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##    original std.error low.ci high.ci parameters
+## 1:    0.357    0.1080  0.140   0.563        k_a
+## 2:    0.172    0.0511  0.068   0.268        k_g
+## 3:    0.842    0.1292  0.582   1.088        k_e
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">cbind</span><span class="hl std">(mat, Y, Y2)</span> <span class="hl opt">%&gt;%</span> <span class="hl std">as_tibble</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">filter</span><span class="hl std">(Y</span><span class="hl opt">&gt;</span><span class="hl num">4.5</span> <span class="hl opt">&amp;</span> <span class="hl std">Y</span> <span class="hl opt">&lt;</span> <span class="hl num">13.5</span> <span class="hl opt">&amp;</span> <span class="hl std">Y2</span><span class="hl opt">&gt;</span><span class="hl num">0.5</span> <span class="hl opt">&amp;</span> <span class="hl std">Y2</span> <span class="hl opt">&lt;</span> <span class="hl num">3</span><span class="hl std">)</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">select</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">Y,</span> <span class="hl opt">-</span><span class="hl std">Y2)</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">as.matrix</span><span class="hl std">()</span> <span class="hl opt">%&gt;%</span>
+<span class="hl kwd">pairs</span><span class="hl std">()</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/alcsa.Rhtml-history-matching-1.png" alt="plot of chunk history-matching" class="plot" /></div></div>
+
+
+
+
+
+

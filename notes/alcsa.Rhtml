@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>Simulating alcohol intoxication with a pharmacokinetic model</h2>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+
+<!--begin.rcode, include=FALSE
+library(tidyverse)
+library(deSolve)
+end.rcode-->
+<!--begin.rcode, eval=FALSE
+library(tidyverse)
+library(deSolve)
+end.rcode-->
+
+
+
+<!--begin.rcode fig1, fig.width=6, fig.height=4
+
+# model parameters
+parameters = c(
+  k_a = 2.0,      # per hour, absorption rate from GI tract into blood
+  k_g = 0.05,     # per hour, GI tract own elimination rate
+  k_e = 0.5,      # per hour, elimination rate from blood by liver
+  duration = 0.5, # hours of dosing
+  input = 28      # grams of alcohol per hour of dosing
+)
+
+# initial state
+state = c(dose = 0, gi = 0, blood = 0)
+
+# model differential equations for use with deSolve
+model = function(t, state, parameters) {
+  with(as.list(c(state, parameters)),{
+    dose = ifelse(t <= duration, input, 0)  # dosing
+    dgi = -k_a * gi - k_g * gi + dose # GI tract
+    dblood = k_a * gi - k_e * blood     # blood
+    return(list(c(dose, dgi, dblood)))        # derivatives
+  }) 
+}
+
+# simulate model, immediately convert output to long data frame
+times = seq(0, 10, by = 0.01)
+out = ode(y = state, times = times, func = model, parms = parameters) %>% 
+      as.data.frame %>%
+      pivot_longer(-time, names_to='compartment', values_to='concentration')
+
+ggplot(out) + geom_line(aes(x=time, y=concentration, colour=compartment))
+
+end.rcode-->
+
+
+<p>Parameter interpretation: MORE HERE
+
+<p>Output interpretation: MORE HERE
+
+
+<h2>Sensitivity analysis</h2>
+
+interested only in maximum blood alcohol
+
+<!--begin.rcode sensitivity, fig.width=8, fig.height=4
+
+sim = function(parms) {
+  # parms is a 3-vector of 3 rate parameters
+  the_parameters = parameters
+  the_parameters['k_a'] = parms[1]
+  the_parameters['k_g'] = parms[2]
+  the_parameters['k_e'] = parms[3]
+  # the function simulates the 2 compartment model and returns the maximum
+  # concentration obtained in the 2nd compartment
+  out = ode(y = state, times = times, func = model, parms = the_parameters)
+  return(max(out[,'blood']))
+}
+
+sim_mat = function(parms) {
+  # parms is a n * 3 matrix of parameter settings
+  # the function returns an n-vector of model outputs
+  apply(parms, 1, sim)
+}
+
+
+library(sensobol)
+library(sensitivity)
+
+N = 100
+params = c('k_a', 'k_g', 'k_e')
+mat = sobol_matrices(N = N, params = params)
+#rescale to assumed parameter ranges
+# mat[,'k_a'] = 0.5 + (2 - 0.5) * mat[,'k_a'] # U(0.5, 2)
+# mat[,'k_g'] = 0.0 + (0.2 - 0) * mat[,'k_g'] # U(0, 0.2)
+# mat[,'k_e'] = 0.05 + (0.3 - 0.05) * mat[,'k_e'] # U(0.05, 0.3)
+Y = sim_mat(mat)
+sensobol_ind = sobol_indices(Y = Y, N = N, params = params, order='first',
+                             boot=TRUE, R=5000)
+
+# print the relevant results
+sensobol_ind$results %>% 
+  filter(sensitivity == 'Ti') %>%
+  select(-bias, -sensitivity) %>%
+  print(digits=3)
+
+cbind(mat, Y) %>% 
+  as_tibble %>% 
+  pivot_longer(-Y, names_to='parameter', values_to='value') %>%
+  ggplot() + geom_point(aes(x=value, y=Y, colour=parameter), show.legend=FALSE) + facet_wrap(~parameter, scales='free')
+
+end.rcode-->
+
+<p><strong>Sensitivity analysis:</strong> We calculate Sobol Total Effect indices to quantify the sensitivity of the model output to the inputs. The \(i\)-th Total Effect index \(S_{T_i}\) quantifies what fraction of the variance in the output would be left if all inputs except the \(i\)-th one were fixed.
+
+<p>Specifically, we have \[S_{T_i} = \frac{E[Var(Y|X_1,\dots,X_{i-1},X_{i+1},\dots,X_d)] - Var(Y)}{Var(Y)}.\] 
+
+<p>The \(S_{T_i}\)'s for \(k_a\) and \(k_e\) are around 0.4-0.5, showing that the absorption rate of alcohol from GI tract to blood, and removal rate from the blood are approximately equally important. The \(S_{T_i}\) of \(k_g\), the removal rate of alcohol from the GI tract is less important. So to reduce uncertainty in the model output, we should focus our efforts on pinning down the values of \(k_a\) and \(k_e\).
+
+
+<h2>History Matching</h2>
+
+<p><strong>History matching</strong> on (vague) empirical data: MORE HERE
+
+<p>The same amount of alcohol can have different effects on different people. The subjective feeling of intoxication due to a certain amount of alcohol depends mostly on the person's weight, and to some extent on their sex.
+
+<p>Blood alcohol concentration (BAC) is calculated by taking the amount of alcohol in the blood (measured in grams, as in our simulation), and dividing this by the volume of distribution, which is basically the body's water content, calculated as \(0.6 * body\ weight\) for males and \(0.55 * body\ weight\) for females. So a 75kg male with 10g of alcohol in their blood has a BAC of \(0.01 / (75 * 0.6) = 0.00022\) that is, 0.22 permille.
+
+<p>A slight mood elevation, slightly relaxed feeling and mild impairment of coordination (feeling tipsy) is usually reported at between 0.1 and 0.3 permille BAC. At 0.4 to 0.6 permille lowered inhibition and impaired memory set in, 0.7 to 0.9 people get euphoria and slurred speech, and after about 1 permille (45g alcohol in blood for our 75kg guy) the chance of marriage proposals and pirate chants increases drastically.
+
+<p>So if you know that drinking one beer within half an hour makes you slightly tipsy at most, but never drunk, you know that you are at between 0.1 and 0.3 permille BAC which, depending on your weight and sex, translates into a certain maximum alcohol amount in your blood. For the 75kg dude this would be between 4.5 and 13.5 grams. 
+
+<!--begin.rcode, fig.width=8, fig.height=4
+mean(Y > 4.5 & Y < 13.5)
+end.rcode-->
+
+About 30% of our parameters produce maximum alcohol amounts in this range. In other words, we can rule our 70% of parameters. Let's see how the Not-Ruled-Out-Yet (NROY) region looks like:
+
+<!--begin.rcode nroy, fig.width=8, fig.height=4
+
+cbind(mat, Y) %>% as_tibble %>%
+pivot_longer(-Y, names_to='parameter', values_to='value') %>%
+ggplot() + geom_point(aes(x=value, y=Y, colour=(Y>4.5 & Y < 13.5))) + facet_wrap(~parameter, scales='free')
+
+cbind(mat, Y) %>% as_tibble %>%
+  filter(Y>4.5 & Y < 13.5) %>%
+  select(-Y) %>%  
+  as.matrix() %>%
+  pairs()
+
+end.rcode-->
+
+
+Maybe we can further constrain based on the duration of feeling tipsy. For most people, the effect of one beer wears off within about three hours. Let's see which of our simulations do not drop below 4.5 grams of blood alcohol within 3 hours.
+
+<!--begin.rcode history-matching, fig.width=8, fig.height=4
+
+sim2 = function(parms) {
+  # parms is a 3-vector of 3 rate parameters
+  the_parameters = parameters
+  the_parameters['k_a'] = parms[1]
+  the_parameters['k_g'] = parms[2]
+  the_parameters['k_e'] = parms[3]
+  # the function simulates the 2 compartment model and returns the maximum
+  # concentration obtained in the 2nd compartment
+  out = ode(y = state, times = times, func = model, parms = the_parameters)
+  if (all(out[,'blood'] < 4.5)) {
+    return(0)
+  } else {
+    return(tail(times[ out[,'blood'] > 4.5 ], 1))
+  }
+}
+
+sim2_mat = function(parms) {
+  # parms is a n * 3 matrix of parameter settings
+  # the function returns an n-vector of model outputs
+  apply(parms, 1, sim2)
+}
+
+Y2 = sim2_mat(mat)
+
+sobol_indices(Y = Y2, N = N, params = params, order='first',
+                             boot=TRUE, R=5000)$results %>%
+filter(sensitivity == 'Ti') %>%
+select(-bias, -sensitivity) %>%
+print(digits=3)
+
+cbind(mat, Y, Y2) %>% as_tibble %>% 
+filter(Y>4.5 & Y < 13.5 & Y2>0.5 & Y2 < 3) %>%
+select(-Y, -Y2) %>%
+as.matrix() %>%
+pairs()
+
+end.rcode-->
+
+
+
+
+
+
