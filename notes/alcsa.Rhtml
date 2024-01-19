@@ -20,10 +20,12 @@ end.rcode-->
 
 <!--begin.rcode, include=FALSE
 library(tidyverse)
+library(GGally)
 library(deSolve)
 end.rcode-->
 <!--begin.rcode, eval=FALSE
 library(tidyverse)
+library(GGally)
 library(deSolve)
 end.rcode-->
 
@@ -101,9 +103,9 @@ N = 100
 params = c('k_a', 'k_g', 'k_e')
 mat = sobol_matrices(N = N, params = params)
 #rescale to assumed parameter ranges
-# mat[,'k_a'] = 0.5 + (2 - 0.5) * mat[,'k_a'] # U(0.5, 2)
-# mat[,'k_g'] = 0.0 + (0.2 - 0) * mat[,'k_g'] # U(0, 0.2)
-# mat[,'k_e'] = 0.05 + (0.3 - 0.05) * mat[,'k_e'] # U(0.05, 0.3)
+mat[,'k_a'] = mat[,'k_a'] * 3 # U(0, 3)
+mat[,'k_g'] = mat[,'k_g'] * 2 # U(0, 2)
+mat[,'k_e'] = mat[,'k_e'] * 1 # U(0, 1)
 Y = sim_mat(mat)
 sensobol_ind = sobol_indices(Y = Y, N = N, params = params, order='first',
                              boot=TRUE, R=5000)
@@ -153,10 +155,9 @@ pivot_longer(-Y, names_to='parameter', values_to='value') %>%
 ggplot() + geom_point(aes(x=value, y=Y, colour=(Y>4.5 & Y < 13.5))) + facet_wrap(~parameter, scales='free')
 
 cbind(mat, Y) %>% as_tibble %>%
-  filter(Y>4.5 & Y < 13.5) %>%
-  select(-Y) %>%  
-  as.matrix() %>%
-  pairs()
+  mutate(nroy = Y>4.5 & Y < 13.5) %>%
+  ggpairs(columns=c('k_a', 'k_g', 'k_e'), 
+          mapping=aes(colour=nroy))
 
 end.rcode-->
 
@@ -196,15 +197,23 @@ select(-bias, -sensitivity) %>%
 print(digits=3)
 
 cbind(mat, Y, Y2) %>% as_tibble %>% 
-filter(Y>4.5 & Y < 13.5 & Y2>0.5 & Y2 < 3) %>%
-select(-Y, -Y2) %>%
-as.matrix() %>%
-pairs()
+  mutate(nroy = Y > 4.5 & Y < 13.5 & Y2 > 0.5 & Y2 < 3) %>%
+  ggpairs(columns=c('k_a', 'k_g', 'k_e'), 
+          mapping=aes(colour=nroy))
 
 end.rcode-->
 
 
+<!--begin.rcode, include=FALSE 
 
+# custom "ggpairs" code
+df = tibble(x=runif(10), y=runif(10), z=runif(10))
+df2 = df %>% 
+  mutate(across(c(x,y,z), ~paste(cur_column(), "=", .))) %>%
+  rowwise() %>%
+  reframe(crossing(x=c_across(c(x,y,z)), y=c_across(c(x,y,z)))) %>%
+  separate_wider_delim(x, ' = ', names=c('x_name', 'x_value')) %>%
+  separate_wider_delim(y, ' = ', names=c('y_name', 'y_value')) %>%
+  mutate(across(ends_with('.value'), as.numeric)) 
 
-
-
+end.rcode-->
