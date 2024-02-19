@@ -77,7 +77,8 @@ head(sim(parameters))
 # alcohol amount drops to below 1.7g at some point between 1 and 3 hours.
 
 
-# experimental design and linear model (+/-1 on each central value)
+# 2^k experimental design for rate parameters (ie all combinations of factor
+# levels)
 design0 = 
   crossing(k_g = c(0, 2), 
            k_a = c(1, 3),
@@ -98,27 +99,33 @@ for (ii in 1:nrow(design0)) {
 }
 design0 = design0 %>%
   mutate(max_blood = max_blood, up_time = up_time)
-# fit linear models  
-lm(max_blood ~ k_g + k_a + k_e, data=design0)
-lm(up_time ~ k_g + k_a + k_e, data=design0)
 
-# derivative of max_blood wrt parameters is roughly (-.5,+1,-.5). So a one unit
-# increase in k_a increases maximum blood amount by about 1g, and a 2 unit
-# increase in k_g or k_e decreases blood amount by 1g. since our calibration
-# target range for maximum blood amount is 1.7g to 3.4g, we should vary k_a by
-# +/-1 and k_g and k_e by about +/-2 to cover a sufficiently wide range. For
-# maximum duration we have smaller effects. A one unit increase in k_g or k_e
-# decreases max duration by about 20 minutes. Our target range is 1-3 hours, so
-# we should probably consider varying these parameters by +/-3 to cover that
-# range. duration is quite insensitive to k_a, so should not be considered,
-# basically any value would be acceptable (assuming purely linear effects and
-# no interactions). In summary, we should vary the following uncertainty
-# distributions seem reasonable: k_g ~ U(0, 5), k_a ~ U(0,4) k_e ~ U(1, 5)
+# fit linear models  
+lm(max_blood ~ k_g * k_a * k_e, data=design0)
+
+lm(up_time ~ k_g * k_a * k_e, data=design0)
+
+# main effects of k_g, k_a, k_e on max_blood are -1, 1.5, -0.5; notable
+# interactions are k_g:k_e = 0.17 and k_a:k_e = -0.15, the others are
+# negligible
+# So a one unit increase in k_g/k_a/k_e increases maximum blood amount by about
+# -1/+1.5/-0.5 grams. 
+# interactions are relatively small, but we should notice the negative
+# interactions between k_a and k_e, making the joint effect smaller than
+# expected by adding the primary effects.
+# since our calibration target range for maximum blood amount is 1.7g to 3.4g,
+# we should vary k_g/k_a/k_e by +/- 3/2/6. 
+# For maximum duration we have primary effects -0.9/-0.5/-0.6 and small
+# positive interactions. A one unit change in k_g/k_a/k_e changes max duration
+# by at least 30 minutes. Our target range is 1-3 hours, so we should vary each
+# parameters by +/-3 to cover that range. In summary, we should vary the
+# following uncertainty distributions seem reasonable: k_g ~ U(0, 6), k_a ~
+# U(0,6) k_e ~ U(0, 6)
 set.seed(123)
 n = 1000
-par_mat = cbind(k_a = runif(n, 0, 5),
-                k_g = runif(n, 0, 4),
-                k_e = runif(n, 0, 5),
+par_mat = cbind(k_a = runif(n, 0, 6),
+                k_g = runif(n, 0, 6),
+                k_e = runif(n, 0, 6),
                 duration = 0.5,
                 input = 28)
 
@@ -167,7 +174,7 @@ ggplot(res) +
 
 # histogram of blood alcohol amount after 3 hours
 res %>% filter(time == 3) %>%
-ggplot() + geom_histogram(aes(x=blood), breaks=seq(0,1,.1))
+ggplot() + geom_density(aes(x=blood)) + xlim(0,2)
 
 
 ######################################################################
@@ -200,8 +207,12 @@ res2 %>%
   ggplot() + 
     stat_ecdf(aes(x=max)) +
     geom_vline(xintercept=3.4, lty=2)
-# probability is about 40% of being drunk after 2 beer
+# probability of being drunk is about 35% after 2 beer
 
+res2 %>% 
+  group_by(sample) %>%
+  summarise(max=max(blood), .groups='drop') %>%
+  summarise(mean(max > 3.4))
 
 
 
