@@ -12,22 +12,20 @@
 
 <h2>A simple agent-based model of infectious disease spread implemented in base R</h2>
 
-<p>This note goes over a simple agent based model of infectious disease spread written in base R.
+<p>This note goes over a simple agent based model of infectious disease spread written in base R. It's part of a collection of simulation models that I'm using as part of a course on Uncertainty Quantification.
 
-<p>I do realise I'm about 5 years late to write about agent-based modelling for disease spread, but that's fine.
+<p>Also, yes, I do realise I'm about 5 years late to write about agent-based modelling for disease spread, but whatever.
 
-<p>I was first looking at ABM frameworks such as NetLogo and Mesa, but kept running into annoying installation problems. I realised the simple model I wanted to code up doesn't really need a framework, and so wrote it quickly in base R. 
+<p>I was first looking at ABM frameworks such as <a href=https://ccl.northwestern.edu/netlogo/ target="_blank">NetLogo</a> and <a href=https://mesa.readthedocs.io/en/stable/ target="_blank">Mesa</a>, but kept running into small but annoying installation issues. I also realised that the minimal model I wanted to code up doesn't really need an external library at all, and could write it quite quickly in base R and maybe learn something in the process.
 
-<p>I assume I have a large-ish number of agents that move around randomly within a bounded domain. Initially one agent is infected with a disease, and all others are susceptible to being infected. Whenever a susceptible agent gets close to the infected one, it also becomes infected with some probability. If an agent becomes infected, it can pass the disease on to other susceptible agents that it gets close to. After being infected for some time, the infected agent recovers. It is now not infectious anymore, and also cannot become infected again.
+<p>Here is the actual model: A number of agents move around independently and randomly on a bounded domain. Initially one agent is infected with a disease, and all others are healthy, but susceptible to being infected. Whenever a susceptible agent gets close to the infected one, it also becomes infected with some probability. Once an agent becomes infected, it can pass the disease on to other susceptible agents that it meets. After an agent has been infected for some specified time, it recovers. It is now not infectious anymore, and also cannot become infected again. The parameters of this model are the number of agents, their speed of movement, the radius of infection, the probability of infection, and the recovery time.  
 
-<p>The full R script can be downloaded here: <a href='sir.R'>sir.R</a>. No external libraries are required. 
-
-<p>Here is the visualisation of the final result. Blue is susceptible, red is infected, and green is recovered.</p>
+<p>The full R script for this simple model can be downloaded here: <a href='sir.R'>sir.R</a>. The actual code is only about 50 lines, and no external libraries are required. The code is described in detail below. Here is a visualisation of the final result, where blue is susceptible, red is infected, and green is recovered.</p>
 
 <img src="fig/sir.gif">
 
 
-<p>I first assign all model parameters within an empty list called "agents"
+<p>Now let's go over the R code. We first assign all model parameters within an empty list called "agents"
 
 <!--begin.rcode 
 # initiliase list of model parameters
@@ -40,9 +38,9 @@ agents = within(list(), {
 })
 end.rcode-->
 
-<p>Using "within(list(), ..." instead of "list(...)" here isn't really necessary, but it makes explicit that I'm using "agents" as an environment within which the agents' state will be stored and manipulated.
+<p>Using "within(list(), {...})" instead of just "list(...)" isn't really necessary. But it makes explicit that we're using the "agents" list as an environment within which the simulated agents' state will be stored and manipulated.
 
-<p>Then, within "agents" I randomly initialise x and y locations of all agents, by sampling uniformly on the unit interval. The agents' current states are stored in a vector, where 0 indicates susceptible, 1 indicates infected, and 2 indicates recovered. Infection times are stored in a separate vector, initially as NA for susceptible agents. Upon infection, the time is set to recovery time, and will be decreased by one on each simulation step. I also initialise a history object in which I store the fraction of susceptible, infected and recovered agents over time.
+<p>Within the "agents" object we initialise random x and y locations for all agents in a Nx2 matrix. The agents' current states are stored in a vector of length N, where 0 indicates susceptible, 1 indicates infected, and 2 indicates recovered. Infection times are stored in a separate vector of length N, initially as NA for all susceptible agents. Upon infection, the agent's time is set to the recovery time (it will be decreased by one on each simulation step). We also initialise a history object in which we later store the fraction of susceptible, infected and recovered agents at each time step.
 
 <!--begin.rcode 
 # initialise state variables (agent coordinates, infection state, infection
@@ -62,7 +60,7 @@ agents = within(agents, {
 })
 end.rcode-->
 
-<p>Now for the updating function which steps the agents forward in time. In each step, agents move around by adding a small random number with mean zero to their x and y coordinates. To determine whether agents are in contact, I calculate all pairwise distances between agents and look for pairs whose distance is below a certain threshold. If an agent is infected (has state 1) then all of its neighbors that are susceptible (have state 0) randomly change their state from 0 to 1 with the given infection probability. Recovery times are decreased by one, and newly infected agents get their recovery time initialised. Agent whose recovery time reached zero get their state set to 2 for recovered. And we also append the current state to the history object.
+<p>Now for the updating function which evolves the agents forward in time. It will be used by calling "agents = update(agents)" iteratively. In each update step, agents first move by adding small random numbers to their x and y coordinates. Next, to determine which agents are in contact, we calculate all pairwise distances between agents, and look for pairs whose distance is below the infection radius. If an agent is currently infected (state=1) then all of its neighbors that are susceptible (have state=0) randomly change their state from 0 to 1 with the given infection probability. Next, recovery times of all infected agents are decreased by one. Agents whose recovery time has reached zero get their state set to 2 for recovered. Newly infected agents get their recovery time initialised. Lastly, we append the current fraction of susceptible, infected, and recovered to the history object.
 
 <!--begin.rcode 
 # agent updating function (move, infect, recover)
@@ -96,10 +94,9 @@ update = function(agents) within(agents, {
 })
 end.rcode-->
 
-<p>Visualisation is optional, but fun. The visualise function produces a plot of agents positions with their state color coded. And it produces a second plot showing the history.
+<p>Visualisation is optional, but fun. The visualise function produces a plot of agents positions, with their state color coded. It produces a second plot underneath showing the entire history.
 
 <!--begin.rcode 
-
 # visualisation function: scatter plot of agents and time series of SIR
 # history. use dev.hold and dev.flush to avoid flickering plots.
 visualise = function(agents) with(agents, {
@@ -119,7 +116,7 @@ visualise = function(agents) with(agents, {
 })
 end.rcode-->
 
-<p>With the agents object intialised and the update and visualise functions defined, we can repeatedly update the agents state in a loop and visualise them in each step. We monitor the history and stop the simulation when nothing changes over a number of steps. 
+<p>With the "agents" object intialised and the "update" and "visualise" functions defined, we can now iteratively update the agents' state inside a loop, and visualise their state at each step. We monitor the history and stop the simulation when nothing changes over a number of steps. 
 
 <!--begin.rcode, eval=FALSE
 # main loop: simulate, visualise, check for stopping condition
@@ -135,13 +132,7 @@ while(1) {
 }
 end.rcode-->
 
-
-<p>ABM frameworks are usually implemented using object oriented frameworks. This is because each agent has a state which constantly changes based on its own state and that of other agents. I first considered using one of R's formal OOP frameworks, but the model is simple enough to store the state of all agents within a list that contains model parameters, locations, infection state, etc, and run the time stepping code inside that list using the "within" function.
-
-<p>Apart from being coded in base R, the main bottleneck of the code is currently that I calculate distances between all pairs of agents to determine neighborhood. To make this more efficient, I could calculate only distances for infected agents. But that's for another day.
-
-
-
+<p>Apart from being coded in base R, the main bottleneck of the code is currently that I calculate distances between all pairs of agents to determine neighborhood. To make the simulation more efficient, I could, for example, calculate only distances for infected agents. But that's for another day.
 
 
 <!--begin.rcode, eval=FALSE, include=FALSE
