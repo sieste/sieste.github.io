@@ -138,10 +138,16 @@ end.rcode-->
 <!--begin.rcode, eval=FALSE, include=FALSE
 # initialise state variables (coordinates, infection state, infection time).
 # initially, just one agent at the center is infected
-agents = within(agents, {
-  xy = matrix(sample(1:n_x, 2*n_agents, repl=TRUE), ncol=2)
+set.seed(123)
+agents = within(list(), {
+  n_agents = 1000  # number of agents
+  p_inf = 0.5      # probability of infection on contact
+  r_inf = 0.025     # radius that defines "contact", as fraction of domain width
+  t_rec = 50       # time to recovery
+  w_step = 0.0075    # maximum step width in each direction, as fraction of domain width
+  xy = cbind(runif(n_agents), runif(n_agents))
   state = rep(0, n_agents)
-  xy[1,] = round(c(n_x/2, n_x/2))
+  xy[1, ] = c(0.5, 0.5)
   state[1] = 1
   time = rep(NA, n_agents)
   time[state == 1] = t_rec
@@ -149,8 +155,7 @@ agents = within(agents, {
 })
 
 dd = tempdir()
-dir.create(dd)
-set.seed(123)
+system(paste("rm ", dd, "/*.jpg", sep=""))
 
 # main loop: simulate, visualise, check for stopping condition
 while(1) {
@@ -159,7 +164,7 @@ while(1) {
 
   if (tt %% 5 == 0) {
     fname = sprintf('%s/%03d.jpg', dd, tt)
-    jpeg(fname, width=400, height=600, quality=85)
+    jpeg(fname, width=300, height=500, quality=50)
     visualise(agents)
     dev.off()
   }
@@ -171,7 +176,7 @@ while(1) {
     break
   }
 }
-# convert -delay 5 -loop 0 *.jpg anim.gif
+system(paste("convert -delay 10 -loop 0 ", dd, "/*.jpg ", dd, "/anim.gif", sep=""))
 end.rcode-->
 
 
