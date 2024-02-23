@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>A brief introduction to propagation of uncertainty</h2>
+
+<!--begin.rcode init, echo=FALSE
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+
+
+<p>Assume we have a scalar function of several inputs \(f(x,y,z,...)\). We want to look at the different ways in which randomness in the input variables \(x, y, ...\) translates into randomness in the function value. This principle is of fundamental importance when analyzing how uncertainties in input parameters and measurements propagate through mathematical models to impact the output.
+
+<h2>Analytical methods</h2>
+
+<h3>Univariate functions</h3>
+
+<p>Let's first consider univariate functions, i.e. \(f(x)\), where \(f\) is a known function. For a random variable \(X\) with a known distribution, applying a transformation \(Y=f(X)\) results in a new random variable \(Y\), whose distribution and statistical properties (such as expectation and variance) can be derived from those of \(X\).
+
+<p>Transformation of Expectation: \(E[Y]\) can be calculated directly for a linear transformation \(f(x) = ax + b\): $$E[Y] = E[aX + b)] = aE[X] + b = f(E[X]).$$ When \(f\) is non-linear, we can use the Law of the Unconscious Statistician (LOTUS) to calculate the expectation of \(f(X)\): $$E[Y] = E[f(X)] = \int f(x) p(x) dx$$ where the integral is over the domain of \(X\) and \(p(x)\) is the pdf of \(X\). The integral can be solved analytically if \(f(x)p(x)\) is sufficiently simple. Otherwise we have to use numerical methods.
+
+<p>Transformation of Variance: \(Var[Y]\) can be calculated directly for linear transformations \(f(x) = ax + b\): $$Var[Y] = Var[aX + b] = a^2 Var[X].$$ When \(f\) is nonlinear but not too complicated, we might be able to use the LOTUS to calculate the variance of \(Y\) directly via $$\begin{aligned}Var[Y] & = E[Y^2] - E[Y]^2 = E[f(X)^2] - E[f(X)]^2\\ & = \int f(x)^2 p(x) dx - \left[ \int f(x) p(x) dx \right]^2.\end{aligned}$$ If that can't be solved we have to use some sort of approximations.
+
+<p>Transformation of the Whole Distribution: The distribution of \(Y\) can be derived from the distribution of \(X\) using the change of variables technique, especially when the function $f(x)$ is monotonic.
+
+<p>Delta method: The Delta Method is used to approximate the variance of a transformed random variable \(Y = f(X)\). It is particularly useful when dealing with non-linear differentiable transformations \(f(x)\). To apply the Delta Method, the expectation \(\mu\) and variance \(\sigma^2\) of the untransformed variable \(X\) must be known. We first Taylor-expand \(f(X)\) around \(\mu\): \(Y = f(X) \approx f(\mu) + f'(\mu) (X - \mu)\) where \(f'(\mu)\) denotes the derivative of \(f\) evaluated at \(\mu\). Under this approximation, the expectation of \(Y\) is \(f(\mu)\). The Taylor approximation of \(Y\) is a linear function of \(X\) so the approximate variance of \(Y\) is given by \(Var[Y] \approx [f'(\mu)]^2 \sigma^2\).
+
+
+<h3>Multivariate functions</h3>
+
+<p>When the transformation \(f\) is multivariate, this means that the transformed random variable \(Y\) depends on several random variables \(X_1, X_2, \dots\). We merge them into a random vector \(X = (X_1, X_2, \dots)^T\) which has an expectation vector \(\mu = (\mu_1, \mu_2, \dots)^T\), a variance-covariance matrix \(\Sigma\) has elements \(\Sigma_{ij} = Cov[X_i, X_j]\), and joint pdf \(p(X) = p(X_1, X_2, \dots)\). 
+
+<p>When the transformation \(Y=f(X)\) is linear we have \(f(X) = AX + b\) where \(A\) is a matrix with one row and b is a scalar (remember that we assume that \(Y\) is scalar). The expectation of \(Y\) is then given by \(E[Y] = A\mu + b\) and its variance is given by \(Var[Y] = A\Sigma A^T\). The pdf of \(Y\) can be derived from the change of variable formula. MORE HERE
+
+<p>When the transformation \(Y=f(X)\) is non-linear, we can use the Delta method. Let \(\nabla f\) denote the gradient vector of \(f\), that is, the \(i\)th element of \(\nabla f\) is the derivative of \(f\) with respect to its \(i\)th argument. Then the variance of \(Y = f(X)\) is approximated by \(Var[Y] = \nabla f(\mu)^T \Sigma \nabla f(\mu)\).
+
+
+<h2>Monte Carlo</h2>
+
+<p>The foundation for Monte Carlo methods is the Law of Large Numbers, which states that as the number of trials in a random experiment increases, the average of the results from all trials converges to the expected value. This principle underpins the reliability of Monte Carlo simulations for uncertainty propagation: By simulating a system many times with randomly sampled input parameters, we can approximate the distribution of the output, including its variance and other statistical properties.
+
+<p>Monte Carlo methods involve generating a large number of realisations of input variables sampled from their respective distributions. Then we calculate the output of the transformation for each sample of input variables. The collection of outputs then provides a statistical sample of possible outcomes. From this we can derive the empirical distribution, as well as expectation, variance, etc of the output variable. The Monte-Carlo approach is particularly valuable for non-linear transformations, transformations that are not given in mathematical closed form.
+
+Below is an R code chunk that demonstrates a Monte Carlo simulation where \(X_1\) has a Normal distribution, \(X_2\) has a Uniform distribution, and \(Y = f(X_1, X_2) = \sqrt{X_1^2 + X_2^2}\) is a nonlinear transformation of \(X_1\) and \(X_2\). 
+
+<!--begin.rcode 
+# Simulate random inputs for projectile motion
+X1 = rnorm(1e4, mean = 30, sd = 2)  # Initial velocity (m/s) 
+X2 = runif(1e4, min = 30, max = 40)  # Projection angle (degrees) 
+
+# Output: Maximum height (H)
+Z = (X1^2 * sin(X2*pi/180)^2) / (2 * 9.81)
+
+# Plot the density histogram of the output
+ggplot() + 
+  geom_histogram(aes(x=Z, y = after_stat(density)), 
+                 binwidth = 1, fill = "blue", color = "black")
+print(c(`mean(Z)` = mean(Z), `sd(Z)`=sd(Z)))
+end.rcode-->
+
+
+
