@@ -72,39 +72,47 @@
 <h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
 
 
-<h2>A brief introduction to propagation of uncertainty</h2>
+<h2>Propagating uncertainty from inputs to outputs of a function</h2>
 
 
 
 
 
-<p>Assume we have a scalar function of several inputs \(f(x,y,z,...)\). We want to look at the different ways in which randomness in the input variables \(x, y, ...\) translates into randomness in the function value. This principle is of fundamental importance when analyzing how uncertainties in input parameters and measurements propagate through mathematical models to impact the output.
+<p>Assume we have a scalar function of several inputs \(f(x_1,x_2,\dots)\). In this note I'll look at different ways to quantify how randomness or uncertainty in the input variables \(x_1, x_2, ...\) translates into randomness or uncertainty in the function value. 
 
-<h2>Analytical methods</h2>
+<h2>Exact methods</h2>
 
 <h3>Univariate functions</h3>
 
-<p>Let's first consider univariate functions, i.e. \(f(x)\), where \(f\) is a known function. For a random variable \(X\) with a known distribution, applying a transformation \(Y=f(X)\) results in a new random variable \(Y\), whose distribution and statistical properties (such as expectation and variance) can be derived from those of \(X\).
+<p>Let's first consider univariate functions, i.e. \(y=f(x)\), where \(f\) is a known function. For a random variable \(X\) with a known distribution, applying a transformation \(f(X)\) results in a new random variable \(Y\) whose distribution and statistical properties (such as expectation and variance) can (sometimes) be derived from those of \(X\).
 
-<p>Transformation of Expectation: \(E[Y]\) can be calculated directly for a linear transformation \(f(x) = ax + b\): $$E[Y] = E[aX + b)] = aE[X] + b = f(E[X]).$$ When \(f\) is non-linear, we can use the Law of the Unconscious Statistician (LOTUS) to calculate the expectation of \(f(X)\): $$E[Y] = E[f(X)] = \int f(x) p(x) dx$$ where the integral is over the domain of \(X\) and \(p(x)\) is the pdf of \(X\). The integral can be solved analytically if \(f(x)p(x)\) is sufficiently simple. Otherwise we have to use numerical methods.
+<p>Transformation of Expectation: Expectation is not a measure of uncertainty, but is important enough for us to include here anyway. \(E[Y]\) can be calculated directly when the transformation is linear \(f(x) = ax + b\): $$E[Y] = E[aX + b)] = aE[X] + b = f(E[X]).$$ 
 
-<p>Transformation of Variance: \(Var[Y]\) can be calculated directly for linear transformations \(f(x) = ax + b\): $$Var[Y] = Var[aX + b] = a^2 Var[X].$$ When \(f\) is nonlinear but not too complicated, we might be able to use the LOTUS to calculate the variance of \(Y\) directly via $$\begin{aligned}Var[Y] & = E[Y^2] - E[Y]^2 = E[f(X)^2] - E[f(X)]^2\\ & = \int f(x)^2 p(x) dx - \left[ \int f(x) p(x) dx \right]^2.\end{aligned}$$ If that can't be solved we have to use some sort of approximations.
+<p>When the transformation \(f\) is non-linear, we can sometimes use the Law of the Unconscious Statistician (LOTUS) to calculate the expectation of \(Y=f(X)\). When \(p(x)\) is the pdf of \(X\) we have $$E[Y] = E[f(X)] = \int f(x) p(x) dx$$ where the integral is over the domain of \(X\). However, integrating \(f(x)p(x)\) analytically might not be possible.
 
-<p>Transformation of the Whole Distribution: The distribution of \(Y\) can be derived from the distribution of \(X\) using the change of variables technique, especially when the function \(f(x)\) is monotonic.
+<p>Transformation of Variance: \(Var[Y]\) can be calculated directly for linear transformations \(f(x) = ax + b\): $$Var[Y] = Var[aX + b] = a^2 Var[X].$$ 
 
-<p>Delta method: The Delta Method is used to approximate the variance of a transformed random variable \(Y = f(X)\). It is particularly useful when dealing with non-linear differentiable transformations \(f(x)\). To apply the Delta Method, the expectation \(\mu\) and variance \(\sigma^2\) of the untransformed variable \(X\) must be known. We first Taylor-expand \(f(X)\) around \(\mu\): \(Y = f(X) \approx f(\mu) + f'(\mu) (X - \mu)\) where \(f'(\mu)\) denotes the derivative of \(f\) evaluated at \(\mu\). Under this approximation, the expectation of \(Y\) is \(f(\mu)\). The Taylor approximation of \(Y\) is a linear function of \(X\) so the approximate variance of \(Y\) is given by \(Var[Y] \approx [f'(\mu)]^2 \sigma^2\).
+When \(f\) is nonlinear but not too "complicated", we can use the LOTUS to also calculate the variance of \(Y\): $$\begin{aligned}Var[Y] & = E[Y^2] - E[Y]^2 = E[f(X)^2] - E[f(X)]^2\\ & = \int f(x)^2 p(x) dx - \left[ \int f(x) p(x) dx \right]^2.\end{aligned}$$ As before, depending on the transformation and pdf the integrals might not be tractable.
+
+<p>Transformation of the Whole Distribution: The whole pdf of \(Y\) can be derived from the distribution of \(X\) using the change of variables technique. For simplicity we will assume here that \(f(x)\) is monotonic (either strictly increasing or strictly decreasing), and differentiable over the range of \(X\). We assume that the inverse transformation \(x = f^{-1}(y)\) is known. The pdf of \(Y\), denoted \(q(y)\) is then given by $$q(y) = \left| \frac{d}{dy}f^{-1}(y)\right| p(f^{-1}(y))$$
+
 
 
 <h3>Multivariate functions</h3>
 
 <p>When the transformation \(f\) is multivariate, this means that the transformed random variable \(Y\) depends on several random variables \(X_1, X_2, \dots\). We merge them into a random vector \(X = (X_1, X_2, \dots)^T\) which has an expectation vector \(\mu = (\mu_1, \mu_2, \dots)^T\), a variance-covariance matrix \(\Sigma\) has elements \(\Sigma_{ij} = Cov[X_i, X_j]\), and joint pdf \(p(X) = p(X_1, X_2, \dots)\). 
 
-<p>When the transformation \(Y=f(X)\) is linear we have \(f(X) = AX + b\) where \(A\) is a matrix with one row and b is a scalar (remember that we assume that \(Y\) is scalar). The expectation of \(Y\) is then given by \(E[Y] = A\mu + b\) and its variance is given by \(Var[Y] = A\Sigma A^T\). The pdf of \(Y\) can be derived from the change of variable formula. MORE HERE
-
-<p>When the transformation \(Y=f(X)\) is non-linear, we can use the Delta method. Let \(\nabla f\) denote the gradient vector of \(f\), that is, the \(i\)th element of \(\nabla f\) is the derivative of \(f\) with respect to its \(i\)th argument. Then the variance of \(Y = f(X)\) is approximated by $$Var[Y] \approx \nabla f(\mu)^T \Sigma \nabla f(\mu).$$
+<p>When the transformation \(Y=f(X)\) is linear we have \(f(X) = AX + b\) where \(A\) is a matrix with one row and b is a scalar. The expectation of \(Y\) is then given by \[E[Y] = A\mu + b\] and its variance is given by \[Var[Y] = A\Sigma A^T\]. The pdf \(q(y)\) of \(Y\) can be derived from \(p(x)\) by the change of variable formula \[q(y) = \int_{\mathbb{R}^n}p(x)\delta(y - f(x))dx.\] More background can be found on <a href=https://en.wikipedia.org/wiki/Probability_density_function#Vector_to_scalar target="_blank">wikipedia</a>. But I have not seen change of variable being used much for uncertainty propagation so won't go into detail right now.
 
 
-<h2>Monte Carlo</h2>
+<h2>Delta method</h2>
+
+<p>Delta method: The Delta Method is used to approximate the variance of a transformed random variable \(Y = f(X)\). It is particularly useful when dealing with non-linear differentiable transformations \(f(x)\). To apply the Delta Method, the expectation \(\mu\) and variance \(\sigma^2\) of the untransformed variable \(X\) must be known. We first Taylor-expand \(f(X)\) around \(\mu\): \(Y = f(X) \approx f(\mu) + f'(\mu) (X - \mu)\) where \(f'(\mu)\) denotes the derivative of \(f\) evaluated at \(\mu\). Under this approximation, the expectation of \(Y\) is \(f(\mu)\). The Taylor approximation of \(Y\) is a linear function of \(X\) so the approximate variance of \(Y\) is given by \[Var[Y] \approx [f'(\mu)]^2 \sigma^2.\]
+
+<p>The Delta method is also applicable to multivariate functions \(Y=f(X_1, X_2, \dots)\). Let \(\nabla f(x)\) denote the gradient of \(f\) evaluated at the vector \(x=(x_1,x_2,\dots)^T\). Then the variance of \(Y = f(X)\) is approximated by $$Var[Y] \approx \nabla f(\mu)^T \Sigma \nabla f(\mu).$$ 
+
+
+<h2>Monte Carlo simulation</h2>
 
 <p>The foundation for Monte Carlo methods is the Law of Large Numbers, which states that as the number of trials in a random experiment increases, the average of the results from all trials converges to the expected value. This principle underpins the reliability of Monte Carlo simulations for uncertainty propagation: By simulating a system many times with randomly sampled input parameters, we can approximate the distribution of the output, including its variance and other statistical properties.
 
@@ -127,12 +135,31 @@ Below is an R code chunk that demonstrates a Monte Carlo simulation where \(X_1\
                           <span class="hl kwc">binwidth</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">fill</span> <span class="hl std">=</span> <span class="hl str">&quot;blue&quot;</span><span class="hl std">)</span>
 </pre></div>
 </div><div class="rimage default"><img src="fig/uncprop.Rhtml-mc-histogram-1.png" alt="plot of chunk mc-histogram" class="plot" /></div><div class="rcode">
-<div class="source"><pre class="knitr r"><span class="hl kwd">print</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwc">`mean(Y)`</span> <span class="hl std">=</span> <span class="hl kwd">mean</span><span class="hl std">(Y),</span> <span class="hl kwc">`sd(Y)`</span><span class="hl std">=</span><span class="hl kwd">sd</span><span class="hl std">(Y)))</span>
+<div class="source"><pre class="knitr r"><span class="hl kwd">print</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwc">`mean(Y)`</span> <span class="hl std">=</span> <span class="hl kwd">mean</span><span class="hl std">(Y),</span> <span class="hl kwc">`var(Y)`</span><span class="hl std">=</span><span class="hl kwd">var</span><span class="hl std">(Y),</span> <span class="hl kwc">`sd(Y)`</span><span class="hl std">=</span><span class="hl kwd">sd</span><span class="hl std">(Y)))</span>
 </pre></div>
-<div class="output"><pre class="knitr r">##  mean(Y)    sd(Y) 
-## 15.22099  3.00688
+<div class="output"><pre class="knitr r">##   mean(Y)    var(Y)     sd(Y) 
+## 15.195385  8.819005  2.969681
 </pre></div>
 </div></div>
+
+Let's compare the Monte Carlo variance to the delta method approximation. We have the joint expectation of \((X_1,X_2)^T\) as \(\mu = (30,35)^T\) and since \(X_1\) and \(X_2\) are independent their variance matrix is a diagonal matrix with \(diag(\Sigma) = (4, 100/12)^T\). I'll use R's built-in automatic symbolic differentiation function "deriv" to calculate the gradient. "deriv" can calculate derivatives of "simple" functions analytically. However, it has a very strange syntax: It takes the function to be differentiated as an R formula (starting with ~), then returns a function, which returns the desired gradient vector as an attribute of its return value. Anyway, this is the automatic differentiation version of the delta method, which should be quite straightforward to port to different functions:
+
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">f</span> <span class="hl kwb">=</span> <span class="hl opt">~</span><span class="hl std">x1</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl kwd">sin</span><span class="hl std">(x2</span><span class="hl opt">*</span><span class="hl std">pi</span><span class="hl opt">/</span><span class="hl num">180</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl opt">/</span><span class="hl std">(</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl num">9.81</span><span class="hl std">)</span>
+<span class="hl std">deriv_f</span> <span class="hl kwb">=</span> <span class="hl kwd">deriv</span><span class="hl std">(f,</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">'x1'</span><span class="hl std">,</span><span class="hl str">'x2'</span><span class="hl std">),</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">x1</span><span class="hl std">,</span><span class="hl kwc">x2</span><span class="hl std">){})</span>
+<span class="hl std">grad_f</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">x1</span><span class="hl std">,</span> <span class="hl kwc">x2</span><span class="hl std">)</span>
+  <span class="hl kwd">as.vector</span><span class="hl std">(</span><span class="hl kwd">attributes</span><span class="hl std">(</span><span class="hl kwd">deriv_f</span><span class="hl std">(x1, x2))</span><span class="hl opt">$</span><span class="hl std">gradient)</span>
+<span class="hl std">grad_f_mu</span> <span class="hl kwb">=</span> <span class="hl kwd">grad_f</span><span class="hl std">(</span><span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">35</span><span class="hl std">)</span>
+<span class="hl std">Sigma</span> <span class="hl kwb">=</span> <span class="hl kwd">diag</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">4</span><span class="hl std">,</span><span class="hl num">100</span><span class="hl opt">/</span><span class="hl num">12</span><span class="hl std">))</span>
+<span class="hl kwd">drop</span><span class="hl std">(</span><span class="hl kwd">t</span><span class="hl std">(grad_f_mu)</span> <span class="hl opt">%*%</span> <span class="hl std">Sigma</span> <span class="hl opt">%*%</span> <span class="hl std">grad_f_mu)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 8.765465
+</pre></div>
+</div></div>
+
+This is reassuringly close to the Monte Carlo estimate of the variance.
+
+
+<h2>Next steps</h2>
 
 As next steps in studying uncertainty propagation, here are some questions we might ask to move forward:
 
