@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<h2>Getting started with Sensitivity Analysis</h2>
+
+
+
+<p>Basic problem: Uncertainty in inputs \((x_1, x_2, \dots)\) leads to uncertainty in the output of a function \(y=f(x_1,x_2,\dots)\). We agree that we use variance as our measure of uncertainty. We want to attribute the total variance in \(y\) to the variances of the different inputs. 
+
+<p>On first look this doesn't seem so hard. We know that for independent random variables, variance is additive \(Var(X_1 + X_2) = Var(X_1) + Var(X_2)\), so in the simple case \(f(x_1+x_2)=x_1 + x_2\) the total variance of \(Y\) is proportional to the individual variances, and we can simply say \(X_1\) contributes a fraction \(Var(X_1)/Var(Y)\) to the total variance and \(X_2\) contributes a fraction \(Var(X_2)/Var(Y)\). Both terms are between 0 and 1 and neatly add up to one, so can be interpreted as fractional variance contributions. 
+
+<p>However, this only works if a) the transformation \(f(x_1,x_2,\dots)\) is linear and b) if the random variables \(X_1,X_2,\dots\) are independent.
+
+<p>Let's first keep the linearity assumption, but break the independence assumption. This already makes the attribution exercise more difficult. In general, define the random vector \(X = (X_1,X_2,\dots)^T\) with expectation vector \(\mu\) and variance matrix \(\Sigma\), that is \(\mu_i = E[X_i]\) and \(\Sigma_{ij} = Cov[X_i, X_j]\). We assume the scalar \(Y\) is obtained by a linear transformation \(Y = f(X) = AX + b\) where \(A\) is a matrix with one row and \(b\) is a scalar. Then the total variance of \(Y\) is given by \[Var(Y) = A\Sigma A^T.\]
+
+<p>For simplicity, let's assume \(A = (1,1,\dots)\). Then the total variance of \(Y\) is given by \[Var(Y) = \sum_i Var(X_i) + 2 \sum_{i \lt j} Cov(X_i, X_j).\] Now each \(X_i\) contributes to the total variance not only through it's own variance \(Var(X_i)\) but also through all its covariances with the other \(X\)'s. How should we now apportion the total variance to the individual \(X\)'s?
+
+<p>One thing we can do is to change the question. Instead of trying to attribute the total variance to the individual (correlated) \(x\)'s, we construct new linear combinations of the \(x\)s that are pairwise uncorrelated and whose variances add up to the total variance \(Var(Y)\). One way to do this is through Principal Component Analysis (PCA). We construct the eigen decomposition of the variance matrix \(\Sigma\), which since \(\Sigma\) is symmetric is given by \[\Sigma =  Q \Lambda Q^T\] with \(Q^TQ = QQ^T = 1\) and where the columns of \(Q\) are the eigenvectors of \(\Sigma\) and \(\Lambda\) is a diagonal matrix with eigenvalues of \(\Sigma\) along the diagonal. Since \(\Sigma\) is a variance matrix all eigenvalues are positive. Now let's assume I change the random vector \(X=(X_1,X_2,\dots)\) to the new random vector \(Z = Q^T X\). The elements of \(Z\) are linear combinations of the elements of \(X\). What is the variance of new random vector \(Z\)? Using standard transformation rules for variance we have \(Var(Z) = Q^T \Sigma Q\). But since \(\Sigma = Q\Lambda Q^T\) and \(QQ^T = Q^TQ = 1\) we have \(Var(Z) = Q^T Q \Lambda Q^T Q = \Lambda\) which is a diagonal matrix, and hence the elements of \(Z\) are uncorrelated. Now let's recalculate \(Y\) using \(Z\): \(Y = AX = AQ Z\) and the variance of \(Y\) is now given by \(Var(Y) = AQ \Lambda (AQ)^T\). MORE HERE
+
+
+<p>Sobol indices. Law of total variance \(Var[Y] = E[Var[Y|X_{-i}]] + Var[E[Y|X_{-i}]]\). Both terms (expected conditional variance and variance of conditional expectation) have an interpretation in the context of sensitivity analysis. The variance of \(Y\) only under variation of the \(i\)th input \(X_i\) can be expected to be large/small. The conditional expectation of \(Y\) given all inputs expect \(X_i\) does not/does very a lot with \(X_i\). MORE HERE
+
+<p>Morris sensitivity analysis: MORE HERE
+
+<p>Local vs global SA etc
+
+
