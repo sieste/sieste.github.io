@@ -1,6 +1,68 @@
 <!doctype html>
 <html lang=en>
 <head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
 <meta charset=utf-8>
 <title>Stefan Siegert</title>
 <link rel=stylesheet href=/style.css>
@@ -12,10 +74,7 @@
 
 <h2>A brief introduction to propagation of uncertainty</h2>
 
-<!--begin.rcode init, echo=FALSE
-  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
-  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
-end.rcode-->
+
 
 
 
@@ -53,24 +112,27 @@ end.rcode-->
 
 Below is an R code chunk that demonstrates a Monte Carlo simulation where \(X_1\) is initial velocity and \(X_2\) is initial angle of a projectile fired from ground level. The output \(Y\) is the maximum height of the projectile, given by \[Y = f(X_1, X_2) = \frac{X_1^2 \sin^2(X_2 \pi / 180)}{2g}\] where \(g = 9.81\) is the gravitational acceleration. If we are uncertain about \(X_1\) and \(X_2\), we are also uncertainty about \(Y\). We will describe our uncertainty in the velocity \(X_1\) by a Normal distribution, and uncertainty in the angle \(X_2\) by a Uniform distribution. 
 
-<!--begin.rcode, include=FALSE
-library(tidyverse)
-end.rcode-->
-<!--begin.rcode, eval=FALSE
-library(tidyverse)
-end.rcode-->
-<!--begin.rcode mc-histogram, fig.height=4
-# simulate random inputs 
-X1 = rnorm(1e4, mean = 30, sd = 2)  # Initial velocity (m/s) 
-X2 = runif(1e4, min = 30, max = 40)  # Projection angle (degrees) 
-# calculate output
-Y = (X1^2 * sin(X2*pi/180)^2) / (2 * 9.81)
 
-# Plot the density histogram of the output
-ggplot() + geom_histogram(aes(x=Y, y=after_stat(density)), 
-                          binwidth = 1, fill = "blue")
-print(c(`mean(Y)` = mean(Y), `sd(Y)`=sd(Y)))
-end.rcode-->
+<div class="chunk" id="unnamed-chunk-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
+</pre></div>
+</div></div>
+<div class="chunk" id="mc-histogram"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># simulate random inputs </span>
+<span class="hl std">X1</span> <span class="hl kwb">=</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl num">1e4</span><span class="hl std">,</span> <span class="hl kwc">mean</span> <span class="hl std">=</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl kwc">sd</span> <span class="hl std">=</span> <span class="hl num">2</span><span class="hl std">)</span>  <span class="hl com"># Initial velocity (m/s) </span>
+<span class="hl std">X2</span> <span class="hl kwb">=</span> <span class="hl kwd">runif</span><span class="hl std">(</span><span class="hl num">1e4</span><span class="hl std">,</span> <span class="hl kwc">min</span> <span class="hl std">=</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl kwc">max</span> <span class="hl std">=</span> <span class="hl num">40</span><span class="hl std">)</span>  <span class="hl com"># Projection angle (degrees) </span>
+<span class="hl com"># calculate output</span>
+<span class="hl std">Y</span> <span class="hl kwb">=</span> <span class="hl std">(X1</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">*</span> <span class="hl kwd">sin</span><span class="hl std">(X2</span><span class="hl opt">*</span><span class="hl std">pi</span><span class="hl opt">/</span><span class="hl num">180</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span> <span class="hl opt">/</span> <span class="hl std">(</span><span class="hl num">2</span> <span class="hl opt">*</span> <span class="hl num">9.81</span><span class="hl std">)</span>
+
+<span class="hl com"># Plot the density histogram of the output</span>
+<span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">geom_histogram</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=Y,</span> <span class="hl kwc">y</span><span class="hl std">=</span><span class="hl kwd">after_stat</span><span class="hl std">(density)),</span>
+                          <span class="hl kwc">binwidth</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl std">,</span> <span class="hl kwc">fill</span> <span class="hl std">=</span> <span class="hl str">&quot;blue&quot;</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/uncprop.Rhtml-mc-histogram-1.png" alt="plot of chunk mc-histogram" class="plot" /></div><div class="rcode">
+<div class="source"><pre class="knitr r"><span class="hl kwd">print</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwc">`mean(Y)`</span> <span class="hl std">=</span> <span class="hl kwd">mean</span><span class="hl std">(Y),</span> <span class="hl kwc">`sd(Y)`</span><span class="hl std">=</span><span class="hl kwd">sd</span><span class="hl std">(Y)))</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##  mean(Y)    sd(Y) 
+## 15.22099  3.00688
+</pre></div>
+</div></div>
 
 As next steps in studying uncertainty propagation, here are some questions we might ask to move forward:
 
