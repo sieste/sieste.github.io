@@ -9,6 +9,10 @@
 <body>
 <h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
 
+<h2>NOTE</h2>
+
+This document is work in progress, it's currently mostly me rambling trying to organise my thoughts on the topic. The goal is to have a first draft for an introductory chapter on Sensitivity Analysis for computer model experiments, starting from first principles as much as possible. 
+
 
 <h2>Getting started with Sensitivity Analysis</h2>
 
@@ -20,21 +24,120 @@ end.rcode-->
 
 <p>Basic problem: Uncertainty in inputs \((x_1, x_2, \dots)\) leads to uncertainty in the output of a function \(y=f(x_1,x_2,\dots)\). We agree that we use variance as our measure of uncertainty. We want to attribute the total variance in \(y\) to the variances of the different inputs. 
 
-<p>On first look this doesn't seem so hard. We know that for independent random variables, variance is additive \(Var(X_1 + X_2) = Var(X_1) + Var(X_2)\), so in the simple case \(f(x_1+x_2)=x_1 + x_2\) the total variance of \(Y\) is proportional to the individual variances, and we can simply say \(X_1\) contributes a fraction \(Var(X_1)/Var(Y)\) to the total variance and \(X_2\) contributes a fraction \(Var(X_2)/Var(Y)\). Both terms are between 0 and 1 and neatly add up to one, so can be interpreted as fractional variance contributions. 
+<p>On first look this doesn't seem so hard. We know that for independent random variables, variance is additive \(Var(X_1 + X_2) = Var(X_1) + Var(X_2)\), so in the simple case \(f(x_1,x_2)=x_1 + x_2\) the total variance of \(Y\) is proportional to the individual variances, and we can simply say \(X_1\) contributes a fraction \(Var(X_1)/Var(Y)\) to the total variance and \(X_2\) contributes a fraction \(Var(X_2)/Var(Y)\). Both terms are between 0 and 1 and neatly add up to one, so can be interpreted as fractional variance contributions.
 
-<p>However, this only works if a) the transformation \(f(x_1,x_2,\dots)\) is linear and b) if the random variables \(X_1,X_2,\dots\) are independent.
+<p>We can make this a bit more general and assume \(Y = f(X_1,X_2,\dots) = a_0 + a_1 X_1 + a_2 X_2 + \dots\) where \(a_0, a_1, \dots\) are known constants and \(X_1, X_2, \dots\) are independent random variables with known and finite expectations and variances. Then \(Var[Y] = a_1^2 Var[X_1] + a_2^2 Var[X_2] + \dots\) and so we can define fractional indices \[\frac{a_i^2 Var[X_i]}{\sum_j a_j^2 Var[X_j]}\] to quantify the relative contribution of the input \(X_i\) to the total variance.
+
+<p>However, this only works if a) the transformation \(f(X_1,X_2,\dots)\) is linear and b) if the random variables \(X_1,X_2,\dots\) are independent. If either of these assumptions is violated, it becomes more difficult to attribute the total variance to the individual inputs in a meaningful way.
+
+<h3>Dependent inputs</h3>
 
 <p>Let's first keep the linearity assumption, but break the independence assumption. This already makes the attribution exercise more difficult. In general, define the random vector \(X = (X_1,X_2,\dots)^T\) with expectation vector \(\mu\) and variance matrix \(\Sigma\), that is \(\mu_i = E[X_i]\) and \(\Sigma_{ij} = Cov[X_i, X_j]\). We assume the scalar \(Y\) is obtained by a linear transformation \(Y = f(X) = AX + b\) where \(A\) is a matrix with one row and \(b\) is a scalar. Then the total variance of \(Y\) is given by \[Var(Y) = A\Sigma A^T.\]
 
 <p>For simplicity, let's assume \(A = (1,1,\dots)\). Then the total variance of \(Y\) is given by \[Var(Y) = \sum_i Var(X_i) + 2 \sum_{i \lt j} Cov(X_i, X_j).\] Now each \(X_i\) contributes to the total variance not only through it's own variance \(Var(X_i)\) but also through all its covariances with the other \(X\)'s. How should we now apportion the total variance to the individual \(X\)'s?
 
-<p>One thing we can do is to change the question. Instead of trying to attribute the total variance to the individual (correlated) \(x\)'s, we construct new linear combinations of the \(x\)s that are pairwise uncorrelated and whose variances add up to the total variance \(Var(Y)\). One way to do this is through Principal Component Analysis (PCA). We construct the eigen decomposition of the variance matrix \(\Sigma\), which since \(\Sigma\) is symmetric is given by \[\Sigma =  Q \Lambda Q^T\] with \(Q^TQ = QQ^T = 1\) and where the columns of \(Q\) are the eigenvectors of \(\Sigma\) and \(\Lambda\) is a diagonal matrix with eigenvalues of \(\Sigma\) along the diagonal. Since \(\Sigma\) is a variance matrix all eigenvalues are positive. Now let's assume I change the random vector \(X=(X_1,X_2,\dots)\) to the new random vector \(Z = Q^T X\). The elements of \(Z\) are linear combinations of the elements of \(X\). What is the variance of new random vector \(Z\)? Using standard transformation rules for variance we have \(Var(Z) = Q^T \Sigma Q\). But since \(\Sigma = Q\Lambda Q^T\) and \(QQ^T = Q^TQ = 1\) we have \(Var(Z) = Q^T Q \Lambda Q^T Q = \Lambda\) which is a diagonal matrix, and hence the elements of \(Z\) are uncorrelated. Now let's recalculate \(Y\) using \(Z\): \(Y = AX = AQ Z\) and the variance of \(Y\) is now given by \(Var(Y) = AQ \Lambda (AQ)^T\). MORE HERE
+<p>One thing we can do is to change the question. Instead of trying to attribute the total variance to the individual (correlated) \(x\)'s, we construct new linear combinations of the \(x\)s that are pairwise uncorrelated. One way to do this is through Principal Component Analysis (PCA). We construct the eigen decomposition of the variance matrix \(\Sigma\), which since \(\Sigma\) is symmetric is given by \[\Sigma =  Q \Lambda Q^T\] with \(Q^TQ = QQ^T = 1\) and \(\Lambda\) is a diagonal matrix with eigenvalues of \(\Sigma\) along the diagonal. Since \(\Sigma\) is a variance matrix all eigenvalues are positive. Now we change the random vector \(X=(X_1,X_2,\dots)\) to the new transformed random vector \(Z = Q^T X\). The elements of \(Z\) are linear combinations of the elements of \(X\). We also have \[Var(Z) = Q^T Var[X] Q = \Lambda\] and so the elements of \(Z\) are uncorrelated and have variances \(Var[Z_i] = \lambda_i\). Now let's recalculate \(Y = AX\) using the transformation \(Z = Q^T X\): \[\begin{aligned}Var[Y] & = Var[AX] = Var[(AQ)Z]\\ & =: Var[BZ] = B\Lambda B^T = \sum_i b_i^2 \lambda_i\end{aligned}.\] Here we have transformed the new row matrix \(B\) with elements given by the dot products \(b_i = A q_i\) where \(q_i\) is the \(i\)th eigenvector of \(\Sigma\). We have shown that the total variance \(Var[Y]\) can be decomposed additively into contributions \(b_i^2 \lambda_i\) and so we might introduce sensitivity indices \[\frac{b_i^2 \lambda_i}{\sum_j b_j^2 \lambda_j}\] to quantify the fractional contributions of the principal components \(Z_1,Z_2,\dots\) to the total variance of \(Y\) under the transformation \(f(X_1,X_2,\dots)\). The benefits of this approach are the potential for dimensionality reduction: If some \(b_i^2 \lambda_i\) are very small, that means the variance of the corresponding \(Z_i\) does not contribute much to the variance of \(Y\) so we are justified to ignore its variability. When conducting computer experiments we can only focus on variations in \(X\)-space along the directions where \(b_i^2\lambda_i\) is sufficiently large. Another pro is that we can vary the \(Z\)'s independently and still maintain the original correlation in the inputs \(X\) as described in the off-diagonal elements of \(\Sigma\). The downside of this approach is that we have derived sensitivity indices that are not for the original model inputs but for linear combinations of them which makes interpretation of the results challenging. Lastly, remember that all this is based on the linearity assumption for the function \(f(X)\) and the assumption that variance is an adequate measure for "uncertainty" in inputs and outputs.
 
 
-<p>Sobol indices. Law of total variance \(Var[Y] = E[Var[Y|X_{-i}]] + Var[E[Y|X_{-i}]]\). Both terms (expected conditional variance and variance of conditional expectation) have an interpretation in the context of sensitivity analysis. The variance of \(Y\) only under variation of the \(i\)th input \(X_i\) can be expected to be large/small. The conditional expectation of \(Y\) given all inputs expect \(X_i\) does not/does very a lot with \(X_i\). MORE HERE
+<h3>Linearisation</h3>
 
-<p>Morris sensitivity analysis: MORE HERE
+<p>We have assumed that the function \(f(X_1,X_2,\dots)\) is linear in the \(X_i\) which is not usually the case. One option we have in such a situation is to derive a linear approximation of \(f(X)\) and then apply the linear theory developed above to that linear approximation for our sensitivity analysis. A common approach to linearise a nonlinear function is to use the first order Taylor approximation of \(f\) around a known point \(X_0\): \[f(X) \approx \tilde{f}(X) = f(X_0) + \nabla f(X_0)^T (X - X_0).\] Under that transformation we are back to the form \(f(X) = AX + b\) with the row matrix \(A = \nabla f(X_0)^T\) and scalar offset \(b = f(X_0) - \nabla f(X_0)^T X_0\). When inputs are varied independently, their variance matrix \(Var[X] = \Sigma\) is diagonal and we have \[Var[Y] = \sum_i a_i^2 \sigma_i^2\] and hence the output variance decomposes additively into components related to the variances of the inputs. We can use \(a_i^2 \sigma_i^2 / \sum_i a_i^2 \sigma_i^2\) as fractional sensitivity indices. This method is only valid in so far as the first order Taylor approximation is valid. For complex simulation models, the function \(f(X)\) might be highly nonlinear and the approximation is poor. Another factor to consider is how far we expect \(X\) to be from the central point \(X_0\). If the inputs are well constrained around \(X_0\), that is we never consider inputs far away from \(X_0\), then the approximation \(\tilde{f}(X)\) will be good enough for our purposes even when \(f(X)\) is far from linear globally.
 
-<p>Local vs global SA etc
+<p>TODO: Try second order Taylor expansion, using variance of quadratic forms.
+
+
+<h3>One-at-a-time (OAT) method</h3>
+
+<p>Let \(x^{(0)}\) be the baseline input and \(x^{(i)}\) be a version of \(x^{(0)}\) where only the \(i\)th input has been varied by a specific amount. The difference \(S_i = f(x^{(i)}) - f(x^{(0)})\) can be interpreted as a measure of sensitivity of the model to the given variation in the \(i\)th input.
+
+<p>OAT has two major shortcomings. Firstly it is a local sensitivity analysis, that is, only quantifies the sensitivity of the model near the baseline value \(x^{(0)}\). It is not guaranteed that the sensitivity is the same everywhere in parameter space. Second, OAT does not capture interaction effects between inputs. Given two sensitivities \(S_i\) and \(S_j\) we do not know immediately how the model will react to a simultaneous change in both the \(i\)th and the \(j\)th input. The changes in \(x_i\) and \(x_j\) might amplify each other, or cancel each other out, and we are not able to tell what it will be based on an OAT analysis.
+
+
+
+<h3>Morris sensitivity analysis</h3>
+
+Following <a href=http://links.jstor.org/sici?sici=0040-1706%28199105%2933%3A2%3C161%3AFSPFPC%3E2.0.CO%3B2-N target="_blank">Morris (1991)</a>
+
+Global OAT method by averaging over many local OATs.
+
+Region of experimentation: \(k\)-dimensional \(p\)-level grid, that is each \(x_i\) may take values \((0,1/(p-1), 2/(p-1),\dots,1)\)
+
+Elementary effect of the \(i\)th input \[d_i(x) = [f(x_1,\dots,x_{i-1},x_i + \Delta, x_{i+1}, \dots, x_k) - f(x_1, \dots, x_k)] / \Delta\]
+
+Implementation:
+
+<ul>
+<li>Repeat \(r\) times:
+  <ul>
+  <li> randomly sample a starting point \(x\) in the region of experimentation, by sampling \(k\) times independently from \((0,1/(p-1),2/(p-1),\dots,1)\) 
+  <li> define a random permutation \((\pi_1,\dots,\pi_k)\) of \((1,\dots,k)\)
+  <li> loop \(i\) from 1 to \(k\):
+    <ul>
+    <li> update \(x_{\pi_i}\) to \(x_{\pi_i} + \Delta\) or \(x_{\pi_i} - \Delta\) with equal probability, and store the updated version of \(x\)
+    </ul>
+  </ul>
+</ul>
+
+Morris suggests to use either the average of the elementary effects as a measure of sensitivity, that is \[m_i = \frac1r \sum_{j=1}^r d_i^{(j)}(x)\] or better, the average of the absolute value of the elementary effects: \[m^*_i = \frac1r \sum_{j=1}^r |d_i^{(j)}(x)|.\] The idea is that an input that consistently (averaged over the whole region of experimentation) genreates a change in the output should be considered to be more relevant for the output variability than an input that produces no or small changes. Taking the absolute value before averaging avoids cancellation of positive and negative elementary effects. If a parameter produces as many positive as negative elementary effects over the region of experimentation, the sensitivity measure should (arguably) not average to zero. Morris further suggests to calculate the standard deviation of the elementary effects as an indicator of non-linearity and interaction with other parameter \[\delta_i = \sqrt{\frac1r \sum_{j=1}^r (d_i^{(j)} - m_i)^2}.\] If the standard deviation of \(d_i(x)\) is zero over the region of experimentation, the change of the output to a change in the \(i\)th parameter is always the same, which suggests a linear relationship. On the other hand, if there is variation in the \(d_i\) as indicated by a non-zero standard deviation, this is an indicator that the relationship between \(x_i\) and \(y\) is not linear, but either a nonlinear function in \(x_i\) alone, or a nonlinear combination of \(x_i\) with other inputs.
+
+The Morris sensitivity analysis is implemented in the "morris" function of the R package "sensitivity":
+
+<!--begin.rcode, eval=FALSE
+library(sensitivity)
+end.rcode-->
+<!--begin.rcode, include=FALSE
+library(sensitivity)
+end.rcode-->
+<!--begin.rcode
+f = function(X) X[,1]^2 + sin(2*pi*X[,2])
+mor = morris(model = f, factors = 2, r = 4,
+             design = list(type = "oat", levels = 5, grid.jump = 1))
+# mor is a list with fields:
+#   mor$X: contains the sample path(s), 
+#          (ninputs+1)*r rows and nintputs columns
+#   mor$y: contains the vector of function values
+#   mor$ee: contains the individual elementary effects 
+#           from each run (r rows and ninputs columns)
+print(mor[c('X','y','ee')])
+end.rcode-->
+
+<!--begin.rcode
+print(mor) # prints summaries of the elementary effects
+end.rcode-->
+
+The summaries are not stored in the return object so we have to calculate them "by hand" if we need them, as shown in the help of the morris function:
+
+<!--begin.rcode
+mu = apply(mor$ee, 2, mean)
+mu.star = apply(mor$ee, 2, function(x) mean(abs(x)))
+sigma = apply(mor$ee, 2, sd)
+print(list(mu=mu, mu.star=mu.star,sigma=sigma))
+end.rcode-->
+
+<a href=https://doi.org/10.1016/S0951-8320(98)00008-8 target="_blank">Campolongo and Braddock (1999)</a> proposed an extension of the elementary effects method to estimate interaction effects. The method works by varying not only the \(i\)th input, but the \(i\)th and \(j\)th input, and averaging the resulting absolute differences in the output.
+
+<p>Formally, define the vector \(e_i\) as the vector of the same length as the input vector \(x\) with all elements equal to zero except for the \(i\)th element which is one. Then the Morris elementary effect can be estimated by averaging \((f(x + e_i \Delta) - f(x))/\Delta\) over many randomly chosen input points \(x\). The interaction effect of the \(i\)th and \(j\)th input is estimated by defining \[d_{ij}(x) (f(x+e_i\Delta + e_j\Delta) - f(x))/\Delta^2\] and using the sensitivity measure \[\mu^*_{ij} = \frac1r \sum_{k=1}^r |d_{ij}(x^{(k)})-d_i(x^{(k)}) - d_j(x^{(k)}|\] as a measure of the interaction between the \(i\)th and the \(j\)th input. 
+
+<p>Why do we subtract \(d_i\) and \(d_j\) from \(d_{ij}\) to quantify the interaction? That is because if \(Y\) depends on \(x_i\) and \(x_j\) additively (ie without interaction between the \(i\)th and \(j\)th input) then \[f(x+e_i\Delta + e_j\Delta) - f(x) = f(x+e_i\Delta) - f(x) + f(x + e_j\Delta) - f(x)\] and hence \(d_{ij}(x) = d_i(x) + d_j(x)\) or \[d_{ij}(x) - d_i(x) - d_j(x) = 0.\] Unfortunately this method is not implemented in the sensitivity package.
+
+<p>TODO: double check the maths, some multiplications by \(\Delta\) are missing. 
+
+<h3>Conditional Variances</h3>
+
+<p>Consider the conditional variance of the output \(Y\) given that the \(i\)th input \(X_i\) is fixed at a given value \(x_i\). Compared to the total variance \(Var[Y]\) the conditional variance \(Var[Y|X_i=x_i]\) is calculated by allowing all but the \(i\)th input to vary. We might intuitively expect that since one less input is being varied, then the conditional variance is smaller than the total variance, and the reduction between conditional and total variance can be interpreted as a measure of importance of the \(i\)th input. However, this is not quite true. For once, the conditional variance is a function of the value \(x_i\) and so will differ depending on where we fix the input. More importantly, against our intuition, it is easily possible to construct random variables in such a way that the conditional variance is larger than the total variance.
+
+
+<p>For example, consider the random variables \(X\sim Ber(0.5)\) and \(Y|X \sim N(0,1+X)\). So the conditional variances are \(Var[Y|X=0]=1\) and \(Var[Y|X=1] = 2\). As noted above, the conditional variance is different for different values of \(x\). Further, the total variance of \(Y\) is 1.5, which is smaller than the conditional variance of \(Y\) given a fixed \(X=1\).
+
+<p>Both issues are resolved by taking the expectation of the conditional variance \[E_{X_i}Var_{X_{\sim i}}[Y|X_i].\] Since the outer expectation is taken over \(X_i\), we are effectively averaging over all possible values at which \(X_i\) could be fixed, and the dependence on the value \(x_i\) disappears. Secondly, and again more importantly, it follows from the law of total variance \[Var[Y] = E[Var[Y|X_i]] + Var[E[Y|X_i]]\] that the expected conditional variance never exceeds the total variance. The reason for this is that both terms in the sum for \(Var[Y]\) are positive: The first is a variance and can thus not be negative, and the other is an expectation over a quantity that can not be negative. Therefore, either a small expected conditional variance or a large variance of the conditional expectation can be used as indicators that \(X_i\) is an important contributor to the variance of \(Y\). 
+
+
+<p>Sobol indices can be considered a mathematically more disciplined extension of Morris' method. The method solves the problem of attributing part of the total variance not only to individual inputs, but also to interactions, while maintaining the property that all indices add up to the total variance which allows their use as a relative measure of importance. Sensitivity analysis with Sobol indices is now the defacto standard method of global, variance-based sensitivity analysis. 
+
+
+
+
+
+
 
 
