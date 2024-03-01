@@ -122,6 +122,48 @@ end.rcode-->
 
 <p>TODO: double check the maths, some multiplications by \(\Delta\) are missing. 
 
+
+<h3>Variance decomposition</h3>
+
+Functional ANOVA
+
+<p>Presentation losely follows section 2 of <a href=https://www.jstor.org/stable/pdf/24307092.pdf target="_blank">Owen (2003)</a> but the method is much older.
+
+<p>Let \(f(x) = f(x_1,\dots,x_k)\) be our function with \(k\) inputs. We assume that all inputs are rescaled to the unit interval \([0,1]\) and all inputs have independent uniform distributions. We are interested in decomposing the total variance of \(f(x)\) into components that can be attributed to individual inputs and their interactions. 
+
+<p>Since we assume uniform distributions for the inputs, the expectation of \(f(x)\) is given by \(f_0 = \int f(x)dx\) and the total variance of \(f(x)\) is given \(\sigma^2 = \int f(x)^2 dx - f_0^2\).
+
+<p>Let \(u \subseteq \{1,\dots,k\}\) and \(-u = \{1,\dots,k\} - u\). That is, \(u\) is a subset of the positive integers up to \(k\) and \(-u\) is its complement. For a point \(x = \(x_1, \dots, x_k)\) in input space, define \(x^u\) as the vector of components \(x_j\) for all \(j \in u\). The integral of \(f(x)\) over all possible vectors \(x^u\) is a function that depends only on components \(x^{-u}\) because all components \(x^u\) have been integrated out. For example \int (x_1 + x_2^2)dx_2 = x_1 + 1/3\).
+
+<p>The functional ANOVA decomposition is defined as
+
+\[f(x) = \sum_{u\subseteq \{1,\dots,k\}} f_u(x^{u}),\]
+
+where 
+
+\[f_u(x) = \int f(x) dx^{-u} - \sum_{v \subset u} f_v(x).\]
+
+To calculate the ANOVA components iteratively, we start by calculating the expectation \(f_0\), then all individual terms \(f_u(x)\) with \(|u|=1\) by
+
+\[f_u(x) = \int f(x) dx^{-u} - f_0 \forall u \in \{\{1\},\dots,\{k\}\}\]
+
+and then all second order terms (where \(|u|=2\)) by
+
+\[f_u(x) = \int f(x) dx^{-u} - f_{\{1\}(x) - \dots f_{\{k\}}(x) - f_0\]
+
+and so on for third, fourth order terms etc.
+
+
+
+
+
+
+
+
+
+
+
+
 <h3>Conditional Variances</h3>
 
 <p>Consider the conditional variance of the output \(Y\) given that the \(i\)th input \(X_i\) is fixed at a given value \(x_i\). Compared to the total variance \(Var[Y]\) the conditional variance \(Var[Y|X_i=x_i]\) is calculated by allowing all but the \(i\)th input to vary. We might intuitively expect that since one less input is being varied, then the conditional variance is smaller than the total variance, and the reduction between conditional and total variance can be interpreted as a measure of importance of the \(i\)th input. However, this is not quite true. For once, the conditional variance is a function of the value \(x_i\) and so will differ depending on where we fix the input. More importantly, against our intuition, it is easily possible to construct random variables in such a way that the conditional variance is larger than the total variance.

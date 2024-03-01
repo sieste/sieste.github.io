@@ -225,6 +225,29 @@ The summaries are not stored in the return object so we have to calculate them "
 
 <p>TODO: double check the maths, some multiplications by \(\Delta\) are missing. 
 
+
+<h3>Variance decomposition</h3>
+
+Functional ANOVA
+
+<p>Presentation losely follows section 2 of <a href=https://www.jstor.org/stable/pdf/24307092.pdf target="_blank">Owen (2003)</a> but the method is much older.
+
+<p>Let \(f(x) = f(x_1,\dots,x_k)\) be our function with \(k\) inputs. We assume that all inputs are rescaled to the unit interval \([0,1]\) and all inputs have independent uniform distributions. We are interested in decomposing the total variance of \(f(x)\) into components that can be attributed to individual inputs and their interactions. A regularity condition for this method is that \(\int f(x)^2 dx \lt \infty\).
+
+<p>Define \(\Omega = \{1,\dots,k\}\), the set of positive integers up to \(k\). Let \(S\) be a subset of \(Omega\): \(S \subseteq \Omega\). Then
+
+\[f(x) = \sum_{S\subseteq \Omega} f_S(x_S)\]
+
+where \(x_S\) is the vector of inputs in \(S\), for example when \(S=\{1,3\}\) then \(x_S = (x_1, x_3)\). So the function \(f(x)\) is decomposed additively into a total of \(2^k\) functions \(f_S(x_S)\) each of which depends on one of the possible subsets of the input variables. 
+
+<p>Without further constraints on the \(f_S\) the decomposition is not unique. For example we always have the trivial "decomposition" with \(f_S(x_S)=0 \forall S \not = \Omega\) and \(f_\Omega(x_\Omega) = f(x)\). We can also choose \(f_0(x) = c\) (an arbitrary constant) and \(f_\Omega(x_\Omega) = f(x) - c\) with all other \(f_S(x_S) = 0\). So we need to impose some reasonable constraints on the components \(f_S(x_S)\).
+
+
+
+
+
+
+
 <h3>Conditional Variances</h3>
 
 <p>Consider the conditional variance of the output \(Y\) given that the \(i\)th input \(X_i\) is fixed at a given value \(x_i\). Compared to the total variance \(Var[Y]\) the conditional variance \(Var[Y|X_i=x_i]\) is calculated by allowing all but the \(i\)th input to vary. We might intuitively expect that since one less input is being varied, then the conditional variance is smaller than the total variance, and the reduction between conditional and total variance can be interpreted as a measure of importance of the \(i\)th input. However, this is not quite true. For once, the conditional variance is a function of the value \(x_i\) and so will differ depending on where we fix the input. More importantly, against our intuition, it is easily possible to construct random variables in such a way that the conditional variance is larger than the total variance.
