@@ -226,23 +226,31 @@ The summaries are not stored in the return object so we have to calculate them "
 <p>TODO: double check the maths, some multiplications by \(\Delta\) are missing. 
 
 
-<h3>Variance decomposition</h3>
+<h3>Functional ANOVA</h3>
 
-Functional ANOVA
+<p>Here we introduce Functional ANOVA, an additive decomposition of functions that allows a decomposition of its total variance into components that can be attributed to individual or small subsets of its intputs. The presentation follows Appendix A of <a href=https://artowen.su.domains/mc/>Owen (2023)</a>, with proofs omitted.
 
-<p>Presentation losely follows section 2 of <a href=https://www.jstor.org/stable/pdf/24307092.pdf target="_blank">Owen (2003)</a> but the method is much older.
+<p>Let \(f(x)\) be a function of \(d\) inputs, that is \(x = (x_1, \dots, x_d)\). We assume that all inputs are independent and uniformly distributed on the unit interval, \(x_j \sim U(0,1) \forall j \in \{1,\dots, d\}\). Define the expectation \(\mu = \int f(x) dx\) (where \(\int \dots dx\) is shorthand for the \(d\) dimensional integral from zero to one). Define also the variance \(\sigma^2 = \int f(x)^2 dx - \mu^2\) and we assume \(f(x)\) is such that \(\sigma^2 \lt \infty\).
 
-<p>Let \(f(x) = f(x_1,\dots,x_k)\) be our function with \(k\) inputs. We assume that all inputs are rescaled to the unit interval \([0,1]\) and all inputs have independent uniform distributions. We are interested in decomposing the total variance of \(f(x)\) into components that can be attributed to individual inputs and their interactions. A regularity condition for this method is that \(\int f(x)^2 dx \lt \infty\).
+<p>Define \(S = \{1,\dots,d\}\) the set of all input indices, and subsets \(u \subseteq S\). Denote by \(x_u\) the subset of elements of \(x\) with indices in \(u\), that is \(x_u = \{x_j\}_{j \in u}\). Similarly, define the complement \(x_{-u} = \{x_j\}_{j \not\in u}\). 
 
-<p>Define \(\Omega = \{1,\dots,k\}\), the set of positive integers up to \(k\). Let \(S\) be a subset of \(Omega\): \(S \subseteq \Omega\). Then
+<p>The functional ANOVA decomposition of \(f(x)\) is given by \[f(x) = \sum_{u \subseteq S} f_u(x)\] where each of the terms \(f_u(x)\) depends on \(x\) only through elements \(x_j\) with \(j \in u\). The component corresponding to the subset \(u\) is given by \[f_u(x) = \int f(x) dx_{-u} - \sum_{v \subset u} f_v(x).\] That is we obtain the function \(f_u(x)\) by first integrating out all inputs \(x_{-u}\), and then subtracting all components that depend on elements in \(u\) through components of lower order.
 
-\[f(x) = \sum_{S\subseteq \Omega} f_S(x_S)\]
+<p>For more clarity, let's look at a few low order terms. The component \[f_\emptyset (x) = \int f(x) dx\] is simply the expectation \(\mu\). For singleton sets \(u = \{j\}\) we get the main effects \[f_{\{j\}}(x) = \int f(x) dx_{-j} - f_\emptyset\] and for sets with \(u=\{i,j\}\) with \(i\neq j\) we get the first order interactions \[f_{\{i,j\}} = \int f(x) dx_{-\{i,j\}} - f_{\{i\}}(x) - f_{\{j\}}(x) - f_\emptyset\.] Higher order terms with \(|u| \ge 3\) are calculated recursively from their corresponding lower order terms.
 
-where \(x_S\) is the vector of inputs in \(S\), for example when \(S=\{1,3\}\) then \(x_S = (x_1, x_3)\). So the function \(f(x)\) is decomposed additively into a total of \(2^k\) functions \(f_S(x_S)\) each of which depends on one of the possible subsets of the input variables. 
+<p>Defined in that way, the \(f_u(x)\) have the following properties:
 
-<p>Without further constraints on the \(f_S\) the decomposition is not unique. For example we always have the trivial "decomposition" with \(f_S(x_S)=0 \forall S \not = \Omega\) and \(f_\Omega(x_\Omega) = f(x)\). We can also choose \(f_0(x) = c\) (an arbitrary constant) and \(f_\Omega(x_\Omega) = f(x) - c\) with all other \(f_S(x_S) = 0\). So we need to impose some reasonable constraints on the components \(f_S(x_S)\).
+<ul>
+<li>\(\int f_u(x)dx_j = 0\) for \(j \in u\)
+<li>\(\int f_u(x) f_v(x) dx = 0\) for \(u \neq v\)
+</ul>
+
+<p>Defining \[\sigma_u^2 = \int f_u(x) dx\] it holds that the total variance of \(f(x)\) decomposes additively into \[\sigma^2 = \sum_{u \subseteq S} \sigma_u^2.\] That is, the functional ANOVA decomposition of \(f(x)\) into components that depend on all possible subsets of inputs allows for an additive decomposition of the total variance into variance components that depend on all possible subsets of inputs.
+
+<p>As an exercise to get confidence with that method, I recommend you define a simple function that depends on two inputs \(f(x) = x_1 + x_1x_2\) and calculate all integrals. Start with \(\mu\) and \(\sigma_2\). Then calculate \(f_{\{1\}}\), \(f_{\{2\}}\) and \(f_{\{1,2\}}\). Convince yourself that the stated properties are satisfied, for example that \(\int f_{\{1\}}(x) f_{\{1,2\}}(x) dx = 0\). The calculate the variances of all ANOVA components and show that they add up to the total variance. Also convince yourself that other decompositions, such as \(f_\{1\}(x) = x_1\), \(f_{\{\}} = f_{\{2\}}(x)=0\), and \(f_{\{1,2\}}(x) = x_1x_2\) do not lead to an additive decomposition of the variance even though they add up to \(f(x)\).
 
 
+<h3>Sobol' indices</h3>
 
 
 
