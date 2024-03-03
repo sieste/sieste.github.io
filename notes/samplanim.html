@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Three.js Dual View Example</title>
+    <style>
+        #threejscontent {
+          width: 80%;
+          height: 100px;
+          margin: auto;
+          display: flex;
+        }
+        .panel { width: 50%; height: 100vh; float: left; }
+        canvas { display: block; }
+    </style>
+
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@v0.162.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@v0.162.0/examples/jsm/"
+    }
+  }
+</script>
+
+
+</head>
+<body>
+<div id="buttondiv">
+<button id="toggleButton">Rotate</button>
+<input type="range" id="rotationSlider" min="0" max="6.28" step="0.01" value="0">
+</div>
+<br>
+
+<div id="optionsdiv">
+<form id="optionsForm">
+    <input type="radio" id="random" name="option" value="random" checked>
+    <label for="option2">Random</label><br>
+    <input type="radio" id="grid" name="option" value="grid">
+    <label for="option1">Grid</label><br>
+    <input type="radio" id="stratified" name="option" value="stratified">
+    <label for="option3">Stratified random</label><br>
+    <input type="radio" id="LHS" name="option" value="LHS">
+    <label for="option4">Latin Hypercube</label>
+</form>
+</div>
+
+<br>
+
+<div id="threejscontent">
+<div id="sideView" class="panel"></div>
+<div id="topView" class="panel"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+
+// set first box as checked on page reload
+window.onload = function() {
+    document.getElementById('random').checked = true;
+};
+
+// Scene
+let rotate = 0.01;
+let type = "grid";
+let scene = new THREE.Scene();
+
+// Renderer
+let renderer1 = new THREE.WebGLRenderer();
+let renderer2 = new THREE.WebGLRenderer();
+renderer1.setSize(window.innerWidth / 2, window.innerHeight);
+renderer2.setSize(window.innerWidth / 2, window.innerHeight);
+document.getElementById('sideView').appendChild(renderer1.domElement);
+document.getElementById('topView').appendChild(renderer2.domElement);
+
+// Camera
+let cameraSide = new THREE.PerspectiveCamera(40, (window.innerWidth / 2) / window.innerHeight, 0.1, 1000);
+let cameraTop = new THREE.PerspectiveCamera(30, (window.innerWidth / 2) / window.innerHeight, 0.1, 1000);
+cameraSide.position.z = 5;
+cameraSide.position.y = .5; // Raise the camera to see part of the top
+//cameraSide.position.x = 2; // Optional: Adjust the X position for a better angle
+cameraSide.lookAt(scene.position);
+
+
+cameraTop.position.y = 10;
+cameraTop.lookAt(scene.position); // Make the top camera look straight down
+
+// Geometry
+let cubeGeometry = new THREE.BoxGeometry(1.1, .05, 1.1);
+let sphereGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+let cubematerial = new THREE.MeshBasicMaterial({color: 0x3333aa});
+let spherematerial = new THREE.MeshBasicMaterial({color: 0xaa6633});
+
+// Cube
+let cube = new THREE.Mesh(cubeGeometry, cubematerial);
+scene.add(cube);
+
+// Sphere
+let spheres = {};
+for (let i = 0; i < 16; i++) {
+  spheres[i] = new THREE.Mesh(sphereGeometry, spherematerial);
+  spheres[i].position.y = .05; // Position the sphere on top of the cube
+  spheres[i].position.x = Math.random()-0.5; // Position the sphere on top of the cube
+  spheres[i].position.z = Math.random()-0.5;// Position the sphere on top of the cube
+  scene.add(spheres[i]);
+}
+
+
+
+
+
+// Function to update the selectedOption variable based on the radio button selection
+function updateSelectedOption() {
+    var selectedOption = document.querySelector('input[name="option"]:checked').value;
+    if (selectedOption === "grid") {
+      for (let i = 0; i < 16; i++) {
+        spheres[i].position.x = Math.floor(i / 4.0) / 4.0 - 0.5 + 0.125;
+        spheres[i].position.z = (i % 4) / 4.0 - 0.5 + 0.125;
+      }
+    }
+    if (selectedOption === "random") {
+      for (let i = 0; i < 16; i++) {
+        spheres[i].position.x = Math.random()-0.5; 
+        spheres[i].position.z = Math.random()-0.5; 
+      }
+    }
+    if (selectedOption === "stratified") {
+      for (let i = 0; i < 16; i++) {
+        spheres[i].position.x = Math.floor(i / 4.0) / 4.0 - 0.5 + 0.125;
+        spheres[i].position.z = (i % 4) / 4.0 - 0.5 + 0.125;
+        spheres[i].position.x += 0.125 * (2*Math.random()-1); 
+        spheres[i].position.z += 0.125 * (2*Math.random()-1); 
+      }
+    }
+    if (selectedOption === "LHS") {
+      let samplesX = new Array(16);
+      let samplesY = new Array(16);
+      for (let i = 0; i < 16; i++) {
+          samplesX[i] = (i + Math.random()) / 16;
+          samplesY[i] = (i + Math.random()) / 16;
+      }
+      
+      // shuffle samples
+      for (let i = 16; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          [samplesX[i], samplesX[j]] = [samplesX[j], samplesX[i]];
+          var j = Math.floor(Math.random() * (i + 1));
+          [samplesY[i], samplesY[j]] = [samplesY[j], samplesY[i]];
+      }
+      
+      // Combine shuffled coordinates to form the 2D Latin Hypercube samples
+      let lhsSamples = [];
+      for (let i = 0; i < 16; i++) {
+          lhsSamples.push([samplesX[i], samplesY[i]]);
+      }
+
+      // set coordinates
+      for (let i = 0; i < 16; i++) {
+        spheres[i].position.x = samplesX[i] - 0.5;
+        spheres[i].position.z = samplesY[i] - 0.5;
+      }
+    }
+}
+document.getElementById('optionsForm').addEventListener('change', updateSelectedOption);
+
+
+// function to toggle between rotate and not rotate
+function toggleRotate() {
+
+    if (rotate == 0.0) {
+      rotate = 0.01;
+    } else {
+      rotate = 0.0;
+    }
+}
+document.getElementById('toggleButton').addEventListener('click', toggleRotate);
+
+
+const rotationSlider = document.getElementById('rotationSlider');
+
+// Add an event listener to the slider
+rotationSlider.addEventListener('input', function() {
+    // Update the scene's rotation y based on the slider's value
+    scene.rotation.y = parseFloat(this.value);
+});
+
+
+
+
+// Render function
+function animate() {
+    requestAnimationFrame(animate);
+    renderer1.render(scene, cameraSide);
+    renderer2.render(scene, cameraTop);
+    scene.rotation.y += rotate;
+}
+animate();
+
+</script>
+</body>
+</html>
