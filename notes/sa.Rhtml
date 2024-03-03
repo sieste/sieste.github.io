@@ -125,7 +125,7 @@ end.rcode-->
 
 <h3>Functional ANOVA</h3>
 
-<p>Here we introduce Functional ANOVA, an additive decomposition of functions that allows a decomposition of its total variance into components that can be attributed to individual or small subsets of its intputs. The presentation follows Appendix A of <a href=https://artowen.su.domains/mc/>Owen (2023)</a>, with proofs omitted.
+<p>Here we introduce Functional ANOVA, an additive decomposition of functions that allows a decomposition of its total variance into components that can be attributed to individual or small subsets of its intputs. The presentation follows Appendix A of <a href=https://artowen.su.domains/mc/ target="_blank">Owen (2023)</a>, with proofs omitted.
 
 <p>Let \(f(x)\) be a function of \(d\) inputs, that is \(x = (x_1, \dots, x_d)\). We assume that all inputs are independent and uniformly distributed on the unit interval, \(x_j \sim U(0,1) \forall j \in \{1,\dots, d\}\). Define the expectation \(\mu = \int f(x) dx\) (where \(\int \dots dx\) is shorthand for the \(d\) dimensional integral from zero to one). Define also the variance \(\sigma^2 = \int f(x)^2 dx - \mu^2\) and we assume \(f(x)\) is such that \(\sigma^2 \lt \infty\).
 
@@ -133,23 +133,79 @@ end.rcode-->
 
 <p>The functional ANOVA decomposition of \(f(x)\) is given by \[f(x) = \sum_{u \subseteq S} f_u(x)\] where each of the terms \(f_u(x)\) depends on \(x\) only through elements \(x_j\) with \(j \in u\). The component corresponding to the subset \(u\) is given by \[f_u(x) = \int f(x) dx_{-u} - \sum_{v \subset u} f_v(x).\] That is we obtain the function \(f_u(x)\) by first integrating out all inputs \(x_{-u}\), and then subtracting all components that depend on elements in \(u\) through components of lower order.
 
-<p>For more clarity, let's look at a few low order terms. The component \[f_\emptyset (x) = \int f(x) dx\] is simply the expectation \(\mu\). For singleton sets \(u = \{j\}\) we get the main effects \[f_{\{j\}}(x) = \int f(x) dx_{-j} - f_\emptyset\] and for sets with \(u=\{i,j\}\) with \(i\neq j\) we get the first order interactions \[f_{\{i,j\}} = \int f(x) dx_{-\{i,j\}} - f_{\{i\}}(x) - f_{\{j\}}(x) - f_\emptyset\.] Higher order terms with \(|u| \ge 3\) are calculated recursively from their corresponding lower order terms.
+<p>For more clarity, let's look at a few low order terms. The component \[f_\emptyset (x) = \int f(x) dx\] is simply the expectation \(\mu\). For singleton sets \(u = \{j\}\) we get the main effects \[f_{\{j\}}(x) = \int f(x) dx_{-j} - f_\emptyset\] and for sets with \(u=\{i,j\}\) with \(i\neq j\) we get the first order interactions \[f_{\{i,j\}} = \int f(x) dx_{-\{i,j\}} - f_{\{i\}}(x) - f_{\{j\}}(x) - f_\emptyset.\] Higher order terms with \(|u| \ge 3\) are calculated recursively from their corresponding lower order terms.
 
 <p>Defined in that way, the \(f_u(x)\) have the following properties:
 
 <ul>
 <li>\(\int f_u(x)dx_j = 0\) for \(j \in u\)
+<li>\(\int f_u(x)dx_j = f_u(x)\) for \(j \not\in u\)
 <li>\(\int f_u(x) f_v(x) dx = 0\) for \(u \neq v\)
 </ul>
 
-<p>Defining \[\sigma_u^2 = \int f_u(x) dx\] it holds that the total variance of \(f(x)\) decomposes additively into \[\sigma^2 = \sum_{u \subseteq S} \sigma_u^2.\] That is, the functional ANOVA decomposition of \(f(x)\) into components that depend on all possible subsets of inputs allows for an additive decomposition of the total variance into variance components that depend on all possible subsets of inputs.
+<p>Defining the variance of the ANOVA component corresponding to the index set \(u\) by \[\sigma_u^2 = \int f_u(x) dx\] it holds that the total variance of \(f(x)\) decomposes additively into \[\sigma^2 = \sum_{u \subseteq S} \sigma_u^2.\] That is, the functional ANOVA decomposition of \(f(x)\) into components that depend on all possible subsets of inputs allows for an additive decomposition of the total variance into variance components that depend on all possible subsets of inputs.
 
 <p>As an exercise to get confidence with that method, I recommend you define a simple function that depends on two inputs \(f(x) = x_1 + x_1x_2\) and calculate all integrals. Start with \(\mu\) and \(\sigma_2\). Then calculate \(f_{\{1\}}\), \(f_{\{2\}}\) and \(f_{\{1,2\}}\). Convince yourself that the stated properties are satisfied, for example that \(\int f_{\{1\}}(x) f_{\{1,2\}}(x) dx = 0\). The calculate the variances of all ANOVA components and show that they add up to the total variance. Also convince yourself that other decompositions, such as \(f_\{1\}(x) = x_1\), \(f_{\{\}} = f_{\{2\}}(x)=0\), and \(f_{\{1,2\}}(x) = x_1x_2\) do not lead to an additive decomposition of the variance even though they add up to \(f(x)\).
 
 
+<h4>Worked example</h4>
+
+<p>Let's calculate the functional ANOVA of \[f(x) = f(x_1,x_2) = x_1 x_2^2.\] We start with the total expectation \[f_0 = \int_0^1 \int_0^1 x_1 x_2^2 dx_1dx_2 = \frac16.\] Next, the main effects are \[f_1(x) = \int_0^1 x_1x_2^2 dx_2 - f_0 = \frac13 x_1 - \frac16\] and \[f_2(x) = \int_0^1 x_1x_2^2dx_1 - f_0 = \frac12 x_2^2 - \frac16.\] Now the interaction term of the decomposition is \[f_{12}(x) = f(x) - f_1(x) - f_2(x) - f_0 = x_1x_2^2 - \frac13x_1 - \frac12x_2^2 + \frac16.\] It is easy to verify that \(f(x) = f_0 + f_1(x) + f_2(x) + f_{12}(x).\) Now we can use the functional ANOVA to additively decompose the total variance of \(f(x)\) which is \[\sigma^2 = \int_0^1 \int_0^1 f(x)^2 dx_1 dx_2 - f_0^2 = \frac{7}{180}.\] We have the variance of \(f_1(x)\) given by \[\sigma_1^2 = \int_0^1 f_1(x)^2 dx_1 = \frac{1}{108}\] and the variance of \(f_2(x)\) is \[\sigma_2^2 = \int_0^1 f_2(x)^2 dx_2 = \frac{1}{45}.\] The variance of the interaction term is a bit cumbersome to calculate but having calculated the total variance and the main effect variances, we can simply derive \(\sigma_{12}^2\) by \[\sigma_{12}^2 = \sigma^2 - \sigma_1^2 - \sigma_2^2 = \frac{1}{135}\] which completes the additive decomposition of the total variance of \(f(x)\) into components that can be uniquely attributed to only the first input, to only the second input, and to their interaction.
+
+
 <h3>Sobol' indices</h3>
 
+Sobol' indices are derived from the variances calculated in the functional ANOVA. There are two types of Sobol' indices with different interpretations in the context of sensitivity analysis.
 
+Let's consider the following sum of variances related to ANOVA terms of the index set \(u\): \[\underline{\tau}_u^2 = \sum_{v \subseteq u} \sigma_v^2\] that is we are summing variances of all ANOVA terms corresponding to subsets of \(u\) including \(u\) itself. That is, we are summing all the variance components that include the indices in \(u\), including main effects and all mutual interactions (but not interactions with other terms). The closed sensitivity index of the inputs \(x_u\) is defined as \[S_{C,u} = \frac{\underline{\tau}_u^2}{\sigma^2}\] which is zero if the inputs \(x_u\) contribute nothing to the total variance of \(f(x)\) through main effects and their mutual interactions, and one if the inputs \(x_u\) are collectively responsible for all of the variance of \(f(x)\) and all other inputs contribute nothing. If \(S_{C,u}\) is large, then the \(x_u\) are important. However, since the sum to calculate \(\underline{\tau}_u^2\) only includes subsets of \(u\), we cannot conclude from a small value of \(S_{C,u}\) that the \(x_u\) are unimportant. For example if \(d=3\) and \(u=\{1,3\}\) then we know from a small value of \(S_{C,u}\) that the variances \(\sigma_1^2\), \(\sigma_3^2\), and \(\sigma_{13}^2\) are small. But the inputs \(x_1\) and \(x_3\) could contribute to the total variances through their interaction with \(x_2\) which is not considered in the calculation of \(S_{C,u}\). 
+
+<p>Consider next the sum of variances of all those ANOVA terms that have anything whatsoever to do with the inputs \(x_u\), i.e. \[\bar\tau_u^2 = \sum_{v:v\cap u \neq \emptyset} \sigma_v^2.\] The sum for \(\bar\tau_u^2\) includes all sets included in the calculation of \(\underline\tau_u^2\), and therefore \(\underline\tau_u^2 \le \bar\tau_u^2\). The total sensitivity index of the inputs \(x_u\) is defined as \[S_{T,u} = \frac{\bar\tau_u^2}{\sigma^2}\] which is zero if the inputs \(x_u\) contribute nothing to the total variance through their main effects and any interactions among each other or with other inputs, and it is one if the \(x_u\) through their main effects and all their interactions explain all of the variance of \(f(x)\). Hence if \(S_{T,u}\) is small, then the inputs \(x_u\) are unimportant.
+
+For the example \(f(x) = x_1x_2^2\) we have the closed sensitivity indices
+
+<ul>
+<li> \(S_{C,\{1\}} = \sigma_1^2 / \sigma^2 \approx 0.24\)
+<li> \(S_{C,\{2\}} = \sigma_2^2 / \sigma^2 \approx 0.57\)
+<li> \(S_{C,\{1,2\}} = (\sigma_1 ^2 + \sigma_2^2 + \sigma_{12}^2) / \sigma^2 = 1\)
+</ul>
+
+and the total sensitivity indices
+
+<ul>
+<li>\(S_{T,\{1\}} = (\sigma_1^2 + \sigma_{12}^2)/\sigma^2 \approx 0.43\)
+<li>\(S_{T,\{2\}} = (\sigma_2^2 + \sigma_{12}^2)/\sigma^2 \approx 0.76\)
+<li>\(S_{T,\{1,2\}} = (\sigma_1^2 + \sigma_2^2 + \sigma_{12}^2)/\sigma^2 =1\)
+</ul>
+
+We see that neither of the \(S_C\) is particularly large, so we can't conlude that one input is dominating the total variance. Similarly, neither of the \(S_T\) is particularly small, so we can't conclude that any of the inputs is negligible for the total variance. We can conclude from both indices that \(x_2\) seems to explain more of the total variance (individually and through interactions) than \(x_1\). 
+
+
+<h3>Estimating Sobol' indices</h3>
+
+<p>To estimate Sobol' indices for black-box functions (which we can evaluate, but for which we don't have an analytic expression), we don't actually have to calculate any of the ANOVA components. The following method called "pick-and-freeze" only requires function evaluations at random points in the input space. 
+
+<p>The pick-and-freeze estimator for \(\underline\tau_u^2\) is \[\hat{\underline\tau}_u^2 = \frac1n \sum_{i=1}^n f(x^{(i)}) f(x^{(i)}_u:z^{(i)}_{-u}) - \hat\mu^2\] where \(x^{(i)}\) and \(z^{(i)}\) are uniformly sampled random vectors of input values, the notation \(x_u:z_{-u}\) indicates a vector with elements indexed by \(u\) taken from \(x\) and all other elements taken from \(z\), and \(\hat\mu = (1/n)\sum_{i=1}^n (f(x^{(i)}) + f(x^{(i)}_u:z^{(i)}_{-u}))/2\).
+
+<p>Using similar notation as in \(\hat{\underline\tau}_u^2\), the pick-and-freeze estimator for \(\bar\tau_u^2\) is \[\hat{\bar\tau}_u^2 = \frac{1}{2n}\sum_{i=1}^n \left[ f(x^{(i)}) - f(x^{(i)}_{-u}:z^{(i)}_u)\right]^2\] that is, \(\hat{\bar\tau}_u^2\) uses squared difference between \(f\) evaluated at a randomly sampled \(x\) and \(f\) evaluated at the same \(x\) with elements in \(u\) resampled.
+
+<p>Calculation of the closed sensitivity indices is implemented in the R function "sobol" of the sensitivity package, which we test here on the function \(f(x)=x_1x_2^2\) for which we know the indices analytically.
+
+<!--begin.rcode eval=FALSE
+library(sensitivity)
+end.rcode-->
+
+<!--begin.rcode 
+
+n = 1e4
+X1 = data.frame(x1 = runif(n), x2=runif(n))
+X2 = data.frame(x1 = runif(n), x2=runif(n))
+f = function(X) X[,1] * X[,2]^2 # f(x) = x1 * x2^2
+sob = sobol(model=f, X1=X1, X2=X2, order=2)
+print(sob)
+
+end.rcode-->
+
+<p>The main indices agree with out analytically calculated values. According to our definition, the interaction term should be 1, but the "sobol" function assigns the remainder.
 
 
 
