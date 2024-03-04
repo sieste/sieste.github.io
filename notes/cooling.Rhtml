@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<!--
+:nnoremap = :!R -e "knitr::knit('%')"<enter><enter>:!xdotool key --window $(xdotoo
+l search --name "Mozilla Firefox") F5<enter><enter>
+-->
+
+<!--begin.rcode init, echo=FALSE
+  set.seed(123)
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+
+<h2>Newtonian cooling</h2>
+
+\[\frac{dT}{dt} = -k(T - T_E)\]
+
+\[T(t) = T_E + (T(0) - T_E)e^{-kt}\]
+
+
+<!--begin.rcode 
+Tfun = function(t, pars) {
+  return(pars[2] + (100 - pars[2])*exp(-pars[1]*t))
+}
+end.rcode-->
+
+
+<!--begin.rcode 
+library(tidyverse)
+end.rcode-->
+
+<!--begin.rcode
+
+pars = tibble(k = c(1, 2, 3), Te = c(20, 30, 40))
+tt = seq(0, 7, .1)
+pars |> 
+  rowwise() |> 
+  mutate(T = list(Tfun(tt, c(k, Te))), t=list(tt)) |> 
+  unnest(cols=c(T,t)) |> 
+  mutate(parstr = paste('k=',k,' Te=', Te, sep='')) |>
+  ggplot() + 
+    geom_line(aes(x=t, y=T, col=parstr)) +
+    labs(col=NULL) 
+
+end.rcode-->
+
+<h2>Data</h2>
+
+<!--begin.rcode 
+
+set.seed(123)
+t_data = seq(0,3,.25)[-1]
+T_data = Tfun(t_data, c(1, 22)) + rnorm(length(t_data), 0, sd=1) -5*sin(1.5*t_data)*exp(-t_data/2)
+df_data = tibble(t = t_data, T= T_data)
+ggplot(df_data) + geom_point(aes(x=t, y=T))
+
+end.rcode-->
+
+
+<h2>Optimisation</h2>
+
+<!--begin.rcode 
+
+ss = function(pars) sum((T_data - Tfun(t_data, pars))^2)
+ss_opt = optim(c(1,1), ss)
+print(ss_opt)
+tibble(t = tt, T = Tfun(tt, ss_opt$par)) |>
+ggplot(aes(x=t, y=T)) + 
+  geom_line() + geom_point(data=df_data)
+
+end.rcode-->
+
+
+<h2>Likelihood inference</h2>
+
+
+
+Likelihood \(T(t) | T_e, k \sim N(T_e + (100 - T_e)e^{-kt}, 1^2)\)
+
+<!--begin.rcode 
+
+library(mvtnorm)
+nll = function(pars) sum(0.5 * (T_data - Tfun(t_data, pars))^2 / 1^2 )
+nll_opt = optim(c(1,1), nll, hessian=TRUE)
+par_sampl = rmvnorm(500, nll_opt$par, solve(nll_opt$hessian))
+par_sampl |> 
+  as.data.frame() |>
+  `colnames<-`(c('k','Te')) |>
+  rowwise() |> 
+  mutate(T = list(Tfun(tt, c(k, Te))), t=list(tt)) |> 
+  unnest(cols=c(T,t)) |> 
+  mutate(parstr = paste('k=',k,' Te=', Te, sep='')) |>
+  ggplot(aes(x=t, y=T)) + 
+    geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
+    geom_point(data=df_data, col='red') +
+    geom_segment(data=df_data, aes(x=t, xend=t, y=T-2, yend=T+2), col='red') +
+    labs(col=NULL) 
+
+end.rcode-->
+
+
+
+<h2>Bayesian inference</h2>
+
+prior \(T_e \sim N(22, 2^2)\)
+
+<!--begin.rcode 
+
+library(mvtnorm)
+nlpost = function(pars) sum(0.5 * (T_data - Tfun(t_data, pars))^2 / 1^2 + 0.5 * (pars[2]-22)^2 / 2^2)
+nlpost_opt = optim(c(1,1), nlpost, hessian=TRUE)
+par_sampl = rmvnorm(500, nlpost_opt$par, solve(nlpost_opt$hessian))
+par_sampl |> 
+  as.data.frame() |>
+  `colnames<-`(c('k','Te')) |>
+  rowwise() |> 
+  mutate(T = list(Tfun(tt, c(k, Te))), t=list(tt)) |> 
+  unnest(cols=c(T,t)) |> 
+  mutate(parstr = paste('k=',k,' Te=', Te, sep='')) |>
+  ggplot(aes(x=t, y=T)) + 
+    geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
+    geom_point(data=df_data, col='red') +
+    geom_segment(data=df_data, aes(x=t, xend=t, y=T-2, yend=T+2), col='red') +
+    geom_hline(yintercept=c(18, 26), col='red', lty=2) +
+    labs(col=NULL) 
+
+end.rcode-->
+
+
+<h2>Model discrepancy</h2>
+
+time varying cooling constant, instead of a constant \(k=k_0\) use faster initially and slower eventually \(k(t) = k_0 - 0.1 * tanh(t-3)\).
+
+

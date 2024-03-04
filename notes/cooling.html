@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+
+<!--
+:nnoremap = :!R -e "knitr::knit('%')"<enter><enter>:!xdotool key --window $(xdotoo
+l search --name "Mozilla Firefox") F5<enter><enter>
+-->
+
+
+
+
+<h2>Newtonian cooling</h2>
+
+\[\frac{dT}{dt} = -k(T - T_E)\]
+
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r">Tfun = <span class="hl kwd"><span class="hl kwa">function</span></span>(t, pars) {
+  <span class="hl kwd">return</span>(pars[2] + (100 - pars[2])*<span class="hl kwd">exp</span>(-pars[1]*t)
+}
+tt = <span class="hl kwd">seq</span>(0,5,.1)
+<span class="hl kwd">plot</span>(tt, <span class="hl kwd">Tfun</span>(tt))
+</pre></div>
+<div class="error"><pre class="knitr r">## Error: &lt;text&gt;:3:1: unexpected '}'
+## 2:   return(pars[2] + (100 - pars[2])*exp(-pars[1]*t)
+## 3: }
+##    ^
+</pre></div>
+</div></div>
+
+
+
+
