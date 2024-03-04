@@ -61,7 +61,8 @@ end.rcode-->
 
 set.seed(123)
 t_data = seq(0,3,.25)[-1]
-T_data = Tfun(t_data, c(1, 22)) + rnorm(length(t_data), 0, sd=1) -5*sin(1.5*t_data)*exp(-t_data/2)
+#T_data = Tfun(t_data, c(1, 22)) + rnorm(length(t_data), 0, sd=1) -5*sin(1.5*t_data)*exp(-t_data/2)
+T_data = Tfun(t_data, c(1, 22)) + rnorm(length(t_data), 0, sd=1) - 100*(exp(-t_data) - 0.7*exp(-2*t_data) - 0.3 * exp(-.4*t_data))
 df_data = tibble(t = t_data, T= T_data)
 ggplot(df_data) + geom_point(aes(x=t, y=T))
 
@@ -93,6 +94,7 @@ Likelihood \(T(t) | T_e, k \sim N(T_e + (100 - T_e)e^{-kt}, 1^2)\)
 library(mvtnorm)
 nll = function(pars) sum(0.5 * (T_data - Tfun(t_data, pars))^2 / 1^2 )
 nll_opt = optim(c(1,1), nll, hessian=TRUE)
+print(nll_opt)
 par_sampl = rmvnorm(500, nll_opt$par, solve(nll_opt$hessian))
 par_sampl |> 
   as.data.frame() |>
@@ -120,6 +122,7 @@ prior \(T_e \sim N(22, 2^2)\)
 library(mvtnorm)
 nlpost = function(pars) sum(0.5 * (T_data - Tfun(t_data, pars))^2 / 1^2 + 0.5 * (pars[2]-22)^2 / 2^2)
 nlpost_opt = optim(c(1,1), nlpost, hessian=TRUE)
+print(nlpost_opt)
 par_sampl = rmvnorm(500, nlpost_opt$par, solve(nlpost_opt$hessian))
 par_sampl |> 
   as.data.frame() |>
@@ -140,6 +143,9 @@ end.rcode-->
 
 <h2>Model discrepancy</h2>
 
-time varying cooling constant, instead of a constant \(k=k_0\) use faster initially and slower eventually \(k(t) = k_0 - 0.1 * tanh(t-3)\).
+plot fitted minus data
+
+
+
 
 
