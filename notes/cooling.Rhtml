@@ -22,6 +22,7 @@ l search --name "Mozilla Firefox") F5<enter><enter>
 end.rcode-->
 
 
+
 <h2>Newtonian cooling</h2>
 
 \[\frac{dT}{dt} = -k(T - T_E)\]
@@ -145,6 +146,122 @@ end.rcode-->
 
 plot fitted minus data
 
+
+<h2>Real data</h2>
+
+<!--begin.rcode 
+
+coffee_data = 
+tibble(t=c(1, 2, 3, 4, 5, 6, 7, 8, 9, 
+           10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 
+           20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+           30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+           40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 
+           50, 51, 52), 
+       T = c(193.3, 178.5, 178.5, 174, 169.5, 166.3, 163.9, 161.6, 159.4, 
+             156.7, 154.9, 151.5, 149.2, 147.6, 145.9, 143.1, 142.0, 140.2, 138.4, 
+             136.8, 135.0, 133.0, 131.5, 130.3, 128.5, 127.4, 126.7, 124.9, 124.7,
+             122.9, 122.2, 120.7, 119.8, 118.9, 117.0, 115.5, 115.2, 113.5, 113.0, 
+             111.7, 110.7, 110.7, 109.8, 109.0, 108.3, 106.9, 106.7, 105.8, 105.3, 
+             105.1, 104.0, 104.2)) |>
+mutate(T = (T - 32)/1.8)
+
+
+coffee_data |>
+ggplot() + geom_point(aes(x=t, y=T))
+
+coffee_data |>
+ggplot() + geom_point(aes(x=t, y=c(0,diff(T))))
+
+Tfun1 = function(t, pars) {
+  return(pars[2] + (pars[3] - pars[2])*exp(-pars[1]*t))
+}
+
+
+ss = function(pars) sum((coffee_data$T - Tfun1(coffee_data$t, pars))^2)
+ss_opt = optim(c(1,30,100), ss)
+print(ss_opt)
+
+tibble(t = c(0, coffee_data$t), T = Tfun1(c(0, coffee_data$t), ss_opt$par)) |>
+ggplot(aes(x=t, y=T)) + 
+  geom_line() + geom_point(data=coffee_data)
+
+
+library(mvtnorm)
+tt = seq(0,120,1)
+nll = function(pars) sum(0.5 * (coffee_data$T - Tfun1(coffee_data$t, pars))^2 / 0.2^2 )
+nll_opt = optim(c(1,30,100), nll, hessian=TRUE)
+print(nll_opt)
+par_sampl = rmvnorm(500, nll_opt$par, solve(nll_opt$hessian))
+par_sampl |> 
+  as.data.frame() |>
+  `colnames<-`(c('k','Te', 'T0')) |>
+  rowwise() |> 
+  mutate(T = list(Tfun1(tt, c(k, Te, T0))), t=list(tt)) |> 
+  unnest(cols=c(T,t)) |> 
+  mutate(parstr = paste('k=',k,' Te=', Te, ' T0=', T0, sep='')) |>
+  ggplot(aes(x=t, y=T)) + 
+    geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
+    geom_point(data=coffee_data, col='red') +
+    geom_segment(data=coffee_data, aes(x=t, xend=t, y=T-0.4, yend=T+0.4), col='red') +
+    labs(col=NULL) 
+
+# bayes without discrepancy
+library(mvtnorm)
+tt = seq(0,180,1)
+nlpost = function(pars) sum(0.5 * (coffee_data$T - Tfun1(coffee_data$t, pars))^2 / 0.2^2 + 0.5 * (pars[2]-20)^2 / 2^2)
+nlpost_opt = optim(c(1,30,100), nlpost, hessian=TRUE)
+print(nlpost_opt)
+par_sampl = rmvnorm(500, nlpost_opt$par, solve(nlpost_opt$hessian))
+df_sampl1 = par_sampl |> 
+  as.data.frame() |>
+  `colnames<-`(c('k','Te','T0')) |>
+  rowwise() |> 
+  mutate(T = list(Tfun1(tt, c(k, Te, T0))), t=list(tt)) |> 
+  unnest(cols=c(T,t)) |> 
+  mutate(parstr = paste('k=',k,' Te=', Te, ' T0=', T0, sep=''))
+
+ggplot(df_sampl1, aes(x=t, y=T)) + 
+  geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
+  geom_point(data=coffee_data, col='red') +
+  geom_segment(data=coffee_data, aes(x=t, xend=t, y=T-.4, yend=T+.4), col='red') +
+  geom_hline(yintercept=c(16, 24), col='red', lty=2) +
+  labs(col=NULL) 
+
+# visualise discrepancy
+df_sampl1 |> 
+  rename(Tsim = T) |> 
+  right_join(coffee_data, by='t') |>
+  filter(t > 2) |>
+  mutate(dscrp = Tsim - T) |>
+  ggplot() + 
+    geom_line(aes(x=t, y=dscrp, group=parstr), 
+              show.legend=FALSE, col='#00000011')
+
+
+# bayes with discrepancy
+library(mvtnorm)
+tt = seq(0,180,1)
+nlpost = function(pars) sum(0.5 * (coffee_data$T - Tfun1(coffee_data$t, pars))^2 / 1.2^2 + 0.5 * (pars[2]-20)^2 / 2^2)
+nlpost_opt = optim(c(1,30,100), nlpost, hessian=TRUE)
+print(nlpost_opt)
+print(sqrt(diag(solve(nlpost_opt$hessian))))
+par_sampl = rmvnorm(500, nlpost_opt$par, solve(nlpost_opt$hessian))
+par_sampl |> 
+  as.data.frame() |>
+  `colnames<-`(c('k','Te','T0')) |>
+  rowwise() |> 
+  mutate(T = list(Tfun1(tt, c(k, Te, T0))), t=list(tt)) |> 
+  unnest(cols=c(T,t)) |> 
+  mutate(parstr = paste('k=',k,' Te=', Te, ' T0=', T0, sep='')) |>
+  ggplot(aes(x=t, y=T)) + 
+    geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
+    geom_point(data=coffee_data, col='red') +
+    geom_segment(data=coffee_data, aes(x=t, xend=t, y=T-2.4, yend=T+2.4), col='red') +
+    geom_hline(yintercept=c(16, 24), col='red', lty=2) +
+    labs(col=NULL) 
+
+end.rcode-->
 
 
 
