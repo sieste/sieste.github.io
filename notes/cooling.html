@@ -80,24 +80,430 @@ l search --name "Mozilla Firefox") F5<enter><enter>
 
 
 
-<h2>Newtonian cooling</h2>
+<h2>Coffee temperature data</h2>
 
-\[\frac{dT}{dt} = -k(T - T_E)\]
+I have taken a freshly brewed cup of coffee and starting measuring its temperature with a kitchen thermometer every minute until I got bored. This is the data and a time series plot:
 
-
-<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r">Tfun = <span class="hl kwd"><span class="hl kwa">function</span></span>(t, pars) {
-  <span class="hl kwd">return</span>(pars[2] + (100 - pars[2])*<span class="hl kwd">exp</span>(-pars[1]*t)
-}
-tt = <span class="hl kwd">seq</span>(0,5,.1)
-<span class="hl kwd">plot</span>(tt, <span class="hl kwd">Tfun</span>(tt))
-</pre></div>
-<div class="error"><pre class="knitr r">## Error: &lt;text&gt;:3:1: unexpected '}'
-## 2:   return(pars[2] + (100 - pars[2])*exp(-pars[1]*t)
-## 3: }
-##    ^
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
 </pre></div>
 </div></div>
 
 
+<div class="chunk" id="unnamed-chunk-3"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">coffee_data</span> <span class="hl kwb">=</span>
+<span class="hl kwd">tibble</span><span class="hl std">(</span><span class="hl kwc">t</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">4</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">6</span><span class="hl std">,</span> <span class="hl num">7</span><span class="hl std">,</span> <span class="hl num">8</span><span class="hl std">,</span> <span class="hl num">9</span><span class="hl std">,</span>
+           <span class="hl num">10</span><span class="hl std">,</span> <span class="hl num">11</span><span class="hl std">,</span> <span class="hl num">12</span><span class="hl std">,</span> <span class="hl num">13</span><span class="hl std">,</span> <span class="hl num">14</span><span class="hl std">,</span> <span class="hl num">15</span><span class="hl std">,</span> <span class="hl num">16</span><span class="hl std">,</span> <span class="hl num">17</span><span class="hl std">,</span> <span class="hl num">18</span><span class="hl std">,</span> <span class="hl num">19</span><span class="hl std">,</span>
+           <span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">21</span><span class="hl std">,</span> <span class="hl num">22</span><span class="hl std">,</span> <span class="hl num">23</span><span class="hl std">,</span> <span class="hl num">24</span><span class="hl std">,</span> <span class="hl num">25</span><span class="hl std">,</span> <span class="hl num">26</span><span class="hl std">,</span> <span class="hl num">27</span><span class="hl std">,</span> <span class="hl num">28</span><span class="hl std">,</span> <span class="hl num">29</span><span class="hl std">,</span>
+           <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">31</span><span class="hl std">,</span> <span class="hl num">32</span><span class="hl std">,</span> <span class="hl num">33</span><span class="hl std">,</span> <span class="hl num">34</span><span class="hl std">,</span> <span class="hl num">35</span><span class="hl std">,</span> <span class="hl num">36</span><span class="hl std">,</span> <span class="hl num">37</span><span class="hl std">,</span> <span class="hl num">38</span><span class="hl std">,</span> <span class="hl num">39</span><span class="hl std">,</span>
+           <span class="hl num">40</span><span class="hl std">,</span> <span class="hl num">41</span><span class="hl std">,</span> <span class="hl num">42</span><span class="hl std">,</span> <span class="hl num">43</span><span class="hl std">,</span> <span class="hl num">44</span><span class="hl std">,</span> <span class="hl num">45</span><span class="hl std">,</span> <span class="hl num">46</span><span class="hl std">,</span> <span class="hl num">47</span><span class="hl std">,</span> <span class="hl num">48</span><span class="hl std">,</span> <span class="hl num">49</span><span class="hl std">,</span>
+           <span class="hl num">50</span><span class="hl std">,</span> <span class="hl num">51</span><span class="hl std">,</span> <span class="hl num">52</span><span class="hl std">),</span>
+       <span class="hl kwc">T</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">193.3</span><span class="hl std">,</span> <span class="hl num">178.5</span><span class="hl std">,</span> <span class="hl num">178.5</span><span class="hl std">,</span> <span class="hl num">174</span><span class="hl std">,</span> <span class="hl num">169.5</span><span class="hl std">,</span> <span class="hl num">166.3</span><span class="hl std">,</span> <span class="hl num">163.9</span><span class="hl std">,</span> <span class="hl num">161.6</span><span class="hl std">,</span> <span class="hl num">159.4</span><span class="hl std">,</span>
+             <span class="hl num">156.7</span><span class="hl std">,</span> <span class="hl num">154.9</span><span class="hl std">,</span> <span class="hl num">151.5</span><span class="hl std">,</span> <span class="hl num">149.2</span><span class="hl std">,</span> <span class="hl num">147.6</span><span class="hl std">,</span> <span class="hl num">145.9</span><span class="hl std">,</span> <span class="hl num">143.1</span><span class="hl std">,</span> <span class="hl num">142.0</span><span class="hl std">,</span> <span class="hl num">140.2</span><span class="hl std">,</span> <span class="hl num">138.4</span><span class="hl std">,</span>
+             <span class="hl num">136.8</span><span class="hl std">,</span> <span class="hl num">135.0</span><span class="hl std">,</span> <span class="hl num">133.0</span><span class="hl std">,</span> <span class="hl num">131.5</span><span class="hl std">,</span> <span class="hl num">130.3</span><span class="hl std">,</span> <span class="hl num">128.5</span><span class="hl std">,</span> <span class="hl num">127.4</span><span class="hl std">,</span> <span class="hl num">126.7</span><span class="hl std">,</span> <span class="hl num">124.9</span><span class="hl std">,</span> <span class="hl num">124.7</span><span class="hl std">,</span>
+             <span class="hl num">122.9</span><span class="hl std">,</span> <span class="hl num">122.2</span><span class="hl std">,</span> <span class="hl num">120.7</span><span class="hl std">,</span> <span class="hl num">119.8</span><span class="hl std">,</span> <span class="hl num">118.9</span><span class="hl std">,</span> <span class="hl num">117.0</span><span class="hl std">,</span> <span class="hl num">115.5</span><span class="hl std">,</span> <span class="hl num">115.2</span><span class="hl std">,</span> <span class="hl num">113.5</span><span class="hl std">,</span> <span class="hl num">113.0</span><span class="hl std">,</span>
+             <span class="hl num">111.7</span><span class="hl std">,</span> <span class="hl num">110.7</span><span class="hl std">,</span> <span class="hl num">110.7</span><span class="hl std">,</span> <span class="hl num">109.8</span><span class="hl std">,</span> <span class="hl num">109.0</span><span class="hl std">,</span> <span class="hl num">108.3</span><span class="hl std">,</span> <span class="hl num">106.9</span><span class="hl std">,</span> <span class="hl num">106.7</span><span class="hl std">,</span> <span class="hl num">105.8</span><span class="hl std">,</span> <span class="hl num">105.3</span><span class="hl std">,</span>
+             <span class="hl num">105.1</span><span class="hl std">,</span> <span class="hl num">104.0</span><span class="hl std">,</span> <span class="hl num">104.2</span><span class="hl std">)) |&gt;</span>
+<span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">T</span> <span class="hl std">= (T</span> <span class="hl opt">-</span> <span class="hl num">32</span><span class="hl std">)</span><span class="hl opt">/</span><span class="hl num">1.8</span><span class="hl std">)</span>
+
+<span class="hl std">coffee_data |&gt;</span>
+<span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T))</span> <span class="hl opt">+</span> <span class="hl kwd">ylim</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span><span class="hl num">100</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3" class="plot" /></div></div>
+
+
+<h2>Newtonian cooling</h2>
+
+A physical description of the cooling process is that the rate of temperature change is proportional to difference from environment's temperature, alson known as Newtonian cooling:
+
+\[\frac{dT}{dt} = -k(T - T_E)\]
+
+This differential equation has an analytic solution \(T(t)\) of the form
+
+\[T(t) = T_E + (T_0 - T_E)e^{-kt}\]
+
+where \(T_0\), \(T_E\) and \(k\) are parameters. If analytic solution cannot be derived (which is usually the case) we can try to solve the differential equation numerically.
+
+<p>Below is a function definition and a few plots of \(T(t)\) for different parameter settings:
+
+<div class="chunk" id="unnamed-chunk-4"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">Tfun</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">t</span><span class="hl std">,</span> <span class="hl kwc">pars</span><span class="hl std">) {</span>
+  <span class="hl kwd">return</span><span class="hl std">(pars[</span><span class="hl num">2</span><span class="hl std">]</span> <span class="hl opt">+</span> <span class="hl std">(pars[</span><span class="hl num">3</span><span class="hl std">]</span> <span class="hl opt">-</span> <span class="hl std">pars[</span><span class="hl num">2</span><span class="hl std">])</span><span class="hl opt">*</span><span class="hl kwd">exp</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">pars[</span><span class="hl num">1</span><span class="hl std">]</span><span class="hl opt">*</span><span class="hl std">t))</span>
+<span class="hl std">}</span>
+</pre></div>
+</div></div>
+
+
+
+<div class="chunk" id="unnamed-chunk-5"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">pars</span> <span class="hl kwb">=</span> <span class="hl kwd">tibble</span><span class="hl std">(</span><span class="hl kwc">k</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">),</span> <span class="hl kwc">Te</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">20</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">,</span> <span class="hl num">40</span><span class="hl std">),</span> <span class="hl kwc">T0</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">100</span><span class="hl std">,</span> <span class="hl num">90</span><span class="hl std">,</span> <span class="hl num">80</span><span class="hl std">))</span>
+<span class="hl std">tt</span> <span class="hl kwb">=</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">7</span><span class="hl std">,</span> <span class="hl num">.1</span><span class="hl std">)</span>
+<span class="hl std">pars |&gt;</span>
+  <span class="hl kwd">rowwise</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">T</span> <span class="hl std">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwd">Tfun</span><span class="hl std">(tt,</span> <span class="hl kwd">c</span><span class="hl std">(k, Te, T0))),</span> <span class="hl kwc">t</span><span class="hl std">=</span><span class="hl kwd">list</span><span class="hl std">(tt)) |&gt;</span>
+  <span class="hl kwd">unnest</span><span class="hl std">(</span><span class="hl kwc">cols</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(T,t)) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">parstr</span> <span class="hl std">=</span> <span class="hl kwd">paste</span><span class="hl std">(</span><span class="hl str">'k='</span><span class="hl std">,k,</span><span class="hl str">' Te='</span><span class="hl std">, Te,</span> <span class="hl str">' T0='</span><span class="hl std">, T0,</span> <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">''</span><span class="hl std">)) |&gt;</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T,</span> <span class="hl kwc">col</span><span class="hl std">=parstr))</span> <span class="hl opt">+</span>
+    <span class="hl kwd">labs</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl kwa">NULL</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5" class="plot" /></div></div>
+
+<p>The parameters \(T_0\) and \(T_E\) are easy to interpret, they are the starting temperature at \(t=0\) and the asymptotic end temperature for \(t \to \infty\). The cooling rate \(k\) determines how quickly \(T_E\) is approached: the higher \(k\) the quicker the cooling.
+
+
+<h2>Using the cooling coffee cup as a thermometer</h2>
+
+Since \(T_E\) is the temperature of the environment, I should be able to use the data to find the best fitting curve and the best fitting value of \(T_E\) will tell me the temperature of my kitchen during the experiment. Hence I can use the coffee cup as a room thermometer.
+
+
+<h2>Optimisation</h2>
+
+Formally we address this problem by finding the triplet of parameters \((T_0, T_E, k)\) that give a temperature curve distance to the observed data is minimised. Here we define distance as the sum of squared differences between observed and modelled temperature. Since there is no closed form mathematical solution for these parameters, we use numerical optimisation. In R, the function "optim" is our friend:
+
+<div class="chunk" id="unnamed-chunk-6"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># define sum of squares function that we want to minimise</span>
+<span class="hl std">ss</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">pars</span><span class="hl std">) {</span>
+  <span class="hl kwd">sum</span><span class="hl std">((coffee_data</span><span class="hl opt">$</span><span class="hl std">T</span> <span class="hl opt">-</span> <span class="hl kwd">Tfun</span><span class="hl std">(coffee_data</span><span class="hl opt">$</span><span class="hl std">t, pars))</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl std">}</span>
+<span class="hl com"># numerical optimisation, starting from &quot;reasonable&quot; initial values</span>
+<span class="hl std">ss_opt</span> <span class="hl kwb">=</span> <span class="hl kwd">optim</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span><span class="hl num">30</span><span class="hl std">,</span><span class="hl num">100</span><span class="hl std">), ss)</span>
+<span class="hl kwd">print</span><span class="hl std">(ss_opt)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## $par
+## [1]  0.03844324 32.90264245 86.96219311
+## 
+## $value
+## [1] 35.00721
+## 
+## $counts
+## function gradient 
+##      218       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+</pre></div>
+</div></div>
+
+So the optimisation tells me that the best fitting temperature curve for my data is the one with parameters \(0.04, 32.9, 87.0\). The second parameter is the temperature at \(t\to\infty\) which we said can be interpreted as the room temperature. The data were taken in late February in the UK. Windows and general insulation are up to UK standards, which means terrible, so even if I wanted to heat my house to 33C I wouldn't be able to. This result is clearly wrong. But look how nicely the model fits the data:
+
+<div class="chunk" id="unnamed-chunk-7"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">tt</span> <span class="hl kwb">=</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span><span class="hl num">180</span><span class="hl std">,</span><span class="hl num">1</span><span class="hl std">)</span>
+<span class="hl kwd">tibble</span><span class="hl std">(</span><span class="hl kwc">t</span> <span class="hl std">= tt,</span> <span class="hl kwc">T</span> <span class="hl std">=</span> <span class="hl kwd">Tfun</span><span class="hl std">(tt, ss_opt</span><span class="hl opt">$</span><span class="hl std">par)) |&gt;</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_line</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coffee_data)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_hline</span><span class="hl std">(</span><span class="hl kwc">yintercept</span><span class="hl std">=ss_opt</span><span class="hl opt">$</span><span class="hl std">par[</span><span class="hl num">2</span><span class="hl std">],</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl kwd">ylim</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">100</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-7-1.png" alt="plot of chunk unnamed-chunk-7" class="plot" /></div></div>
+
+At least two things could be happening here: Either the data is bad, or my model is wrong (or both). I might have also made a mistake in my coding but that never happens so it has to be either the data's or the model's fault. Or both. Let's look at these individually.
+
+
+<h2>Likelihood inference</h2>
+
+On the back of my kitchen thermometer used to be a small sticker saying that the precision of the thermometer is 0.2C. I interpret this loosely as meaning that the observed temperature has a Normal distribution centered on the "true" temperature value with standard deviation \(0.2\):
+
+\[T_{obs}(t) \sim N(T_{real}(t), 0.2^2)\]
+
+If we believe the real temperature follows our Newtonian cooling process, we have the probability distribution for an individual measurement at time \(t\) given by
+
+\[p(T_{obs}(t) | k, T_E, T_0) = \frac{1}{\sqrt{2\pi \times 0.2^2}}e^{-\frac{\left[T_{obs}(t) - (T_E + (T_0 - T_E)e^{-kt})\right]^2}{2 \times 0.2^2}}\]
+
+and the joint distribution of all \(n\) measurements taken at times \(t_1, \dots, t_n\) is given by
+
+\[p(T_{obs} | k, T_E, T_0) = \prod_{i=1}^n p(T_{obs}(t_i) | k, T_E, T_0)\]
+
+Treating the logarithm of the joint distribution as a function of the parameters and gives us the log-likelihood function:
+
+\[\begin{aligned}
+\ell(T_0,T_E,k) & = \sum_{i=1}^n \log p(T_{obs}(t_i) | T_0, T_E, k)\\
+& = C -\frac{1}{2 \times 0.2^2} \sum_{i=1}^n \left[(T_{obs}(t_i) - (T_E + (T_0 - T_E)e^{-kt})\right]^2
+\end{aligned}\]
+
+<p>where the constant \(C\) does not depend on any of the parameters.
+
+<p>We can maximise the log-likelihood with respect to the model parameters (using the optim function) to get the maximum likelihood estimates of the parameters. These will be exactly the same as the minimum sum of squares estimates we calculated earlier. 
+
+<p>However, likelihood inference can also tell us about the uncertainty of our parameter estimates. Namely, the vector of maximum likelihood estimates \(\hat\theta = (\hat{T}_0, \hat{T}_E, \hat{k})\) has a multivariate Normal distribution with mean at the "true" parameter vector \(\theta = (T_0, T_E, k)\), and with covariance matrix given by the inverse of the expected information matrix. 
+
+<p>What this means in practice is that we can optimise the log likelihood using "optim" as above, tell it to also approximate the Hessian matrix, which is the matrix of second derivatives of the negative log likelihood, and use the inverse of the Hessian matrix as the covariance matrix of the sampling distribution of the maximum likelihood estimates. In code that looks as follows:
+
+
+<div class="chunk" id="unnamed-chunk-8"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(mvtnorm)</span>
+<span class="hl com"># define negative log likelihood function up to an additive constant</span>
+<span class="hl std">nll</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">pars</span><span class="hl std">) {</span>
+  <span class="hl kwd">sum</span><span class="hl std">((coffee_data</span><span class="hl opt">$</span><span class="hl std">T</span> <span class="hl opt">-</span> <span class="hl kwd">Tfun</span><span class="hl std">(coffee_data</span><span class="hl opt">$</span><span class="hl std">t, pars))</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">/</span> <span class="hl std">(</span><span class="hl num">2</span> <span class="hl opt">*</span> <span class="hl num">0.2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">) )</span>
+<span class="hl std">}</span>
+<span class="hl com"># use optim to minimise the negative log likelihood, and </span>
+<span class="hl com"># also approximate the hessian matrix</span>
+<span class="hl std">nll_opt</span> <span class="hl kwb">=</span> <span class="hl kwd">optim</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span><span class="hl num">30</span><span class="hl std">,</span><span class="hl num">100</span><span class="hl std">), nll,</span> <span class="hl kwc">hessian</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
+<span class="hl kwd">print</span><span class="hl std">(nll_opt)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## $par
+## [1]  0.03844324 32.90264245 86.96219311
+## 
+## $value
+## [1] 437.5901
+## 
+## $counts
+## function gradient 
+##      218       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##             [,1]         [,2]         [,3]
+## [1,] 246826691.9 -339351.7889 -208328.8085
+## [2,]   -339351.8     504.1179     244.4038
+## [3,]   -208328.8     244.4038     307.0745
+</pre></div>
+</div></div>
+
+The inverse of the Hessian of the negative log likelihood approximates the covariance matrix of the estimators:
+
+<div class="chunk" id="unnamed-chunk-9"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">solve</span><span class="hl std">(nll_opt</span><span class="hl opt">$</span><span class="hl std">hessian)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">##              [,1]         [,2]         [,3]
+## [1,] 1.217566e-07 6.824973e-05 2.828278e-05
+## [2,] 6.824973e-05 4.148689e-02 1.328288e-02
+## [3,] 2.828278e-05 1.328288e-02 1.187247e-02
+</pre></div>
+</div></div>
+
+So according to the square root of the (2,2) element, the estimator of \(T_E\) has standard deviation \(\sqrt{0.0415} \approx 0.2\), which incidentally is close to the standard deviation of the measurement errors. But that still means the estimate of \(T_E\) is well above 30C even after accounting for sampling variability.
+
+
+<p>Below is a visualisation of the fitted temperature distributions that take into account uncertainty in the parameter estimates:
+
+<div class="chunk" id="unnamed-chunk-10"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># now draw samples from a multivariate normal distribution centered on the</span>
+<span class="hl com"># estimates, and with covariance given by the inverse hessian</span>
+<span class="hl std">par_sampl1</span> <span class="hl kwb">=</span> <span class="hl kwd">rmvnorm</span><span class="hl std">(</span><span class="hl num">500</span><span class="hl std">, nll_opt</span><span class="hl opt">$</span><span class="hl std">par,</span> <span class="hl kwd">solve</span><span class="hl std">(nll_opt</span><span class="hl opt">$</span><span class="hl std">hessian))</span>
+<span class="hl com"># plot the temperature curves corresponding to the sampled parameters</span>
+<span class="hl std">df_sampl1</span> <span class="hl kwb">=</span> <span class="hl std">par_sampl1 |&gt;</span>
+  <span class="hl kwd">as.data.frame</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">`colnames&lt;-`</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">'k'</span><span class="hl std">,</span><span class="hl str">'Te'</span><span class="hl std">,</span> <span class="hl str">'T0'</span><span class="hl std">)) |&gt;</span>
+  <span class="hl kwd">rowwise</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">T</span> <span class="hl std">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwd">Tfun</span><span class="hl std">(tt,</span> <span class="hl kwd">c</span><span class="hl std">(k, Te, T0))),</span> <span class="hl kwc">t</span><span class="hl std">=</span><span class="hl kwd">list</span><span class="hl std">(tt)) |&gt;</span>
+  <span class="hl kwd">unnest</span><span class="hl std">(</span><span class="hl kwc">cols</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(T, t)) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">parstr</span> <span class="hl std">=</span> <span class="hl kwd">paste</span><span class="hl std">(</span><span class="hl str">'k='</span><span class="hl std">,k,</span><span class="hl str">' Te='</span><span class="hl std">, Te,</span> <span class="hl str">' T0='</span><span class="hl std">, T0,</span> <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">''</span><span class="hl std">))</span>
+
+<span class="hl kwd">ggplot</span><span class="hl std">(df_sampl1,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T,</span> <span class="hl kwc">group</span><span class="hl std">=parstr),</span>
+            <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'#00000022'</span><span class="hl std">,</span> <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coffee_data,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-10-1.png" alt="plot of chunk unnamed-chunk-10" class="plot" /></div></div>
+
+
+
+<h2>Bayesian inference</h2>
+
+<p>Sampling from the multivariate Normal distribution with variance matrix given by the inverse hessian can be considered an approximation of a Bayesian inference, called a Laplace approximation. 
+
+<p>Bayesian inference takes into account the data through the likelihood function, but also allows to include prior information by specifying a prior distribution for the model parameters. In the likelihood inference example we have assumed a flat (uniform) prior, and essentially said that we have no prior knowledge about the parameters and every region in parameter space is a priori as likely as any other region. But then we also said that 35C is "unreasonable" even though the data said that it's the best estimate. This shows that actually we do have prior knowledge about the parameters -- How else could we say that the inferred value is "unreasonable"?
+
+<p>Bayesian inference forces us to make any prior knowledge we have explicit, in the form of a probability distribution over possible parameter values. Here I will only specify a prior for the parameter \(T_E\), but in general we could specify priors for the other parameters as well. My prior is that \(T_E\) is with high probability somewhere between 16C and 24C, with values around 20C most likely. Formally I translate this into a Normal distribution with mean 20C and standard deviation 2C: \[T_E \sim N(20, 2^2).\] My new function to maximise now becomes the log posterior distribution given by
+
+\[\begin{aligned}
+\log p(T_0,T_E,k|\hat{T}) & = C \times p(\hat{T}|T_0, T_E, k) \times p(T_E)\\
+& = C' -\frac{1}{2 \times 0.2^2} \sum_{i=1}^n \left[(\hat{T}(t_i) - (T_E + (T_0 - T_E)e^{-kt})\right]^2 - \frac{1}{2 \times 2^2} (T_E - 20)^2.
+\end{aligned}\]
+
+As before I approximate the posterior by a Normal distribution, centered on the maximum returned by optim, and covariance matrix given by the Hessian matrix obtained by optim:
+
+<div class="chunk" id="unnamed-chunk-11"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># log posterior function</span>
+<span class="hl std">nlpost</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">pars</span><span class="hl std">) {</span>
+  <span class="hl kwd">sum</span><span class="hl std">((coffee_data</span><span class="hl opt">$</span><span class="hl std">T</span> <span class="hl opt">-</span> <span class="hl kwd">Tfun</span><span class="hl std">(coffee_data</span><span class="hl opt">$</span><span class="hl std">t, pars))</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">/</span> <span class="hl std">(</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl num">0.2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl std">(pars[</span><span class="hl num">2</span><span class="hl std">]</span><span class="hl opt">-</span><span class="hl num">20</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">/</span> <span class="hl std">(</span><span class="hl num">2</span> <span class="hl opt">*</span> <span class="hl num">2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">))</span>
+<span class="hl std">}</span>
+<span class="hl std">nlpost_opt</span> <span class="hl kwb">=</span> <span class="hl kwd">optim</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span><span class="hl num">30</span><span class="hl std">,</span><span class="hl num">100</span><span class="hl std">), nlpost,</span> <span class="hl kwc">hessian</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
+<span class="hl kwd">print</span><span class="hl std">(nlpost_opt)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## $par
+## [1]  0.02932617 25.83157113 85.06460793
+## 
+## $value
+## [1] 1003.173
+## 
+## $counts
+## function gradient 
+##      464       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##             [,1]        [,2]        [,3]
+## [1,] 512736635.6 -434161.379 -349900.971
+## [2,]   -434161.4     392.813     262.963
+## [3,]   -349901.0     262.963     394.261
+</pre></div>
+</div></div>
+
+After taking into account prior knowledge the optimised value of \(T_E\) is about 26C which is less ridiculous. But I'm still not happy.
+
+<div class="chunk" id="prior-posterior"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">Te_prior</span> <span class="hl kwb">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwc">mean</span> <span class="hl std">=</span> <span class="hl num">20</span><span class="hl std">,</span> <span class="hl kwc">sd</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl std">Te_post</span> <span class="hl kwb">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwc">mean</span> <span class="hl std">= nlpost_opt</span><span class="hl opt">$</span><span class="hl std">par[</span><span class="hl num">2</span><span class="hl std">],</span> <span class="hl kwc">sd</span> <span class="hl std">=</span> <span class="hl kwd">sqrt</span><span class="hl std">(</span><span class="hl kwd">solve</span><span class="hl std">(nlpost_opt</span><span class="hl opt">$</span><span class="hl std">hessian)[</span><span class="hl num">2</span><span class="hl std">,</span><span class="hl num">2</span><span class="hl std">]))</span>
+<span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">xlim</span><span class="hl std">(</span><span class="hl num">15</span><span class="hl std">,</span> <span class="hl num">35</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_function</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'prior'</span><span class="hl std">),</span> <span class="hl kwc">fun</span><span class="hl std">=dnorm,</span> <span class="hl kwc">args</span><span class="hl std">=Te_prior)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_function</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'posterior'</span><span class="hl std">),</span> <span class="hl kwc">fun</span><span class="hl std">=dnorm,</span> <span class="hl kwc">args</span><span class="hl std">=Te_post)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-prior-posterior-1.png" alt="plot of chunk prior-posterior" class="plot" /></div></div>
+
+<p>It looks like the posterior just goes as far into the prior range as it has to, but doesn't really want to be there. The resulting model fit below confirms this. The Bayesian model doesn't seem to fit the data. 
+
+
+
+<div class="chunk" id="post_sampls"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">par_sampl2</span> <span class="hl kwb">=</span> <span class="hl kwd">rmvnorm</span><span class="hl std">(</span><span class="hl num">500</span><span class="hl std">, nlpost_opt</span><span class="hl opt">$</span><span class="hl std">par,</span> <span class="hl kwd">solve</span><span class="hl std">(nlpost_opt</span><span class="hl opt">$</span><span class="hl std">hessian))</span>
+<span class="hl std">df_sampl2</span> <span class="hl kwb">=</span> <span class="hl std">par_sampl2 |&gt;</span>
+  <span class="hl kwd">as.data.frame</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">`colnames&lt;-`</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">'k'</span><span class="hl std">,</span><span class="hl str">'Te'</span><span class="hl std">,</span><span class="hl str">'T0'</span><span class="hl std">)) |&gt;</span>
+  <span class="hl kwd">rowwise</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">T</span> <span class="hl std">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwd">Tfun</span><span class="hl std">(tt,</span> <span class="hl kwd">c</span><span class="hl std">(k, Te, T0))),</span> <span class="hl kwc">t</span><span class="hl std">=</span><span class="hl kwd">list</span><span class="hl std">(tt)) |&gt;</span>
+  <span class="hl kwd">unnest</span><span class="hl std">(</span><span class="hl kwc">cols</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(T,t)) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">parstr</span> <span class="hl std">=</span> <span class="hl kwd">paste</span><span class="hl std">(</span><span class="hl str">'k='</span><span class="hl std">,k,</span><span class="hl str">' Te='</span><span class="hl std">, Te,</span> <span class="hl str">' T0='</span><span class="hl std">, T0,</span> <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">''</span><span class="hl std">))</span>
+
+<span class="hl kwd">ggplot</span><span class="hl std">(df_sampl2,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T,</span> <span class="hl kwc">group</span><span class="hl std">=parstr),</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'#00000022'</span><span class="hl std">,</span> <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coffee_data,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_segment</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coffee_data,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">xend</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T</span><span class="hl opt">-</span><span class="hl num">.4</span><span class="hl std">,</span> <span class="hl kwc">yend</span><span class="hl std">=T</span><span class="hl opt">+</span><span class="hl num">.4</span><span class="hl std">),</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_hline</span><span class="hl std">(</span><span class="hl kwc">yintercept</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">16</span><span class="hl std">,</span> <span class="hl num">24</span><span class="hl std">),</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">labs</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl kwa">NULL</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-post_sampls-1.png" alt="plot of chunk post_sampls" class="plot" /></div></div>
+
+
+<h2>Model discprancy</h2>
+
+
+Let's take a closer look at the difference between our fitted curves (with parameteres sampled from the likelihood inference) and the observed data:
+
+<div class="chunk" id="unnamed-chunk-12"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># visualise discrepancy on likelihood fit</span>
+<span class="hl std">df_sampl1 |&gt;</span>
+  <span class="hl kwd">rename</span><span class="hl std">(</span><span class="hl kwc">Tsim</span> <span class="hl std">= T) |&gt;</span>
+  <span class="hl kwd">right_join</span><span class="hl std">(coffee_data,</span> <span class="hl kwc">by</span><span class="hl std">=</span><span class="hl str">'t'</span><span class="hl std">) |&gt;</span>
+  <span class="hl kwd">filter</span><span class="hl std">(t</span> <span class="hl opt">&gt;</span> <span class="hl num">2</span><span class="hl std">) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">dscrp</span> <span class="hl std">= Tsim</span> <span class="hl opt">-</span> <span class="hl std">T) |&gt;</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=dscrp,</span> <span class="hl kwc">group</span><span class="hl std">=parstr),</span>
+              <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'#00000011'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_hline</span><span class="hl std">(</span><span class="hl kwc">yintercept</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-12-1.png" alt="plot of chunk unnamed-chunk-12" class="plot" /></div></div>
+
+<p>That plot is quite telling. There is a large and systematic difference between our best fitting temperature curves and the data. It seems like there is simply no exponential function that can fit the measured data properly. In other words, Newtonian (exponential) cooling is not the correct model for out data. In the early stages of cooling the difference between fitted model and data is positive, meaning that the observed temperature is lower than the modelled one, that is, cooling is faster than expected by the model. And in later stages the discrepancy is negative, indicating that the cooling is slower than expected. And the differences are on the order of one degree, so they can't be attributed to measurement error which is only of size 0.2. 
+
+<p>A simple model to account for discrepancy is to model the real world as "model plus discrepancy", i.e. \[T_{real}(t) = T_{mod}(t) + \delta(t)\] and to then model the observed temperature as real world temperature plus observation error \[T_{obs}(t) = T_{real}(t) + \epsilon(t).\] Putting this all together we have that the observed data is modelled as "model plus discrepancy plus observation error": \[T_{obs}(t) = T_{mod}(t) + \delta(t) + \epsilon(t).\] In the discrepancy plot we see the difference between observation and best fitting model, so this time series can be used to estimate \[\delta(t) + \epsilon(t).\] Let's start with the simple assumption that just like the observation error \(\epsilon(t)\) the discrepancy is an independent Normal random variable with mean zero. The variance of the discrepancy can be determined from the identity \[Var(T_{obs}(t) - T_{mod}(t)) = Var(\delta(t)) + Var(\epsilon(t)),\] where we can use the data to estimate the left hand side, and we know the variance of the observation error.
+
+<div class="chunk" id="unnamed-chunk-13"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">T_mod</span> <span class="hl kwb">=</span> <span class="hl kwd">Tfun</span><span class="hl std">(coffee_data</span><span class="hl opt">$</span><span class="hl std">t, nll_opt</span><span class="hl opt">$</span><span class="hl std">par)</span>
+<span class="hl std">T_obs</span> <span class="hl kwb">=</span> <span class="hl std">coffee_data</span><span class="hl opt">$</span><span class="hl std">T</span>
+<span class="hl std">var_discr</span> <span class="hl kwb">=</span> <span class="hl kwd">var</span><span class="hl std">(T_mod</span> <span class="hl opt">-</span> <span class="hl std">T_obs)</span> <span class="hl opt">-</span> <span class="hl num">0.2</span><span class="hl opt">^</span><span class="hl num">2</span>
+<span class="hl kwd">print</span><span class="hl std">(var_discr)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 0.6464158
+</pre></div>
+</div></div>
+
+By allowing for model discrepancy we get a new likelihood, very similar to the previous one but with an increased error variance that now consists of the sum of discrepancy variance and observation error variance. Everything else remains the same:
+
+<div class="chunk" id="unnamed-chunk-14"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com"># bayes with discrepancy</span>
+<span class="hl kwd">library</span><span class="hl std">(mvtnorm)</span>
+<span class="hl std">tt</span> <span class="hl kwb">=</span> <span class="hl kwd">seq</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span><span class="hl num">180</span><span class="hl std">,</span><span class="hl num">1</span><span class="hl std">)</span>
+<span class="hl std">nlpost2</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">pars</span><span class="hl std">) {</span>
+  <span class="hl kwd">sum</span><span class="hl std">(</span><span class="hl num">0.5</span> <span class="hl opt">*</span> <span class="hl std">(coffee_data</span><span class="hl opt">$</span><span class="hl std">T</span> <span class="hl opt">-</span> <span class="hl kwd">Tfun</span><span class="hl std">(coffee_data</span><span class="hl opt">$</span><span class="hl std">t, pars))</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">/</span>
+   <span class="hl std">(var_discr</span> <span class="hl opt">+</span> <span class="hl num">0.2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span> <span class="hl opt">+</span> <span class="hl num">0.5</span> <span class="hl opt">*</span> <span class="hl std">(pars[</span><span class="hl num">2</span><span class="hl std">]</span><span class="hl opt">-</span><span class="hl num">20</span><span class="hl std">)</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">/</span> <span class="hl num">3</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl std">}</span>
+<span class="hl std">nlpost2_opt</span> <span class="hl kwb">=</span> <span class="hl kwd">optim</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span><span class="hl num">30</span><span class="hl std">,</span><span class="hl num">100</span><span class="hl std">), nlpost2,</span> <span class="hl kwc">hessian</span><span class="hl std">=</span><span class="hl num">TRUE</span><span class="hl std">)</span>
+<span class="hl kwd">print</span><span class="hl std">(nlpost2_opt)</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## $par
+## [1]  0.02503715 20.83860070 84.09340571
+## 
+## $value
+## [1] 71.0312
+## 
+## $counts
+## function gradient 
+##      266       NA 
+## 
+## $convergence
+## [1] 0
+## 
+## $message
+## NULL
+## 
+## $hessian
+##             [,1]         [,2]         [,3]
+## [1,] 44972009.96 -28468.76386 -27145.08778
+## [2,]   -28468.76     24.14197     15.55973
+## [3,]   -27145.09     15.55973     26.27217
+</pre></div>
+<div class="source"><pre class="knitr r"><span class="hl kwd">print</span><span class="hl std">(</span><span class="hl kwd">sqrt</span><span class="hl std">(</span><span class="hl kwd">diag</span><span class="hl std">(</span><span class="hl kwd">solve</span><span class="hl std">(nlpost2_opt</span><span class="hl opt">$</span><span class="hl std">hessian))))</span>
+</pre></div>
+<div class="output"><pre class="knitr r">## [1] 0.0003881569 0.4133231730 0.3251885697
+</pre></div>
+</div></div>
+
+
+After taking into account discrepancy, the posterior mean is now at an acceptable value, of slightly above 20C. One thing to be mindful of is that our prior and posterior are on \(T_E\) the model parameter. After making the distinction between model and real world, we now have to add the discrepancy to any values inferred for \(T_E\) in order to interpret it as a real world temperature.
+
+<div class="chunk" id="prior-posterior-2"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">Te_post2</span> <span class="hl kwb">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwc">mean</span> <span class="hl std">= nlpost2_opt</span><span class="hl opt">$</span><span class="hl std">par[</span><span class="hl num">2</span><span class="hl std">],</span>
+                <span class="hl kwc">sd</span> <span class="hl std">=</span> <span class="hl kwd">sqrt</span><span class="hl std">(</span><span class="hl kwd">solve</span><span class="hl std">(nlpost2_opt</span><span class="hl opt">$</span><span class="hl std">hessian)[</span><span class="hl num">2</span><span class="hl std">,</span><span class="hl num">2</span><span class="hl std">]</span> <span class="hl opt">+</span> <span class="hl std">var_discr))</span>
+<span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">xlim</span><span class="hl std">(</span><span class="hl num">15</span><span class="hl std">,</span> <span class="hl num">30</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_function</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'prior'</span><span class="hl std">),</span> <span class="hl kwc">fun</span><span class="hl std">=dnorm,</span> <span class="hl kwc">args</span><span class="hl std">=Te_prior)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_function</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'posterior'</span><span class="hl std">),</span> <span class="hl kwc">fun</span><span class="hl std">=dnorm,</span> <span class="hl kwc">args</span><span class="hl std">=Te_post2)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-prior-posterior-2-1.png" alt="plot of chunk prior-posterior-2" class="plot" /></div></div>
+
+
+For plotting I add samples from the discrepancy distribution to get an estimate of the real world, not just the model.
+
+<div class="chunk" id="unnamed-chunk-15"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">par_sampl3</span> <span class="hl kwb">=</span> <span class="hl kwd">rmvnorm</span><span class="hl std">(</span><span class="hl num">500</span><span class="hl std">, nlpost2_opt</span><span class="hl opt">$</span><span class="hl std">par,</span> <span class="hl kwd">solve</span><span class="hl std">(nlpost2_opt</span><span class="hl opt">$</span><span class="hl std">hessian))</span>
+<span class="hl std">par_sampl3 |&gt;</span>
+  <span class="hl kwd">as.data.frame</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">`colnames&lt;-`</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">'k'</span><span class="hl std">,</span><span class="hl str">'Te'</span><span class="hl std">,</span><span class="hl str">'T0'</span><span class="hl std">)) |&gt;</span>
+  <span class="hl kwd">rowwise</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">T</span> <span class="hl std">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwd">Tfun</span><span class="hl std">(tt,</span> <span class="hl kwd">c</span><span class="hl std">(k, Te, T0))),</span> <span class="hl kwc">t</span><span class="hl std">=</span><span class="hl kwd">list</span><span class="hl std">(tt)) |&gt;</span>
+  <span class="hl kwd">unnest</span><span class="hl std">(</span><span class="hl kwc">cols</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(T,t)) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">parstr</span> <span class="hl std">=</span> <span class="hl kwd">paste</span><span class="hl std">(</span><span class="hl str">'k='</span><span class="hl std">,k,</span><span class="hl str">' Te='</span><span class="hl std">, Te,</span> <span class="hl str">' T0='</span><span class="hl std">, T0,</span> <span class="hl kwc">sep</span><span class="hl std">=</span><span class="hl str">''</span><span class="hl std">)) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">T</span> <span class="hl std">= T</span> <span class="hl opt">+</span> <span class="hl kwd">rnorm</span><span class="hl std">(</span><span class="hl kwd">n</span><span class="hl std">(),</span> <span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwd">sqrt</span><span class="hl std">(var_discr))) |&gt;</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T))</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=T,</span> <span class="hl kwc">group</span><span class="hl std">=parstr),</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'#00000022'</span><span class="hl std">,</span> <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_point</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coffee_data,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_segment</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=coffee_data,</span>
+                 <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">xend</span><span class="hl std">=t,</span>
+                     <span class="hl kwc">y</span><span class="hl std">=T</span><span class="hl opt">-</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl kwd">sqrt</span><span class="hl std">(var_discr</span><span class="hl opt">+</span><span class="hl num">0.2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">),</span>
+                     <span class="hl kwc">yend</span><span class="hl std">=T</span><span class="hl opt">+</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl kwd">sqrt</span><span class="hl std">(var_discr</span><span class="hl opt">+</span><span class="hl num">0.2</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)),</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_hline</span><span class="hl std">(</span><span class="hl kwc">yintercept</span><span class="hl std">=</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">16</span><span class="hl std">,</span> <span class="hl num">24</span><span class="hl std">),</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">labs</span><span class="hl std">(</span><span class="hl kwc">col</span><span class="hl std">=</span><span class="hl kwa">NULL</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-15-1.png" alt="plot of chunk unnamed-chunk-15" class="plot" /></div></div>
+
+<h2>Improved discprancy model</h2>
+
+<p>Our discrepancy model above was quite crude. We just said it is independent and identically distributed with \(N(0, 0.65)\). But looking at the discrepancy time series we see a systematic positive discrepancy for the first 20 minutes and negative discrepancy for the next 20 minutes. Let's see how the inference changes if we make this explicit in our likelihood function. 
+
+
+<div class="chunk" id="unnamed-chunk-16"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl std">dscr_fun</span> <span class="hl kwb">=</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">t</span><span class="hl std">) {</span>
+  <span class="hl num">0.7</span> <span class="hl opt">*</span> <span class="hl kwd">exp</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">t)</span> <span class="hl opt">+</span> <span class="hl num">0.3</span> <span class="hl opt">*</span> <span class="hl kwd">exp</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl num">.5</span><span class="hl opt">*</span><span class="hl std">t)</span>
+<span class="hl std">}</span>
+
+<span class="hl com"># visualise discrepancy on likelihood fit</span>
+<span class="hl std">df_sampl1 |&gt;</span>
+  <span class="hl kwd">rename</span><span class="hl std">(</span><span class="hl kwc">Tsim</span> <span class="hl std">= T) |&gt;</span>
+  <span class="hl kwd">right_join</span><span class="hl std">(coffee_data,</span> <span class="hl kwc">by</span><span class="hl std">=</span><span class="hl str">'t'</span><span class="hl std">) |&gt;</span>
+  <span class="hl kwd">filter</span><span class="hl std">(t</span> <span class="hl opt">&gt;</span> <span class="hl num">2</span><span class="hl std">) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">dscrp</span> <span class="hl std">= Tsim</span> <span class="hl opt">-</span> <span class="hl std">T) |&gt;</span>
+  <span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_line</span><span class="hl std">(</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=t,</span> <span class="hl kwc">y</span><span class="hl std">=dscrp,</span> <span class="hl kwc">group</span><span class="hl std">=parstr),</span>
+              <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">,</span> <span class="hl kwc">col</span><span class="hl std">=</span><span class="hl str">'#00000011'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_function</span><span class="hl std">(</span><span class="hl kwc">fun</span><span class="hl std">=dscr_fun,</span> <span class="hl kwc">colour</span><span class="hl std">=</span><span class="hl str">'red'</span><span class="hl std">)</span> <span class="hl opt">+</span>
+    <span class="hl kwd">geom_hline</span><span class="hl std">(</span><span class="hl kwc">yintercept</span><span class="hl std">=</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl kwc">lty</span><span class="hl std">=</span><span class="hl num">2</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/cooling.Rhtml-unnamed-chunk-16-1.png" alt="plot of chunk unnamed-chunk-16" class="plot" /></div></div>
 
 

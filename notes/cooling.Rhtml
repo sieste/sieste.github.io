@@ -26,6 +26,13 @@ end.rcode-->
 
 I have taken a freshly brewed cup of coffee and starting measuring its temperature with a kitchen thermometer every minute until I got bored. This is the data and a time series plot:
 
+<!--begin.rcode eval=FALSE
+library(tidyverse)
+end.rcode-->
+<!--begin.rcode include=FALSE
+library(tidyverse)
+end.rcode-->
+
 <!--begin.rcode 
 
 coffee_data = 
@@ -70,9 +77,6 @@ Tfun = function(t, pars) {
 end.rcode-->
 
 
-<!--begin.rcode 
-library(tidyverse)
-end.rcode-->
 
 <!--begin.rcode
 
@@ -99,17 +103,19 @@ Since \(T_E\) is the temperature of the environment, I should be able to use the
 
 <h2>Optimisation</h2>
 
-Formally we address this problem by finding the triplet of parameters \((T_0, T_E, k)\) that give a temperature curve for which the sum of squared differences to the observed data is minimised. There is no analytic solution, but we can use numerical optimisation:
+Formally we address this problem by finding the triplet of parameters \((T_0, T_E, k)\) that give a temperature curve distance to the observed data is minimised. Here we define distance as the sum of squared differences between observed and modelled temperature. Since there is no closed form mathematical solution for these parameters, we use numerical optimisation. In R, the function "optim" is our friend:
 
 <!--begin.rcode 
-# sum of squares function
-ss = function(pars) sum((coffee_data$T - Tfun(coffee_data$t, pars))^2)
+# define sum of squares function that we want to minimise
+ss = function(pars) {
+  sum((coffee_data$T - Tfun(coffee_data$t, pars))^2)
+}
 # numerical optimisation, starting from "reasonable" initial values
 ss_opt = optim(c(1,30,100), ss)
 print(ss_opt)
 end.rcode-->
 
-So my model tells me that the best fitting room temperature for my data is about 33C. The data were taken in late February in the UK. Windows and general insulation are up to UK standards, which means terrible, so even if I wanted to heat my house to 33C I wouldn't be able to. This result is clearly wrong. But look how nicely the model fits the data:
+So the optimisation tells me that the best fitting temperature curve for my data is the one with parameters \(0.04, 32.9, 87.0\). The second parameter is the temperature at \(t\to\infty\) which we said can be interpreted as the room temperature. The data were taken in late February in the UK. Windows and general insulation are up to UK standards, which means terrible, so even if I wanted to heat my house to 33C I wouldn't be able to. This result is clearly wrong. But look how nicely the model fits the data:
 
 <!--begin.rcode 
 tt = seq(0,180,1)
@@ -124,27 +130,39 @@ At least two things could be happening here: Either the data is bad, or my model
 
 <h2>Likelihood inference</h2>
 
-On the back of my kitchen thermometer there is a small sticker saying that the precision of the thermometer is 0.2C. I interpret this loosely as meaning that the observed temperature is normally distributed around the "true" value with mean zero and standard deviation \(0.2\):
+On the back of my kitchen thermometer used to be a small sticker saying that the precision of the thermometer is 0.2C. I interpret this loosely as meaning that the observed temperature has a Normal distribution centered on the "true" temperature value with standard deviation \(0.2\):
 
-\[\hat{T}(t) \sim N(T(t), 0.2^2)\]
+\[T_{obs}(t) \sim N(T_{real}(t), 0.2^2)\]
 
-This defines a log-likelihood function for my parameters given by
+If we believe the real temperature follows our Newtonian cooling process, we have the probability distribution for an individual measurement at time \(t\) given by
+
+\[p(T_{obs}(t) | k, T_E, T_0) = \frac{1}{\sqrt{2\pi \times 0.2^2}}e^{-\frac{\left[T_{obs}(t) - (T_E + (T_0 - T_E)e^{-kt})\right]^2}{2 \times 0.2^2}}\]
+
+and the joint distribution of all \(n\) measurements taken at times \(t_1, \dots, t_n\) is given by
+
+\[p(T_{obs} | k, T_E, T_0) = \prod_{i=1}^n p(T_{obs}(t_i) | k, T_E, T_0)\]
+
+Treating the logarithm of the joint distribution as a function of the parameters and gives us the log-likelihood function:
 
 \[\begin{aligned}
-\ell(T_0,T_E,k) & = \sum_{i=1}^n \log p(\hat{T}(t_i) | T_0, T_E, k)\\
-& = C -\frac{1}{2 \times 0.2^2} \sum_{i=1}^n \left[(\hat{T}(t_i) - (T_E + (T_0 - T_E)e^{-kt})\right]^2
+\ell(T_0,T_E,k) & = \sum_{i=1}^n \log p(T_{obs}(t_i) | T_0, T_E, k)\\
+& = C -\frac{1}{2 \times 0.2^2} \sum_{i=1}^n \left[(T_{obs}(t_i) - (T_E + (T_0 - T_E)e^{-kt})\right]^2
 \end{aligned}\]
 
 <p>where the constant \(C\) does not depend on any of the parameters.
-We can maximise the log likelihood with respect to the model parameters to get the maximum likelihood estimates of the parameters. These will be exactly the same as the minimum sum of squares estimates we calculated earlier. However, likelihood inference also tells us about the uncertainty of the parameter estimates. Namely the vector of maximum likelihood estimates \(\hat\theta\) has a multivariate Normal distribution centered on the "true" parameter vector \(\theta\) and with covariance matrix given by the inverse expected information matrix. What this means in practice is that we can optimise the log likelihood as above, tell the optim function to also approximate the Hessian matrix, which is the matrix of second derivatives of the negative log likelihood, and use the inverse of the Hessian matrix as the covariance matrix that characterises the uncertainty of the parameter estimates. This is best explained through some actual code:
 
+<p>We can maximise the log-likelihood with respect to the model parameters (using the optim function) to get the maximum likelihood estimates of the parameters. These will be exactly the same as the minimum sum of squares estimates we calculated earlier. 
+
+<p>However, likelihood inference can also tell us about the uncertainty of our parameter estimates. Namely, the vector of maximum likelihood estimates \(\hat\theta = (\hat{T}_0, \hat{T}_E, \hat{k})\) has a multivariate Normal distribution with mean at the "true" parameter vector \(\theta = (T_0, T_E, k)\), and with covariance matrix given by the inverse of the expected information matrix. 
+
+<p>What this means in practice is that we can optimise the log likelihood using "optim" as above, tell it to also approximate the Hessian matrix, which is the matrix of second derivatives of the negative log likelihood, and use the inverse of the Hessian matrix as the covariance matrix of the sampling distribution of the maximum likelihood estimates. In code that looks as follows:
 
 
 <!--begin.rcode 
 library(mvtnorm)
 # define negative log likelihood function up to an additive constant
 nll = function(pars) {
-  sum(0.5 * (coffee_data$T - Tfun(coffee_data$t, pars))^2 / 0.2^2 )
+  sum((coffee_data$T - Tfun(coffee_data$t, pars))^2 / (2 * 0.2^2) )
 }
 # use optim to minimise the negative log likelihood, and 
 # also approximate the hessian matrix
@@ -152,54 +170,78 @@ nll_opt = optim(c(1,30,100), nll, hessian=TRUE)
 print(nll_opt)
 end.rcode-->
 
+The inverse of the Hessian of the negative log likelihood approximates the covariance matrix of the estimators:
+
+<!--begin.rcode 
+solve(nll_opt$hessian)
+end.rcode-->
+
+So according to the square root of the (2,2) element, the estimator of \(T_E\) has standard deviation \(\sqrt{0.0415} \approx 0.2\), which incidentally is close to the standard deviation of the measurement errors. But that still means the estimate of \(T_E\) is well above 30C even after accounting for sampling variability.
+
+
+<p>Below is a visualisation of the fitted temperature distributions that take into account uncertainty in the parameter estimates:
 
 <!--begin.rcode 
 # now draw samples from a multivariate normal distribution centered on the
 # estimates, and with covariance given by the inverse hessian
-par_sampl = rmvnorm(500, nll_opt$par, solve(nll_opt$hessian))
+par_sampl1 = rmvnorm(500, nll_opt$par, solve(nll_opt$hessian))
 # plot the temperature curves corresponding to the sampled parameters
-par_sampl |> 
+df_sampl1 = par_sampl1 |> 
   as.data.frame() |>
   `colnames<-`(c('k','Te', 'T0')) |>
   rowwise() |> 
   mutate(T = list(Tfun(tt, c(k, Te, T0))), t=list(tt)) |> 
   unnest(cols=c(T, t)) |> 
-  mutate(parstr = paste('k=',k,' Te=', Te, ' T0=', T0, sep='')) |>
-  ggplot(aes(x=t, y=T)) + 
-    geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
-    geom_point(data=coffee_data, col='red') +
-    geom_segment(data=coffee_data, aes(x=t, xend=t, y=T-0.4, yend=T+0.4), col='red') +
-    labs(col=NULL) 
-end.rcode-->
+  mutate(parstr = paste('k=',k,' Te=', Te, ' T0=', T0, sep=''))
 
-I have put error bars with width 0.2 on the data points but they are barely visible. The measurement errors lead to some estimation uncertainty in the parameters including the asymptotic temperature \(T_E\). But all values are still well above 30C, so still unrealistic.
+ggplot(df_sampl1, aes(x=t, y=T)) + 
+  geom_line(aes(x=t, y=T, group=parstr), 
+            col='#00000022', show.legend=FALSE) +
+  geom_point(data=coffee_data, col='red')
+end.rcode-->
 
 
 
 <h2>Bayesian inference</h2>
 
-<p>Sampling from the multivariate Normal distribution with variance matrix given by the inverse hessian was actually an approximation of a Bayesian inference, called a Laplace approximation. The details of the approximation aren't important. What is more important is that Bayesian inference consists of the data as well as prior information. In the likelihood inference example we have assumed that we have absolutely no prior knowledge about the parameters, every region in parameter space is as likely as any other region in parameter space. But then we also said that 35C is clearly wrong, which shows that, actually, we do have prior knowledge. How else could we say that the inferred value is "unreasonable"?
+<p>Sampling from the multivariate Normal distribution with variance matrix given by the inverse hessian can be considered an approximation of a Bayesian inference, called a Laplace approximation. 
 
-<p>Bayesian inference now allows us to make that prior knowledge explicit in the form of a probability distribution over possible parameter values. Here I will only specify a prior for the parameter \(T_E\), but in general we could specify priors for the other parameters as well. My prior is that \(T_E\) is somewhere between 16C and 24C with values around 20C most likely. Formally I can translate this prior into a Normal distribution with mean 20 and standard deviation 2 \[T_E \sim N(20, 2^2)\]. My new function to maximise now becomes the posterior
+<p>Bayesian inference takes into account the data through the likelihood function, but also allows to include prior information by specifying a prior distribution for the model parameters. In the likelihood inference example we have assumed a flat (uniform) prior, and essentially said that we have no prior knowledge about the parameters and every region in parameter space is a priori as likely as any other region. But then we also said that 35C is "unreasonable" even though the data said that it's the best estimate. This shows that actually we do have prior knowledge about the parameters -- How else could we say that the inferred value is "unreasonable"?
+
+<p>Bayesian inference forces us to make any prior knowledge we have explicit, in the form of a probability distribution over possible parameter values. Here I will only specify a prior for the parameter \(T_E\), but in general we could specify priors for the other parameters as well. My prior is that \(T_E\) is with high probability somewhere between 16C and 24C, with values around 20C most likely. Formally I translate this into a Normal distribution with mean 20C and standard deviation 2C: \[T_E \sim N(20, 2^2).\] My new function to maximise now becomes the log posterior distribution given by
 
 \[\begin{aligned}
 \log p(T_0,T_E,k|\hat{T}) & = C \times p(\hat{T}|T_0, T_E, k) \times p(T_E)\\
-& = C' -\frac{1}{2 \times 0.2^2} \sum_{i=1}^n \left[(\hat{T}(t_i) - (T_E + (T_0 - T_E)e^{-kt})\right]^2 - \frac{1}{2 \times 2^2} (T_E - 20)^2
+& = C' -\frac{1}{2 \times 0.2^2} \sum_{i=1}^n \left[(\hat{T}(t_i) - (T_E + (T_0 - T_E)e^{-kt})\right]^2 - \frac{1}{2 \times 2^2} (T_E - 20)^2.
 \end{aligned}\]
 
-As before I can use the approximated Hessian matrix as the covariance matrix of the posterior distribution and sample from it:
-
+As before I approximate the posterior by a Normal distribution, centered on the maximum returned by optim, and covariance matrix given by the Hessian matrix obtained by optim:
 
 <!--begin.rcode 
+# log posterior function
 nlpost = function(pars) {
-  sum(0.5 * (coffee_data$T - Tfun(coffee_data$t, pars))^2 / 0.2^2 + 
-  0.5 * (pars[2]-20)^2 / 2^2)
+  sum((coffee_data$T - Tfun(coffee_data$t, pars))^2 / (2*0.2^2) + 
+  (pars[2]-20)^2 / (2 * 2^2))
 }
 nlpost_opt = optim(c(1,30,100), nlpost, hessian=TRUE)
 print(nlpost_opt)
 end.rcode-->
 
-<!--begin.rcode 
+After taking into account prior knowledge the optimised value of \(T_E\) is about 26C which is less ridiculous. But I'm still not happy.
+
+<!--begin.rcode prior-posterior
+Te_prior = list(mean = 20, sd=2)
+Te_post = list(mean = nlpost_opt$par[2], sd = sqrt(solve(nlpost_opt$hessian)[2,2]))
+ggplot() + xlim(15, 35) +
+  geom_function(aes(colour='prior'), fun=dnorm, args=Te_prior) +
+  geom_function(aes(colour='posterior'), fun=dnorm, args=Te_post) 
+end.rcode-->
+
+<p>It looks like the posterior just goes as far into the prior range as it has to, but doesn't really want to be there. The resulting model fit below confirms this. The Bayesian model doesn't seem to fit the data. 
+
+
+
+<!--begin.rcode post_sampls
 par_sampl2 = rmvnorm(500, nlpost_opt$par, solve(nlpost_opt$hessian))
 df_sampl2 = par_sampl2 |> 
   as.data.frame() |>
@@ -217,16 +259,15 @@ ggplot(df_sampl2, aes(x=t, y=T)) +
   labs(col=NULL) 
 end.rcode-->
 
-Ok, so the prior on \(T_E\) pulled the fitted curves slightly away from the data towards \(T_E\) values that are a priori more "reasonable". The result is less ridiculous, but I'm still not happy. It just seems to warm, something is still wrong.
-
 
 <h2>Model discprancy</h2>
 
-Let's take a closer look at the difference between our fitted curves (with parameteres sampled from the posterior distribution) and the observed data.
 
-<!--begin.rcode 
+Let's take a closer look at the difference between our fitted curves (with parameteres sampled from the likelihood inference) and the observed data:
 
-# visualise discrepancy
+<!--begin.rcode
+
+# visualise discrepancy on likelihood fit
 df_sampl1 |> 
   rename(Tsim = T) |> 
   right_join(coffee_data, by='t') |>
@@ -239,35 +280,102 @@ df_sampl1 |>
 
 end.rcode-->
 
-<p>That plot is quite telling. What it shows is that there is a systematic difference between our best fitting curves and the data. It seems like there is simply no exponential function that can fit the measured data properly. In other words, Newtonian (exponential) cooling is not the correct model for out data. In the early stages of cooling the difference between fitted model and data is positive, meaning that the observed temperature is lower than the modelled one, that is, cooling is faster than expected by the model. And in later stages the discrepancy is negative, indicating that the cooling is slower than expected. And the differences are on the order of one degree, so they can't be attributed to measurement error which is only of size 0.2. More importantly, the difference between model and observation does not seem random but has a systematic pattern.
+<p>That plot is quite telling. There is a large and systematic difference between our best fitting temperature curves and the data. It seems like there is simply no exponential function that can fit the measured data properly. In other words, Newtonian (exponential) cooling is not the correct model for out data. In the early stages of cooling the difference between fitted model and data is positive, meaning that the observed temperature is lower than the modelled one, that is, cooling is faster than expected by the model. And in later stages the discrepancy is negative, indicating that the cooling is slower than expected. And the differences are on the order of one degree, so they can't be attributed to measurement error which is only of size 0.2. 
 
-<p>A model to account for discrepancy
+<p>A simple model to account for discrepancy is to model the real world as "model plus discrepancy", i.e. \[T_{real}(t) = T_{mod}(t) + \delta(t)\] and to then model the observed temperature as real world temperature plus observation error \[T_{obs}(t) = T_{real}(t) + \epsilon(t).\] Putting this all together we have that the observed data is modelled as "model plus discrepancy plus observation error": \[T_{obs}(t) = T_{mod}(t) + \delta(t) + \epsilon(t).\] In the discrepancy plot we see the difference between observation and best fitting model, so this time series can be used to estimate \[\delta(t) + \epsilon(t).\] Let's start with the simple assumption that just like the observation error \(\epsilon(t)\) the discrepancy is an independent Normal random variable with mean zero. The variance of the discrepancy can be determined from the identity \[Var(T_{obs}(t) - T_{mod}(t)) = Var(\delta(t)) + Var(\epsilon(t)),\] where we can use the data to estimate the left hand side, and we know the variance of the observation error.
 
+<!--begin.rcode
+T_mod = Tfun(coffee_data$t, nll_opt$par)
+T_obs = coffee_data$T
+var_discr = var(T_mod - T_obs) - 0.2^2
+print(var_discr)
+end.rcode-->
 
-<!--begin.rcode 
+By allowing for model discrepancy we get a new likelihood, very similar to the previous one but with an increased error variance that now consists of the sum of discrepancy variance and observation error variance. Everything else remains the same:
+
+<!--begin.rcode
 
 # bayes with discrepancy
 library(mvtnorm)
 tt = seq(0,180,1)
-nlpost = function(pars) sum(0.5 * (coffee_data$T - Tfun1(coffee_data$t, pars))^2 / 0.7^2 + 0.5 * (pars[2]-20)^2 / 3^2)
-nlpost_opt = optim(c(1,30,100), nlpost, hessian=TRUE)
-print(nlpost_opt)
-print(sqrt(diag(solve(nlpost_opt$hessian))))
-par_sampl = rmvnorm(500, nlpost_opt$par, solve(nlpost_opt$hessian))
-par_sampl |> 
+nlpost2 = function(pars) {
+  sum(0.5 * (coffee_data$T - Tfun(coffee_data$t, pars))^2 / 
+   (var_discr + 0.2^2) + 0.5 * (pars[2]-20)^2 / 3^2)
+}
+nlpost2_opt = optim(c(1,30,100), nlpost2, hessian=TRUE)
+print(nlpost2_opt)
+print(sqrt(diag(solve(nlpost2_opt$hessian))))
+end.rcode-->
+
+
+After taking into account discrepancy, the posterior mean is now at an acceptable value, of slightly above 20C. One thing to be mindful of is that our prior and posterior are on \(T_E\) the model parameter. After making the distinction between model and real world, we now have to add the discrepancy to any values inferred for \(T_E\) in order to interpret it as a real world temperature.
+
+<!--begin.rcode prior-posterior-2
+Te_post2 = list(mean = nlpost2_opt$par[2], 
+                sd = sqrt(solve(nlpost2_opt$hessian)[2,2] + var_discr))
+ggplot() + xlim(15, 30) +
+  geom_function(aes(colour='prior'), fun=dnorm, args=Te_prior) +
+  geom_function(aes(colour='posterior'), fun=dnorm, args=Te_post2) 
+end.rcode-->
+
+
+For plotting I add samples from the discrepancy distribution to get an estimate of the real world, not just the model.
+
+<!--begin.rcode 
+par_sampl3 = rmvnorm(500, nlpost2_opt$par, solve(nlpost2_opt$hessian))
+par_sampl3 |> 
   as.data.frame() |>
   `colnames<-`(c('k','Te','T0')) |>
   rowwise() |> 
-  mutate(T = list(Tfun1(tt, c(k, Te, T0))), t=list(tt)) |> 
+  mutate(T = list(Tfun(tt, c(k, Te, T0))), t=list(tt)) |> 
   unnest(cols=c(T,t)) |> 
   mutate(parstr = paste('k=',k,' Te=', Te, ' T0=', T0, sep='')) |>
+  mutate(T = T + rnorm(n(), 0, sqrt(var_discr))) |>
   ggplot(aes(x=t, y=T)) + 
     geom_line(aes(x=t, y=T, group=parstr), col='#00000022', show.legend=FALSE) +
     geom_point(data=coffee_data, col='red') +
-    geom_segment(data=coffee_data, aes(x=t, xend=t, y=T-2.4, yend=T+2.4), col='red') +
+    geom_segment(data=coffee_data, 
+                 aes(x=t, xend=t, 
+                     y=T-2*sqrt(var_discr+0.2^2), 
+                     yend=T+2*sqrt(var_discr+0.2^2)), col='red') +
     geom_hline(yintercept=c(16, 24), col='red', lty=2) +
     labs(col=NULL) 
 
+end.rcode-->
+
+<h2>Improved discprancy model</h2>
+
+<p>Our discrepancy model above was quite crude. We just said it is independent and identically distributed with \(N(0, 0.65)\). But looking at the discrepancy time series we see a systematic positive discrepancy for the first 20 minutes and negative discrepancy for the next 20 minutes. Let's see how the inference changes if we make this explicit in our likelihood function. 
+
+
+
+
+<!--begin.rcode
+dscr_fun = function(t) 2 * sin(t *2 * pi / 40)*exp(-0.04*t)
+# visualise discrepancy on likelihood fit
+df_sampl1 |> 
+  rename(Tsim = T) |> 
+  right_join(coffee_data, by='t') |>
+  filter(t > 2) |>
+  mutate(dscrp = Tsim - T) |>
+  ggplot() + xlim(0,120) +
+    geom_line(aes(x=t, y=dscrp, group=parstr), 
+              show.legend=FALSE, col='#00000011') +
+    geom_function(fun=dscr_fun, colour='red') +
+    geom_hline(yintercept=0, lty=2) +
+  geom_function(fun=dscr_fun, col='red') 
+end.rcode-->
+
+
+<!--begin.rcode
+ii = 20:nrow(coffee_data)
+nlpost3 = function(pars) {
+  sum(0.5 * (coffee_data$T[ii] - (Tfun(coffee_data$t[ii], pars)) )^2 / 
+   (0.2^2) + 0.5 * (pars[2]-20)^2 / 3^2)
+}
+nlpost3_opt = optim(c(.1,10,100), nlpost3, hessian=TRUE)
+print(nlpost3_opt)
+print(sqrt(diag(solve(nlpost3_opt$hessian))))
 end.rcode-->
 
 
