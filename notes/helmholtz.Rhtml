@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>Helmhurts</h2>
+
+
+
+<!--
+:nnoremap = :!R -e "knitr::knit('%')"<enter><enter>:!xdotool key --window $(xdotoo
+l search --name "Mozilla Firefox") F5<enter><enter>
+-->
+
+<!--begin.rcode init, echo=FALSE
+  set.seed(123)
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+<a href=https://jasmcole.com/2014/08/25/helmhurts/ target='_blank'>Helmhurts blog post</a>
+
+<p>An electromagnetic has time dependence \(\sin(\omega t)\) at each location. 
+
+<p>There is a dispersion relation of the form \(\omega = ck/n(x)\) where \(c\) is the speed of light, \(k\) is the wave number and \(n(x)\) is the spatially dependent refractive index.
+
+<p>Then the electric field solves \(\nabla^2 E + k^2/n(x)^2 E = f(x)\) where \(f(x)\) is the source function.
+
+<p>In discretised form on a regular grid with grid constant \(\Delta\), the equations becomes 
+\[ \frac{1}{\Delta^2} \left[E_{i-1,j} + E_{i+1,j} + E_{i,j-1} + E_{i,j+1} + (k^2 / n_{i,j}^2 - 4) E_{i,j} = f_{i,j}\]
+
+
+<!--begin.rcode 
+
+# rectangular domain
+m = 100
+n = 100
+# discretised linear operator
+f = rep(0, m*n)
+f[floor((n/4-1)*m+4*m/5)] = 10
+nn = rep(1, m*n)
+nn[ floor((n/3-1)*m + seq(m/3, 2*m/3)) ] = .001
+nn[ floor((seq(n/10,n/3)-1)*m + 2*m/3) ] = .001
+k = .4
+offdiags = tibble(
+  i = rep(1:m, n),
+  j = rep(1:n, each=m),
+  im1 = ifelse(i==1, NA, i-1),
+  ip1 = ifelse(i==m, NA, i+1),
+  jm1 = ifelse(j==1, NA, j-1),
+  jp1 = ifelse(j==n, NA, j+1),
+  ij = (j-1)*m + i,
+  imj = (j-1)*m + im1,
+  ipj = (j-1)*m + ip1,
+  ijm = (jm1-1)*m + i,
+  ijp = (jp1-1)*m + i) |>
+  select(-i, -j, -im1, -ip1, -jm1, -jp1) |>
+  pivot_longer(-ij, names_to='del', values_to='to') |>
+  drop_na() |>
+  select(-del) |>
+  rename(from=ij) |>
+  mutate(value = 1)
+diags = tibble(
+  i = rep(1:m, n),
+  j = rep(1:n, each=m),
+  from = (j-1)*m + i,
+  to = from,
+  value= k^2 / nn^2 - 4)
+all_entries = bind_rows(diags, offdiags)
+D = sparseMatrix(i = all_entries$from, j = all_entries$to, x = all_entries$value)
+E = solve(D, f)
+tibble(i = rep(1:m, n), j=rep(1:n, each=m), E2=E^2, n = nn) |>
+ggplot(aes(x=j, y=i)) + geom_raster(aes(fill=E2)) + geom_raster(aes(fill=ifelse(n==min(n), 1, NA)))
+
+end.rcode-->
+
+
