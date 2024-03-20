@@ -37,57 +37,190 @@ end.rcode-->
 
 
 <!--begin.rcode 
+
 library(Matrix)
 library(tidyverse)
-
+#
 # rectangular domain
 m = 500
 n = 400
-delta = 0.01
-# discretised linear operator
+delta = 0.01 # grid constant = 1cm 
+#
+# define source term (single grid cell)
 f = rep(0, m*n)
 f[floor((50-1)*m+50)] = 10
+#
+# refractive index = 1 in air
 nn = rep(1, m*n)
+# refractive index > 1 in walls
+n_wall = 3
 for (w in 1:20) {
-  nn[ floor((w - 1)*m + 1:m) ]     = 3
-  nn[ floor((n - w)*m + 1:m) ]     = 3
-  nn[ floor((1:n - 1)*m + w) ]     = 3
-  nn[ floor((1:n - 1)*m + m-w+1) ] = 3
-  nn[ floor((n/2 + w - 1)*m + c(1:(0.6*m),(0.8*m):m)) ] = 3
+  nn[ floor((w - 1)*m + 1:m) ]     = n_wall
+  nn[ floor((n - w)*m + 1:m) ]     = n_wall
+  nn[ floor((1:n - 1)*m + w) ]     = n_wall
+  nn[ floor((1:n - 1)*m + m-w+1) ] = n_wall
+  nn[ floor((n/2 + w - 1)*m + c(1:(0.6*m),(0.8*m):m)) ] = n_wall
 }
-k = 12
-offdiags = tibble(
-  i = rep(1:m, n),
-  j = rep(1:n, each=m),
-  im1 = ifelse(i==1, NA, i-1),
-  ip1 = ifelse(i==m, NA, i+1),
-  jm1 = ifelse(j==1, NA, j-1),
-  jp1 = ifelse(j==n, NA, j+1),
-  ij = (j-1)*m + i,
-  imj = (j-1)*m + im1,
-  ipj = (j-1)*m + ip1,
-  ijm = (jm1-1)*m + i,
-  ijp = (jp1-1)*m + i) |>
-  select(-i, -j, -im1, -ip1, -jm1, -jp1) |>
-  pivot_longer(-ij, names_to='del', values_to='to') |>
+#
+# wave number of 2.4GHz wifi signal in air: k = 2*pi*f/c = 50.27
+k = 50 
+#
+# differential operator L = (del^2 + (k/n)^2) 
+# discretised by finite differencing
+#
+# off-diagonals: nearest neighbors are summed and divided by delta^2
+offdiags = 
+  tibble(
+    # 2d grid points
+    i = rep(1:m, n),
+    j = rep(1:n, each=m),
+    # 2d neighbors
+    im1 = ifelse(i==1, NA, i-1),
+    ip1 = ifelse(i==m, NA, i+1),
+    jm1 = ifelse(j==1, NA, j-1),
+    jp1 = ifelse(j==n, NA, j+1),
+    # vectorised grid points
+    ij = (j-1)*m + i,
+    # vectorised neighbors (NA if outside domain)
+    imj = (j-1)*m + im1,
+    ipj = (j-1)*m + ip1,
+    ijm = (jm1-1)*m + i,
+    ijp = (jp1-1)*m + i) |>
+  select(ij, imj, ipj, ijm, ijp) |>
+  pivot_longer(-ij, names_to='delete_me', values_to='to') |>
   drop_na() |>
-  select(-del) |>
+  select(-delete_me) |>
   rename(from=ij) |>
   mutate(value = 1/delta^2)
+# 
+# diagonals: -4/delta^2 from laplacian, plus (k/n)^2 from linear term
 diags = tibble(
   i = rep(1:m, n),
   j = rep(1:n, each=m),
   from = (j-1)*m + i,
   to = from,
-  value = k^2 / nn^2 - 4/delta^2)
+  value = - 4/delta^2 + k^2 / nn^2)
+# 
+# putting it all together into a sparse matrix
 all_entries = bind_rows(diags, offdiags)
 D = sparseMatrix(i = all_entries$from, j = all_entries$to, x = all_entries$value)
+#
+# solve DE = f for E 
 E = solve(D, f)
+#
+# visualise square of electric field
 df = tibble(i = rep(1:m, n), j=rep(1:n, each=m), E=E, E2=E^2, n = nn, f=f)
 ggplot() + 
   geom_raster(data=df,aes(x=j, y=i, fill=E2)) + 
   scale_fill_viridis_c() +
-  geom_raster(data=df |> filter(n != 1), aes(x=j, y=i), fill='black') +
+  #geom_raster(data=df |> filter(n != 1), aes(x=j, y=i), fill='black') +
+  geom_point(data=df |> filter(f != 0), aes(x=j, y=i), col='magenta', size=5)
+
+end.rcode-->
+
+
+
+<p>We should include a damping term to account for the fact that the electromagnetic wave exchanges energy with the medium through which it propagates.
+
+\[\nabla^2 E(x,y) + ((k/n(x,y))^2 - i\omega \gamma(x,y)) E(x,y) = f(x,y)\]
+
+where \(omega = 2\pi f\) is angular velocity and \(\gamma\) is a positive damping term.
+
+For the derivation start Ampere's Law with Maxwells addition in conductive media (one of Maxwell's equations) \[\nabla \times B = \mu(\sigma E + \epsilon \partial_t E),\] where \(B\) is the magnetic field, \(\mu\) is magnetic permeability of the medium, \(\sigma\) is electrical conductivity, \(\epsilon\) is electric permittivity. The conductivity term \(\mu \sigma E\) introduces damping. Then take the curl of Faraday's Law of Induction (another one of Maxwell's equations) \[\nabla \times (\nabla \times E) = -\partial_t (\nabla \times B)\] and substitute Ampere's Law \[\nabla \times (\nabla \times E) = -\mu \partial_t (\sigma E + \epsilon \partial_t E).\] Using the vector calculus identity \(\nabla \times (\nabla \times V) = \nabla(\nabla \cdot V) - \nabla^2 V\) and \(\nabla \cdot E = 0\) in homogeneous media with free charge we get \[\nabla^2 E -\mu\sigma \partial_t E - \mu\epsilon \partial_{tt} E = 0.\] Now make a separable ansatz \(E(x,y,t) = E(x,y) e^{-i\omega t}\) and finally get the desired \[\nabla^2 E(x,y) + (\omega^2 \mu \epsilon - i \omega \mu \sigma)E(x,y) = 0.\]
+
+<p>Separating \(E\) into real and imaginary part \(E = E_{re} + i E_{im}\) we get two coupled differential equations \[\nabla^2 E_{re} + (k/n)^2 E_{re} - \omega \gamma E_{im} = f\] and \[\nabla^2 E_{im} + (k/n)^2 E_{im} + \omega \gamma E_{re} = 0.\] In the following code I vectorise the complex valued 2-d field \(E\) by concatenating the vectorised real part and the vectorised imaginary part. Constructing the discretised differential operator is then straightforward. 
+
+<!--begin.rcode 
+
+#
+# rectangular domain
+m = 500
+n = 400
+delta = 0.01 # grid constant = 1cm 
+#
+# define source term (single grid cell in real part)
+f = rep(0, 2*m*n)
+f[floor((50-1)*m+50)] = 10
+#
+# define wall indices
+i_wall = c()
+for (w in 1:20) {
+  i_wall = c(i_wall,
+    floor((w - 1)*m + 1:m),
+    floor((n - w)*m + 1:m),
+    floor((1:n - 1)*m + w),
+    floor((1:n - 1)*m + m-w+1),
+    floor((n/2 + w - 1)*m + c(1:(0.6*m),(0.8*m):m)))
+}
+#
+# refractive index (real-valued)
+# n = 1 in air and n > 1 in wall
+nn = rep(1, 2*m*n)
+nn[i_wall] = 3
+#
+# damping factor (real-valued)
+# gamma = 0 in air, gamma > 0 in wall
+gamma = rep(0, 2*m*n)
+gamma[i_wall] = 0.1
+#
+# wave number of 2.4GHz wifi signal in air: k = 2*pi*f/c = 50.27
+k = 50 
+#
+#
+#
+#
+#
+#
+# PICK UP HERE #####################################################
+#
+# differential operator, discretised by finite differencing
+#
+# off-diagonals: nearest neighbors are summed and divided by delta^2
+offdiags = 
+  tibble(
+    # 2d grid points
+    i = rep(1:m, n),
+    j = rep(1:n, each=m),
+    # 2d neighbors
+    im1 = ifelse(i==1, NA, i-1),
+    ip1 = ifelse(i==m, NA, i+1),
+    jm1 = ifelse(j==1, NA, j-1),
+    jp1 = ifelse(j==n, NA, j+1),
+    # vectorised grid points
+    ij = (j-1)*m + i,
+    # vectorised neighbors (NA if outside domain)
+    imj = (j-1)*m + im1,
+    ipj = (j-1)*m + ip1,
+    ijm = (jm1-1)*m + i,
+    ijp = (jp1-1)*m + i) |>
+  select(ij, imj, ipj, ijm, ijp) |>
+  pivot_longer(-ij, names_to='delete_me', values_to='to') |>
+  drop_na() |>
+  select(-delete_me) |>
+  rename(from=ij) |>
+  mutate(value = 1/delta^2)
+# 
+# diagonals: -4/delta^2 from laplacian, plus (k/n)^2 from linear term
+diags = tibble(
+  i = rep(1:m, n),
+  j = rep(1:n, each=m),
+  from = (j-1)*m + i,
+  to = from,
+  value = - 4/delta^2 + k^2 / nn^2)
+# 
+# putting it all together into a sparse matrix
+all_entries = bind_rows(diags, offdiags)
+D = sparseMatrix(i = all_entries$from, j = all_entries$to, x = all_entries$value)
+#
+# solve DE = f for E 
+E = solve(D, f)
+#
+# visualise square of electric field
+df = tibble(i = rep(1:m, n), j=rep(1:n, each=m), E=E, E2=E^2, n = nn, f=f)
+ggplot() + 
+  geom_raster(data=df,aes(x=j, y=i, fill=E2)) + 
+  scale_fill_viridis_c() +
+  #geom_raster(data=df |> filter(n != 1), aes(x=j, y=i), fill='black') +
   geom_point(data=df |> filter(f != 0), aes(x=j, y=i), col='magenta', size=5)
 
 end.rcode-->
