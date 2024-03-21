@@ -32,7 +32,7 @@ end.rcode-->
 <li> Gauss's Law: \(\nabla \cdot E = \frac{\rho}{\epsilon_0 \epsilon_r}\) 
 <li> Gauss's Law for magnetism: \(\nabla \cdot B = 0\) 
 <li> Faraday's Law of Induction: \(\nabla \times E = -\partial_t B\) 
-<li>Ampere's Law with Maxwell's addition: \(\nabla \times B = \mu_0 (\sigma E + \epsilon_0 \partial_t E)\)
+<li>Ampere's Law with Maxwell's addition: \(\nabla \times B = \mu_0 (\sigma E + \epsilon_0 \epsilon_r \partial_t E)\)
 </ul>
 
 <p>The legend has it that this is what God said on the first day, and then there was light. The important quantities here are the electric field \(E\) and magnetic field \(B\), both are in general vectors that vary with space and time. The Greek letters are parameters some of which vary across space, and I'll have more to say about them later.
@@ -43,12 +43,12 @@ end.rcode-->
 
 \[\begin{aligned}
 \nabla \times (\nabla \times E) & = -\partial_t (\nabla \times B)\\
-& = -\mu_0 \sigma \partial_t E - \mu_0 \epsilon_0 \partial^2_t E
+& = -\mu_0 \sigma \partial_t E - \mu_0 \epsilon_0\epsilon_r  \partial^2_t E
 \end{aligned}\]
 
 <p>According to the "curl of the curl" law, we have \(\nabla \times (\nabla \times E) = \nabla(\nabla \cdot E) - \nabla^2 E\), so after some reshuffling of terms we get
 
-\[\nabla^2 E -\mu_0\sigma \partial_t E - \mu_0 \epsilon_0 \partial^2_t E = \nabla(\nabla \cdot E)\]
+\[\nabla^2 E -\mu_0\sigma \partial_t E - \mu_0 \epsilon_0 \epsilon_r \partial^2_t E = \nabla(\nabla \cdot E)\]
 
 <p>which has the form of a damped inhomogenous wave equation. A common way to solve this type of equation is to assume that \(E\) is separable, that is, can be written as the product of a function only of spatial coordinates \(x\) and a function only of time: \[E(x,t) = E(x)E(t).\] Further, we assume that the time-part \(E(t)\) just oscillates harmonically with some angular frequency \(\omega\), that is, \(E(t) = e^{i\omega t}\). Substituting that separable solution into the wave equation, we get
 
@@ -75,7 +75,7 @@ and
 
 <p>To solve these equations numerically, I first cut 2d space into a regular grid with grid spacing \(Delta\), so \(E^{(re)}(x)\) becomes \(E^{(re)}_{i,j}\) for row index \(i\) and column index \(j\), and the same for \(E^{(im)}\). 
 In that discretised form the differential equation for \(E^{(re)}\) becomes
-\[ \frac{1}{\Delta^2} \left[E^{(re)}_{i-1,j} + E^{(re)}_{i+1,j} + E^{(re)}_{i,j-1} + E^{(re)}_{i,j+1} - 4 E^{(re)}_{i,j}\right] + k^2 / n_{i,j}^2 E^{(re)}_{i,j} - k d_{i,j} E^{(im)}_{i,j} = f_{i,j}\]
+\[ \frac{1}{\Delta^2} \left[E^{(re)}_{i-1,j} + E^{(re)}_{i+1,j} + E^{(re)}_{i,j-1} + E^{(re)}_{i,j+1} - 4 E^{(re)}_{i,j}\right] + \frac{k^2}{n_{i,j}^2} E^{(re)}_{i,j} - k d_{i,j} E^{(im)}_{i,j} = f_{i,j}\]
 
 and similarly for \(E^{(im)}\). 
 
