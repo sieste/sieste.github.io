@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>Helmhurts in R</h2>
+
+
+<!--
+:nnoremap = :!R -e "knitr::knit('%')"<enter><enter>:!xdotool key --window $(xdotoo
+l search --name "Mozilla Firefox") F5<enter><enter>
+-->
+
+
+
+<p>Ten years ago <a href=https://jasmcole.com/2014/08/25/helmhurts/ target='_blank'>the "Helmhurts" blog post</a> was published, claiming you can use the laws of electrodynamics and numerical simulation to optimally position your Wifi router.  This note is an attempt to reproduce this work, deriving the necessary equations from first principles, and including all the necessary code. To make things even worse, this is completely written in R.
+
+
+<p>Here are Maxwell's equations:
+
+<ul>
+<li> Gauss's Law: \(\nabla \cdot E = \frac{\rho}{\epsilon_0 \epsilon_r}\) 
+<li> Gauss's Law for magnetism: \(\nabla \cdot B = 0\) 
+<li> Faraday's Law of Induction: \(\nabla \times E = -\partial_t B\) 
+<li>Ampere's Law with Maxwell's addition: \(\nabla \times B = \mu_0 (\sigma E + \epsilon_0 \partial_t E)\)
+</ul>
+
+<p>The legend has it that this is what God said on the first day, and then there was light. The important quantities here are the electric field \(E\) and magnetic field \(B\), both are in general vectors that vary with space and time. The Greek letters are parameters some of which vary across space, and I'll have more to say about them later.
+
+<p>Our goal is to derive a relatively simple differential equation that describes the spatial variation of the electric field, considering that there is a source somewhere in space (the wifi router), the emitted wave wants to propagate through space, but there are walls that absorb and reflect it.
+
+<p>We start by taking the curl of Faraday's Law of Induction and substituting Ampere's Law
+
+\[\begin{aligned}
+\nabla \times (\nabla \times E) & = -\partial_t (\nabla \times B)\\
+& = -\mu_0 \sigma \partial_t E - \mu_0 \epsilon_0 \partial^2_t E
+\end{aligned}\]
+
+<p>According to the "curl of the curl" law, we have \(\nabla \times (\nabla \times E) = \nabla(\nabla \cdot E) - \nabla^2 E\), so after some reshuffling of terms we get
+
+\[\nabla^2 E -\mu_0\sigma \partial_t E - \mu_0 \epsilon_0 \partial^2_t E = \nabla(\nabla \cdot E)\]
+
+<p>which has the form of a damped inhomogenous wave equation. A common way to solve this type of equation is to assume that \(E\) is separable, that is, can be written as the product of a function only of spatial coordinates \(x\) and a function only of time: \[E(x,t) = E(x)E(t).\] Further, we assume that the time-part \(E(t)\) just oscillates harmonically with some angular frequency \(\omega\), that is, \(E(t) = e^{i\omega t}\). Substituting that separable solution into the wave equation, we get
+
+\[\nabla^2 E(x) + (\omega^2 \mu_0 \epsilon_0 \epsilon_r - i\omega \mu_0 \sigma) E(x) = \nabla(\nabla \cdot E(x))\]
+
+By reparametrising and redefining some terms (and skipping quite a few tedious details) the equation can be written as
+
+\[\nabla^2 E(x) + \left(\frac{k^2}{n(x)^2} - ik d(x)\right) E(x) = f(x),\]
+
+<p>where
+<ul>
+<li> The wave number \(k\) is a characteristic number of the electromagnetic wave, given by \(k = 2\pi f / c\) where \(c \approx 3\times 10^8 m/s\) is the speed of light in vacuum and \(f\) is the wave frequency. For example, the common wifi frequency \(f = 2.4GHz\), which gives us a wave number \(k \approx 50.26 m^{-1}\).
+<li> The refractive index \(n(x)\) is equal to 1 in locations where there is vacuum or air, and \(n(x) > 1\) in materials other than air. Typical values for refractive index of solids are around 2 or 3.
+<li>The damping factor \(d(x)\) quantifies how much wave energy is absorbed by the material. We will assume that \(d(x) \approx 0\) in air, and \(d(x) > 0\) in materials such as concrete walls. I didn't find values of \(d(x)\) for different materials, so we'll have to treat it as a tunable parameter.
+<li> The source function \(f(x)\) indicates where the electromagnetic wave is generated. We will set \(f(x) = 0\) everywhere except at the location of the wifi router.
+</ul>
+
+
+<p>You will have noticed the imaginary unit \(i\) in front of the damping term, which means that the solution for \(E(x)\) will be complex. To simplify the mathematical treatment we separate \(E(x)\) into real and imaginary part \(E(x) = E^{(re)}(x) + i E^{(im)}(x)\), and assume that \(n(x)\), \(d(x)\) and \(f(x)\) are all real-valued. In that way we get two coupled differential equations for real and imaginary part of \(E(x)\):
+\[\nabla^2 E^{(re)}(x) + \frac{k^2}{n(x)^2} E^{(re)}(x) - k d(x) E^{(im)}(x) = f(x)\] 
+and 
+\[\nabla^2 E^{(im)}(x) + \frac{k^2}{n(x)^2} E^{(im)}(x) + k d(x) E^{(re)}(x) = 0.\] 
+
+
+<p>To solve these equations numerically, I first cut 2d space into a regular grid with grid spacing \(Delta\), so \(E^{(re)}(x)\) becomes \(E^{(re)}_{i,j}\) for row index \(i\) and column index \(j\), and the same for \(E^{(im)}\). 
+In that discretised form the differential equation for \(E^{(re)}\) becomes
+\[ \frac{1}{\Delta^2} \left[E^{(re)}_{i-1,j} + E^{(re)}_{i+1,j} + E^{(re)}_{i,j-1} + E^{(re)}_{i,j+1} - 4 E^{(re)}_{i,j}\right] + k^2 / n_{i,j}^2 E^{(re)}_{i,j} - k d_{i,j} E^{(im)}_{i,j} = f_{i,j}\]
+
+and similarly for \(E^{(im)}\). 
+
+<p>In the code below I discretise space into a regular grid with \(m\) rows and \(n\) columns. I then vectorise the 2d fields \(E^{(re)}\) and \(E^{(im)}\) by column stacking, stack these vectors on top of each other into a single vector \(E\) of length \(2mn\). Then the discretised wave equations for real and imaginary part can be written as a single linear equation \[ DE = F \] where \(D\) is a sparse matrix and \(F\) is a vector that contains the source term. We can then solve this equation for \(E\) using a sparse solver. The solution of \(E\) is devectorised into two 2d fields. I calculate the total field strength as \(\sqrt{(E^{(re)}_{i,j})^2 + (E^{(im)}_{i,j})^2}\) in each grid cell and visualise the result.
+
+
+<div class="chunk" id="unnamed-chunk-1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl kwd">library</span><span class="hl std">(tidyverse)</span>
+<span class="hl kwd">library</span><span class="hl std">(Matrix)</span>
+</pre></div>
+</div></div>
+
+
+<div class="chunk" id="helmhurts_1"><div class="rcode"><div class="source"><pre class="knitr r"><span class="hl com">#</span>
+<span class="hl com"># rectangular domain</span>
+<span class="hl std">m</span> <span class="hl kwb">=</span> <span class="hl num">200</span>
+<span class="hl std">n</span> <span class="hl kwb">=</span> <span class="hl num">200</span>
+<span class="hl std">delta</span> <span class="hl kwb">=</span> <span class="hl num">0.02</span> <span class="hl com"># grid constant in metres</span>
+<span class="hl com">#</span>
+<span class="hl com"># define source term (5x5 region, arbitrary units)</span>
+<span class="hl std">f</span> <span class="hl kwb">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">,</span> <span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">m</span><span class="hl opt">*</span><span class="hl std">n)</span>
+<span class="hl kwa">for</span> <span class="hl std">(wi</span> <span class="hl kwa">in</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">5</span><span class="hl std">) {</span>
+  <span class="hl kwa">for</span> <span class="hl std">(wj</span> <span class="hl kwa">in</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">5</span><span class="hl std">) {</span>
+    <span class="hl std">f[</span><span class="hl kwd">floor</span><span class="hl std">((</span><span class="hl num">80</span><span class="hl opt">+</span><span class="hl std">wj</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span><span class="hl opt">+</span><span class="hl num">20</span><span class="hl opt">+</span><span class="hl std">wi)]</span> <span class="hl kwb">=</span> <span class="hl num">1</span>
+  <span class="hl std">}</span>
+<span class="hl std">}</span>
+<span class="hl com">#</span>
+<span class="hl com"># define outer walls and inner wall with door</span>
+<span class="hl std">i_wall</span> <span class="hl kwb">=</span> <span class="hl kwd">c</span><span class="hl std">()</span>
+<span class="hl kwa">for</span> <span class="hl std">(w</span> <span class="hl kwa">in</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">10</span><span class="hl std">) {</span>
+  <span class="hl std">i_wall</span> <span class="hl kwb">=</span> <span class="hl kwd">c</span><span class="hl std">(i_wall,</span>
+    <span class="hl kwd">floor</span><span class="hl std">((w</span> <span class="hl opt">-</span> <span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">m),</span>
+    <span class="hl kwd">floor</span><span class="hl std">((n</span> <span class="hl opt">-</span> <span class="hl std">w)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">m),</span>
+    <span class="hl kwd">floor</span><span class="hl std">((</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">n</span> <span class="hl opt">-</span> <span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">w),</span>
+    <span class="hl kwd">floor</span><span class="hl std">((</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">n</span> <span class="hl opt">-</span> <span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">m</span><span class="hl opt">-</span><span class="hl std">w</span><span class="hl opt">+</span><span class="hl num">1</span><span class="hl std">),</span>
+    <span class="hl kwd">floor</span><span class="hl std">((n</span><span class="hl opt">/</span><span class="hl num">2</span> <span class="hl opt">+</span> <span class="hl std">w</span> <span class="hl opt">-</span> <span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">(</span><span class="hl num">0.6</span><span class="hl opt">*</span><span class="hl std">m),(</span><span class="hl num">0.8</span><span class="hl opt">*</span><span class="hl std">m)</span><span class="hl opt">:</span><span class="hl std">m)))</span>
+<span class="hl std">}</span>
+<span class="hl com">#</span>
+<span class="hl com"># refractive index (real-valued)</span>
+<span class="hl com"># n = 1 in air larger in wall</span>
+<span class="hl std">nn</span> <span class="hl kwb">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">, m</span><span class="hl opt">*</span><span class="hl std">n)</span>
+<span class="hl std">nn[i_wall]</span> <span class="hl kwb">=</span> <span class="hl num">1.5</span>
+<span class="hl com">#</span>
+<span class="hl com"># damping factor (real-valued)</span>
+<span class="hl com"># d = 0 in air, larger in wall </span>
+<span class="hl std">dd</span> <span class="hl kwb">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl std">, m</span><span class="hl opt">*</span><span class="hl std">n)</span>
+<span class="hl std">dd[i_wall]</span> <span class="hl kwb">=</span> <span class="hl num">3</span>
+<span class="hl com">#</span>
+<span class="hl com"># angular frequency omega and wave number k = omega / c</span>
+<span class="hl std">freq</span> <span class="hl kwb">=</span> <span class="hl num">2.4e9</span>
+<span class="hl std">omega</span> <span class="hl kwb">=</span> <span class="hl num">2</span><span class="hl opt">*</span><span class="hl std">pi</span><span class="hl opt">*</span><span class="hl std">freq</span>
+<span class="hl std">k</span> <span class="hl kwb">=</span> <span class="hl std">omega</span> <span class="hl opt">/</span> <span class="hl num">3e8</span>
+<span class="hl com">#</span>
+<span class="hl com"># differential operator, discretised by finite differencing</span>
+<span class="hl com"># d2x E_re + (k/n)^2 E_re - k * d * E_im = f</span>
+<span class="hl com"># d2x E_im + (k/n)^2 E_im + k * d * E_re = 0</span>
+<span class="hl com">#</span>
+<span class="hl com"># construct off-diagonal elements of discretised laplacian: </span>
+<span class="hl com"># summation of nearest neighbors, divided by delta^2. </span>
+<span class="hl com"># for sparse matrix calculate triplets (from, to, value)</span>
+<span class="hl std">offdiags</span> <span class="hl kwb">=</span>
+  <span class="hl kwd">tibble</span><span class="hl std">(</span>
+    <span class="hl com"># 2d grid points</span>
+    <span class="hl kwc">i</span> <span class="hl std">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">m, n),</span>
+    <span class="hl kwc">j</span> <span class="hl std">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">n,</span> <span class="hl kwc">each</span><span class="hl std">=m),</span>
+    <span class="hl com"># 2d neighbors</span>
+    <span class="hl kwc">im1</span> <span class="hl std">=</span> <span class="hl kwd">ifelse</span><span class="hl std">(i</span><span class="hl opt">==</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">, i</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">),</span>
+    <span class="hl kwc">ip1</span> <span class="hl std">=</span> <span class="hl kwd">ifelse</span><span class="hl std">(i</span><span class="hl opt">==</span><span class="hl std">m,</span> <span class="hl num">NA</span><span class="hl std">, i</span><span class="hl opt">+</span><span class="hl num">1</span><span class="hl std">),</span>
+    <span class="hl kwc">jm1</span> <span class="hl std">=</span> <span class="hl kwd">ifelse</span><span class="hl std">(j</span><span class="hl opt">==</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">NA</span><span class="hl std">, j</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">),</span>
+    <span class="hl kwc">jp1</span> <span class="hl std">=</span> <span class="hl kwd">ifelse</span><span class="hl std">(j</span><span class="hl opt">==</span><span class="hl std">n,</span> <span class="hl num">NA</span><span class="hl std">, j</span><span class="hl opt">+</span><span class="hl num">1</span><span class="hl std">),</span>
+    <span class="hl com"># vectorised grid points</span>
+    <span class="hl kwc">ij</span> <span class="hl std">= (j</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">i,</span>
+    <span class="hl com"># vectorised neighbors (NA if outside domain)</span>
+    <span class="hl kwc">imj</span> <span class="hl std">= (j</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">im1,</span>
+    <span class="hl kwc">ipj</span> <span class="hl std">= (j</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">ip1,</span>
+    <span class="hl kwc">ijm</span> <span class="hl std">= (jm1</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">i,</span>
+    <span class="hl kwc">ijp</span> <span class="hl std">= (jp1</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">i) |&gt;</span>
+  <span class="hl kwd">select</span><span class="hl std">(ij, imj, ipj, ijm, ijp) |&gt;</span>
+  <span class="hl kwd">pivot_longer</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">ij,</span> <span class="hl kwc">names_to</span><span class="hl std">=</span><span class="hl str">'delete_me'</span><span class="hl std">,</span> <span class="hl kwc">values_to</span><span class="hl std">=</span><span class="hl str">'to'</span><span class="hl std">) |&gt;</span>
+  <span class="hl kwd">drop_na</span><span class="hl std">() |&gt;</span>
+  <span class="hl kwd">select</span><span class="hl std">(</span><span class="hl opt">-</span><span class="hl std">delete_me) |&gt;</span>
+  <span class="hl kwd">rename</span><span class="hl std">(</span><span class="hl kwc">from</span><span class="hl std">=ij) |&gt;</span>
+  <span class="hl kwd">mutate</span><span class="hl std">(</span><span class="hl kwc">value</span> <span class="hl std">=</span> <span class="hl num">1</span><span class="hl opt">/</span><span class="hl std">delta</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl com"># </span>
+<span class="hl com"># diagonals: -4/delta^2 from discrete laplacian</span>
+<span class="hl com"># plus (k/n)^2 from linear term</span>
+<span class="hl std">diags</span> <span class="hl kwb">=</span> <span class="hl kwd">tibble</span><span class="hl std">(</span>
+  <span class="hl kwc">i</span> <span class="hl std">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">m, n),</span>
+  <span class="hl kwc">j</span> <span class="hl std">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">n,</span> <span class="hl kwc">each</span><span class="hl std">=m),</span>
+  <span class="hl kwc">from</span> <span class="hl std">= (j</span><span class="hl opt">-</span><span class="hl num">1</span><span class="hl std">)</span><span class="hl opt">*</span><span class="hl std">m</span> <span class="hl opt">+</span> <span class="hl std">i,</span>
+  <span class="hl kwc">to</span> <span class="hl std">= from,</span>
+  <span class="hl kwc">value</span> <span class="hl std">=</span> <span class="hl opt">-</span> <span class="hl num">4</span><span class="hl opt">/</span><span class="hl std">delta</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">+</span> <span class="hl std">k</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">/</span> <span class="hl std">nn</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">)</span>
+<span class="hl com"># </span>
+<span class="hl com"># construct sparse matrix for the pure wave equation </span>
+<span class="hl com"># this operator is applied both to real and imag. part of E </span>
+<span class="hl std">all_entries</span> <span class="hl kwb">=</span> <span class="hl kwd">bind_rows</span><span class="hl std">(diags, offdiags)</span>
+<span class="hl std">D1</span> <span class="hl kwb">=</span> <span class="hl kwd">sparseMatrix</span><span class="hl std">(</span><span class="hl kwc">i</span> <span class="hl std">= all_entries</span><span class="hl opt">$</span><span class="hl std">from,</span>
+                  <span class="hl kwc">j</span> <span class="hl std">= all_entries</span><span class="hl opt">$</span><span class="hl std">to,</span>
+                  <span class="hl kwc">x</span> <span class="hl std">= all_entries</span><span class="hl opt">$</span><span class="hl std">value)</span>
+<span class="hl com">#</span>
+<span class="hl com"># the off-diagonal (coupling part) of the discretised differential </span>
+<span class="hl com"># operator is a diagonal with values k * d </span>
+<span class="hl std">D2</span> <span class="hl kwb">=</span> <span class="hl kwd">Diagonal</span><span class="hl std">(</span><span class="hl kwc">n</span><span class="hl std">=m</span><span class="hl opt">*</span><span class="hl std">n,</span> <span class="hl kwc">x</span><span class="hl std">=k</span><span class="hl opt">*</span><span class="hl std">dd)</span>
+<span class="hl com"># putting it all together into the linear operator that acts on </span>
+<span class="hl com"># the vectorised complex E-field</span>
+<span class="hl std">D</span> <span class="hl kwb">=</span> <span class="hl kwd">rbind</span><span class="hl std">(</span><span class="hl kwd">cbind</span><span class="hl std">(D1,</span> <span class="hl opt">-</span><span class="hl std">D2),</span>
+          <span class="hl kwd">cbind</span><span class="hl std">(D2, D1))</span>
+<span class="hl com">#</span>
+<span class="hl com"># solve DE = f for E</span>
+<span class="hl com"># TODO: this can likely be sped up by exploiting the structure of D</span>
+<span class="hl std">E</span> <span class="hl kwb">=</span> <span class="hl kwd">solve</span><span class="hl std">(D, f)</span>
+<span class="hl com">#</span>
+<span class="hl com"># visualise square of electric field</span>
+<span class="hl std">df</span> <span class="hl kwb">=</span> <span class="hl kwd">tibble</span><span class="hl std">(</span><span class="hl kwc">i</span> <span class="hl std">=</span> <span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">m, n),</span> <span class="hl kwc">j</span><span class="hl std">=</span><span class="hl kwd">rep</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">n,</span> <span class="hl kwc">each</span><span class="hl std">=m),</span>
+            <span class="hl kwc">E_r</span><span class="hl std">=E[</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">(m</span><span class="hl opt">*</span><span class="hl std">n)],</span> <span class="hl kwc">E_i</span><span class="hl std">=E[</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">(m</span><span class="hl opt">*</span><span class="hl std">n)</span><span class="hl opt">+</span><span class="hl std">(m</span><span class="hl opt">*</span><span class="hl std">n)],</span>
+            <span class="hl kwc">E</span><span class="hl std">=</span><span class="hl kwd">sqrt</span><span class="hl std">(E_r</span><span class="hl opt">^</span><span class="hl num">2</span> <span class="hl opt">+</span> <span class="hl std">E_i</span><span class="hl opt">^</span><span class="hl num">2</span><span class="hl std">),</span> <span class="hl kwc">nn</span> <span class="hl std">= nn,</span> <span class="hl kwc">ff</span><span class="hl std">=f[</span><span class="hl num">1</span><span class="hl opt">:</span><span class="hl std">(m</span><span class="hl opt">*</span><span class="hl std">n)])</span>
+<span class="hl kwd">ggplot</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_raster</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=df,</span><span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=j,</span> <span class="hl kwc">y</span><span class="hl std">=i,</span> <span class="hl kwc">fill</span><span class="hl std">=E),</span> <span class="hl kwc">show.legend</span><span class="hl std">=</span><span class="hl num">FALSE</span><span class="hl std">)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">scale_fill_viridis_c</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">theme_void</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_raster</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">=df |&gt;</span> <span class="hl kwd">filter</span><span class="hl std">(nn</span> <span class="hl opt">!=</span> <span class="hl num">1</span><span class="hl std">),</span>
+              <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span><span class="hl std">=j,</span> <span class="hl kwc">y</span><span class="hl std">=i),</span> <span class="hl kwc">fill</span><span class="hl std">=</span><span class="hl str">'#ffffff22'</span><span class="hl std">)</span>
+</pre></div>
+</div><div class="rimage default"><img src="fig/helmholtz.Rhtml-helmhurts_1-1.png" alt="plot of chunk helmhurts_1" class="plot" /></div></div>
+
+<p>Nice. The signal gets weaker the further away we move from the source. We get reflection on the walls due to the refractive index greater than one. We also get damping of waves that penetrate the walls due to the positive damping term. And since the walls aren't perfect insulators, some of the waves that penetrate make it through the walls to propagate into the neighboring room. 
+
+<p>The code takes around 5 seconds for a 200 by 200 grid, which is acceptable, but can probably be improved by better exploiting the structure of the linear operator. Since the sparse solver from the Matrix package uses optimised C code, I don't expect any speed up from coding this up in python or another language.
+
+<p>Could this simulation really be used to optimise placement of the wifi router for best coverage, given the floor plan of an appartment? I don't know. First I would probably study the sensitivity of the simulation to the refraction and damping parameters. There seem to be numerical artifacts due to the coarse spatial resolution. The fact that I'm essentially setting zero boundary conditions outside the outer walls is also problematic. I'm also wondering how such a model could be calibrated on real data. But all of that is for another day. For today I'm happy that my code generated results that look halfway reasonable.
+
+
+

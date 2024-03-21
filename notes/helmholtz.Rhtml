@@ -9,8 +9,7 @@
 <body>
 <h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
 
-<h2>Helmhurts</h2>
-
+<h2>Helmhurts in R</h2>
 
 
 <!--
@@ -24,127 +23,92 @@ l search --name "Mozilla Firefox") F5<enter><enter>
   knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
 end.rcode-->
 
-<a href=https://jasmcole.com/2014/08/25/helmhurts/ target='_blank'>Helmhurts blog post</a>
-
-<p>An electromagnetic has time dependence \(\sin(\omega t)\) at each location. 
-
-<p>There is a dispersion relation of the form \(\omega = ck/n(x)\) where \(c\) is the speed of light, \(k\) is the wave number and \(n(x)\) is the spatially dependent refractive index.
-
-<p>Then the electric field solves \(\nabla^2 E + k^2/n(x)^2 E = f(x)\) where \(f(x)\) is the source function.
-
-<p>In discretised form on a regular grid with grid constant \(\Delta\), the equations becomes 
-\[ \frac{1}{\Delta^2} \left[E_{i-1,j} + E_{i+1,j} + E_{i,j-1} + E_{i,j+1} + (k^2 / n_{i,j}^2 - 4) E_{i,j} = f_{i,j}\]
+<p>Ten years ago <a href=https://jasmcole.com/2014/08/25/helmhurts/ target='_blank'>the "Helmhurts" blog post</a> was published, claiming you can use the laws of electrodynamics and numerical simulation to optimally position your Wifi router.  This note is an attempt to reproduce this work, deriving the necessary equations from first principles, and including all the necessary code. To make things even worse, this is completely written in R.
 
 
-<!--begin.rcode 
+<p>Here are Maxwell's equations:
 
-library(Matrix)
+<ul>
+<li> Gauss's Law: \(\nabla \cdot E = \frac{\rho}{\epsilon_0 \epsilon_r}\) 
+<li> Gauss's Law for magnetism: \(\nabla \cdot B = 0\) 
+<li> Faraday's Law of Induction: \(\nabla \times E = -\partial_t B\) 
+<li>Ampere's Law with Maxwell's addition: \(\nabla \times B = \mu_0 (\sigma E + \epsilon_0 \partial_t E)\)
+</ul>
+
+<p>The legend has it that this is what God said on the first day, and then there was light. The important quantities here are the electric field \(E\) and magnetic field \(B\), both are in general vectors that vary with space and time. The Greek letters are parameters some of which vary across space, and I'll have more to say about them later.
+
+<p>Our goal is to derive a relatively simple differential equation that describes the spatial variation of the electric field, considering that there is a source somewhere in space (the wifi router), the emitted wave wants to propagate through space, but there are walls that absorb and reflect it.
+
+<p>We start by taking the curl of Faraday's Law of Induction and substituting Ampere's Law
+
+\[\begin{aligned}
+\nabla \times (\nabla \times E) & = -\partial_t (\nabla \times B)\\
+& = -\mu_0 \sigma \partial_t E - \mu_0 \epsilon_0 \partial^2_t E
+\end{aligned}\]
+
+<p>According to the "curl of the curl" law, we have \(\nabla \times (\nabla \times E) = \nabla(\nabla \cdot E) - \nabla^2 E\), so after some reshuffling of terms we get
+
+\[\nabla^2 E -\mu_0\sigma \partial_t E - \mu_0 \epsilon_0 \partial^2_t E = \nabla(\nabla \cdot E)\]
+
+<p>which has the form of a damped inhomogenous wave equation. A common way to solve this type of equation is to assume that \(E\) is separable, that is, can be written as the product of a function only of spatial coordinates \(x\) and a function only of time: \[E(x,t) = E(x)E(t).\] Further, we assume that the time-part \(E(t)\) just oscillates harmonically with some angular frequency \(\omega\), that is, \(E(t) = e^{i\omega t}\). Substituting that separable solution into the wave equation, we get
+
+\[\nabla^2 E(x) + (\omega^2 \mu_0 \epsilon_0 \epsilon_r - i\omega \mu_0 \sigma) E(x) = \nabla(\nabla \cdot E(x))\]
+
+By reparametrising and redefining some terms (and skipping quite a few tedious details) the equation can be written as
+
+\[\nabla^2 E(x) + \left(\frac{k^2}{n(x)^2} - ik d(x)\right) E(x) = f(x),\]
+
+<p>where
+<ul>
+<li> The wave number \(k\) is a characteristic number of the electromagnetic wave, given by \(k = 2\pi f / c\) where \(c \approx 3\times 10^8 m/s\) is the speed of light in vacuum and \(f\) is the wave frequency. For example, the common wifi frequency \(f = 2.4GHz\), which gives us a wave number \(k \approx 50.26 m^{-1}\).
+<li> The refractive index \(n(x)\) is equal to 1 in locations where there is vacuum or air, and \(n(x) > 1\) in materials other than air. Typical values for refractive index of solids are around 2 or 3.
+<li>The damping factor \(d(x)\) quantifies how much wave energy is absorbed by the material. We will assume that \(d(x) \approx 0\) in air, and \(d(x) > 0\) in materials such as concrete walls. I didn't find values of \(d(x)\) for different materials, so we'll have to treat it as a tunable parameter.
+<li> The source function \(f(x)\) indicates where the electromagnetic wave is generated. We will set \(f(x) = 0\) everywhere except at the location of the wifi router.
+</ul>
+
+
+<p>You will have noticed the imaginary unit \(i\) in front of the damping term, which means that the solution for \(E(x)\) will be complex. To simplify the mathematical treatment we separate \(E(x)\) into real and imaginary part \(E(x) = E^{(re)}(x) + i E^{(im)}(x)\), and assume that \(n(x)\), \(d(x)\) and \(f(x)\) are all real-valued. In that way we get two coupled differential equations for real and imaginary part of \(E(x)\):
+\[\nabla^2 E^{(re)}(x) + \frac{k^2}{n(x)^2} E^{(re)}(x) - k d(x) E^{(im)}(x) = f(x)\] 
+and 
+\[\nabla^2 E^{(im)}(x) + \frac{k^2}{n(x)^2} E^{(im)}(x) + k d(x) E^{(re)}(x) = 0.\] 
+
+
+<p>To solve these equations numerically, I first cut 2d space into a regular grid with grid spacing \(Delta\), so \(E^{(re)}(x)\) becomes \(E^{(re)}_{i,j}\) for row index \(i\) and column index \(j\), and the same for \(E^{(im)}\). 
+In that discretised form the differential equation for \(E^{(re)}\) becomes
+\[ \frac{1}{\Delta^2} \left[E^{(re)}_{i-1,j} + E^{(re)}_{i+1,j} + E^{(re)}_{i,j-1} + E^{(re)}_{i,j+1} - 4 E^{(re)}_{i,j}\right] + k^2 / n_{i,j}^2 E^{(re)}_{i,j} - k d_{i,j} E^{(im)}_{i,j} = f_{i,j}\]
+
+and similarly for \(E^{(im)}\). 
+
+<p>In the code below I discretise space into a regular grid with \(m\) rows and \(n\) columns. I then vectorise the 2d fields \(E^{(re)}\) and \(E^{(im)}\) by column stacking, stack these vectors on top of each other into a single vector \(E\) of length \(2mn\). Then the discretised wave equations for real and imaginary part can be written as a single linear equation \[ DE = F \] where \(D\) is a sparse matrix and \(F\) is a vector that contains the source term. We can then solve this equation for \(E\) using a sparse solver. The solution of \(E\) is devectorised into two 2d fields. I calculate the total field strength as \(\sqrt{(E^{(re)}_{i,j})^2 + (E^{(im)}_{i,j})^2}\) in each grid cell and visualise the result.
+
+
+<!--begin.rcode, eval=FALSE
 library(tidyverse)
-#
-# rectangular domain
-m = 500
-n = 400
-delta = 0.01 # grid constant = 1cm 
-#
-# define source term (single grid cell)
-f = rep(0, m*n)
-f[floor((50-1)*m+50)] = 10
-#
-# refractive index = 1 in air
-nn = rep(1, m*n)
-# refractive index > 1 in walls
-n_wall = 3
-for (w in 1:20) {
-  nn[ floor((w - 1)*m + 1:m) ]     = n_wall
-  nn[ floor((n - w)*m + 1:m) ]     = n_wall
-  nn[ floor((1:n - 1)*m + w) ]     = n_wall
-  nn[ floor((1:n - 1)*m + m-w+1) ] = n_wall
-  nn[ floor((n/2 + w - 1)*m + c(1:(0.6*m),(0.8*m):m)) ] = n_wall
-}
-#
-# wave number of 2.4GHz wifi signal in air: k = 2*pi*f/c = 50.27
-k = 50 
-#
-# differential operator L = (del^2 + (k/n)^2) 
-# discretised by finite differencing
-#
-# off-diagonals: nearest neighbors are summed and divided by delta^2
-offdiags = 
-  tibble(
-    # 2d grid points
-    i = rep(1:m, n),
-    j = rep(1:n, each=m),
-    # 2d neighbors
-    im1 = ifelse(i==1, NA, i-1),
-    ip1 = ifelse(i==m, NA, i+1),
-    jm1 = ifelse(j==1, NA, j-1),
-    jp1 = ifelse(j==n, NA, j+1),
-    # vectorised grid points
-    ij = (j-1)*m + i,
-    # vectorised neighbors (NA if outside domain)
-    imj = (j-1)*m + im1,
-    ipj = (j-1)*m + ip1,
-    ijm = (jm1-1)*m + i,
-    ijp = (jp1-1)*m + i) |>
-  select(ij, imj, ipj, ijm, ijp) |>
-  pivot_longer(-ij, names_to='delete_me', values_to='to') |>
-  drop_na() |>
-  select(-delete_me) |>
-  rename(from=ij) |>
-  mutate(value = 1/delta^2)
-# 
-# diagonals: -4/delta^2 from laplacian, plus (k/n)^2 from linear term
-diags = tibble(
-  i = rep(1:m, n),
-  j = rep(1:n, each=m),
-  from = (j-1)*m + i,
-  to = from,
-  value = - 4/delta^2 + k^2 / nn^2)
-# 
-# putting it all together into a sparse matrix
-all_entries = bind_rows(diags, offdiags)
-D = sparseMatrix(i = all_entries$from, j = all_entries$to, x = all_entries$value)
-#
-# solve DE = f for E 
-E = solve(D, f)
-#
-# visualise square of electric field
-df = tibble(i = rep(1:m, n), j=rep(1:n, each=m), E=E, E2=E^2, n = nn, f=f)
-ggplot() + 
-  geom_raster(data=df,aes(x=j, y=i, fill=E2)) + 
-  scale_fill_viridis_c() +
-  #geom_raster(data=df |> filter(n != 1), aes(x=j, y=i), fill='black') +
-  geom_point(data=df |> filter(f != 0), aes(x=j, y=i), col='magenta', size=5)
-
+library(Matrix)
+end.rcode-->
+<!--begin.rcode, include=FALSE
+library(tidyverse)
+library(Matrix)
 end.rcode-->
 
-
-
-<p>We should include a damping term to account for the fact that the electromagnetic wave exchanges energy with the medium through which it propagates.
-
-\[\nabla^2 E(x,y) + ((k/n(x,y))^2 - i\omega \gamma(x,y)) E(x,y) = f(x,y)\]
-
-where \(omega = 2\pi f\) is angular velocity and \(\gamma\) is a positive damping term.
-
-For the derivation start Ampere's Law with Maxwells addition in conductive media (one of Maxwell's equations) \[\nabla \times B = \mu(\sigma E + \epsilon \partial_t E),\] where \(B\) is the magnetic field, \(\mu\) is magnetic permeability of the medium, \(\sigma\) is electrical conductivity, \(\epsilon\) is electric permittivity. The conductivity term \(\mu \sigma E\) introduces damping. Then take the curl of Faraday's Law of Induction (another one of Maxwell's equations) \[\nabla \times (\nabla \times E) = -\partial_t (\nabla \times B)\] and substitute Ampere's Law \[\nabla \times (\nabla \times E) = -\mu \partial_t (\sigma E + \epsilon \partial_t E).\] Using the vector calculus identity \(\nabla \times (\nabla \times V) = \nabla(\nabla \cdot V) - \nabla^2 V\) and \(\nabla \cdot E = 0\) in homogeneous media with free charge we get \[\nabla^2 E -\mu\sigma \partial_t E - \mu\epsilon \partial_{tt} E = 0.\] Now make a separable ansatz \(E(x,y,t) = E(x,y) e^{-i\omega t}\) and finally get the desired \[\nabla^2 E(x,y) + (\omega^2 \mu \epsilon - i \omega \mu \sigma)E(x,y) = 0.\]
-
-<p>Separating \(E\) into real and imaginary part \(E = E_{re} + i E_{im}\) we get two coupled differential equations \[\nabla^2 E_{re} + (k/n)^2 E_{re} - \omega \gamma E_{im} = f\] and \[\nabla^2 E_{im} + (k/n)^2 E_{im} + \omega \gamma E_{re} = 0.\] In the following code I vectorise the complex valued 2-d field \(E\) by concatenating the vectorised real part and the vectorised imaginary part. Constructing the discretised differential operator is then straightforward. 
-
-<!--begin.rcode 
-
+<!--begin.rcode helmhurts_1, fig.width=7, fig.height=7, dpi=100
 #
 # rectangular domain
-m = 500
-n = 400
-delta = 0.01 # grid constant = 1cm 
+m = 200
+n = 200
+delta = 0.02 # grid constant in metres
 #
-# define source term (single grid cell in real part)
+# define source term (5x5 region, arbitrary units)
 f = rep(0, 2*m*n)
-f[floor((50-1)*m+50)] = 10
+for (wi in 1:5) {
+  for (wj in 1:5) {
+    f[floor((80+wj-1)*m+20+wi)] = 1
+  }
+}
 #
-# define wall indices
+# define outer walls and inner wall with door
 i_wall = c()
-for (w in 1:20) {
+for (w in 1:10) {
   i_wall = c(i_wall,
     floor((w - 1)*m + 1:m),
     floor((n - w)*m + 1:m),
@@ -154,28 +118,27 @@ for (w in 1:20) {
 }
 #
 # refractive index (real-valued)
-# n = 1 in air and n > 1 in wall
-nn = rep(1, 2*m*n)
-nn[i_wall] = 3
+# n = 1 in air larger in wall
+nn = rep(1, m*n)
+nn[i_wall] = 1.5
 #
 # damping factor (real-valued)
-# gamma = 0 in air, gamma > 0 in wall
-gamma = rep(0, 2*m*n)
-gamma[i_wall] = 0.1
+# d = 0 in air, larger in wall 
+dd = rep(0, m*n)
+dd[i_wall] = 3
 #
-# wave number of 2.4GHz wifi signal in air: k = 2*pi*f/c = 50.27
-k = 50 
-#
-#
-#
-#
-#
-#
-# PICK UP HERE #####################################################
+# angular frequency omega and wave number k = omega / c
+freq = 2.4e9
+omega = 2*pi*freq
+k = omega / 3e8
 #
 # differential operator, discretised by finite differencing
+# d2x E_re + (k/n)^2 E_re - k * d * E_im = f
+# d2x E_im + (k/n)^2 E_im + k * d * E_re = 0
 #
-# off-diagonals: nearest neighbors are summed and divided by delta^2
+# construct off-diagonal elements of discretised laplacian: 
+# summation of nearest neighbors, divided by delta^2. 
+# for sparse matrix calculate triplets (from, to, value)
 offdiags = 
   tibble(
     # 2d grid points
@@ -200,7 +163,8 @@ offdiags =
   rename(from=ij) |>
   mutate(value = 1/delta^2)
 # 
-# diagonals: -4/delta^2 from laplacian, plus (k/n)^2 from linear term
+# diagonals: -4/delta^2 from discrete laplacian
+# plus (k/n)^2 from linear term
 diags = tibble(
   i = rep(1:m, n),
   j = rep(1:n, each=m),
@@ -208,21 +172,43 @@ diags = tibble(
   to = from,
   value = - 4/delta^2 + k^2 / nn^2)
 # 
-# putting it all together into a sparse matrix
+# construct sparse matrix for the pure wave equation 
+# this operator is applied both to real and imag. part of E 
 all_entries = bind_rows(diags, offdiags)
-D = sparseMatrix(i = all_entries$from, j = all_entries$to, x = all_entries$value)
+D1 = sparseMatrix(i = all_entries$from, 
+                  j = all_entries$to, 
+                  x = all_entries$value)
 #
-# solve DE = f for E 
+# the off-diagonal (coupling part) of the discretised differential 
+# operator is a diagonal with values k * d 
+D2 = Diagonal(n=m*n, x=k*dd)
+# putting it all together into the linear operator that acts on 
+# the vectorised complex E-field
+D = rbind(cbind(D1, -D2),
+          cbind(D2, D1))
+#
+# solve DE = f for E
+# TODO: this can likely be sped up by exploiting the structure of D
 E = solve(D, f)
 #
 # visualise square of electric field
-df = tibble(i = rep(1:m, n), j=rep(1:n, each=m), E=E, E2=E^2, n = nn, f=f)
+df = tibble(i = rep(1:m, n), j=rep(1:n, each=m), 
+            E_r=E[1:(m*n)], E_i=E[1:(m*n)+(m*n)], 
+            E=sqrt(E_r^2 + E_i^2), nn = nn, ff=f[1:(m*n)])
 ggplot() + 
-  geom_raster(data=df,aes(x=j, y=i, fill=E2)) + 
+  geom_raster(data=df,aes(x=j, y=i, fill=E), show.legend=FALSE) + 
   scale_fill_viridis_c() +
-  #geom_raster(data=df |> filter(n != 1), aes(x=j, y=i), fill='black') +
-  geom_point(data=df |> filter(f != 0), aes(x=j, y=i), col='magenta', size=5)
+  theme_void() +
+  geom_raster(data=df |> filter(nn != 1), 
+              aes(x=j, y=i), fill='#ffffff22') 
 
 end.rcode-->
+
+<p>Nice. The signal gets weaker the further away we move from the source. We get reflection on the walls due to the refractive index greater than one. We also get damping of waves that penetrate the walls due to the positive damping term. And since the walls aren't perfect insulators, some of the waves that penetrate make it through the walls to propagate into the neighboring room. 
+
+<p>The code takes around 5 seconds for a 200 by 200 grid, which is acceptable, but can probably be improved by better exploiting the structure of the linear operator. Since the sparse solver from the Matrix package uses optimised C code, I don't expect any speed up from coding this up in python or another language.
+
+<p>Could this simulation really be used to optimise placement of the wifi router for best coverage, given the floor plan of an appartment? I don't know. First I would probably study the sensitivity of the simulation to the refraction and damping parameters. There seem to be numerical artifacts due to the coarse spatial resolution. The fact that I'm essentially setting zero boundary conditions outside the outer walls is also problematic. I'm also wondering how such a model could be calibrated on real data. But all of that is for another day. For today I'm happy that my code generated results that look halfway reasonable.
+
 
 
