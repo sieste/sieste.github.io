@@ -212,3 +212,178 @@ end.rcode-->
 
 
 
+
+<!--begin.rcode, include=FALSE
+# global parameters
+m = 200
+n = 200
+delta = 0.02
+i_wall = c()
+for (w in 1:10) {
+  i_wall = c(i_wall,
+    floor((w - 1)*m + 1:m),
+    floor((n - w)*m + 1:m),
+    floor((1:n - 1)*m + w),
+    floor((1:n - 1)*m + m-w+1),
+    floor((n/2 + w - 1)*m + c(1:(0.6*m),(0.8*m):m)))
+}
+
+# function to calculate E 
+calc_E = function(nn_wall = 1.5,
+                  dd_wall = 3,
+                  freq = 2.4e9,
+                  f_source = 1,
+                  i_source = 20,
+                  j_source = 80) {
+  omega = 2*pi*freq
+  k = omega / 3e8
+  f = rep(0, 2*m*n)
+  for (wi in 1:5) {
+    for (wj in 1:5) {
+      f[floor((j_source+wj-1)*m+i_source+wi)] = f_source
+    }
+  }
+  nn = rep(1, m*n)
+  nn[i_wall] = nn_wall
+  dd = rep(0, m*n)
+  dd[i_wall] = dd_wall
+  D_entries = bind_rows(
+    tibble(i = rep(1:m, n),
+           j = rep(1:n, each=m),
+           ij = (j-1)*m + i,
+           imj = ifelse(i==1, NA, (j-1)*m + i-1),
+           ipj = ifelse(i==m, NA, (j-1)*m + i+1),
+           ijm = ifelse(j==1, NA, (j-1-1)*m + i),
+           ijp = ifelse(j==n, NA, (j+1-1)*m + i)) |>
+      select(ij, imj, ipj, ijm, ijp) |>
+      pivot_longer(-ij, names_to='delete_me', values_to='to') |>
+      drop_na() |>
+      select(-delete_me) |>
+      rename(from=ij) |>
+      mutate(value = 1/delta^2),
+    tibble(i = rep(1:m, n),
+           j = rep(1:n, each=m),
+           from = (j-1)*m + i,
+           to =   (j-1)*m + i,
+           value = - 4/delta^2 + k^2 / nn^2))
+  D1 = sparseMatrix(i = D_entries$from, 
+                    j = D_entries$to, 
+                    x = D_entries$value)
+  D2 = Diagonal(n=m*n, x=k*dd)
+  D = rbind(cbind(D1, -D2),
+            cbind(D2, D1))
+  E = solve(D, f)
+  df = tibble(i = rep(1:m, n), j=rep(1:n, each=m), 
+              E_r=E[1:(m*n)], E_i=E[1:(m*n)+(m*n)], 
+              E=sqrt(E_r^2 + E_i^2), nn = nn, ff=f[1:(m*n)])
+  return(df)
+}
+
+
+#
+# visualise square of electric field
+ggplot() + 
+  geom_raster(data=df,aes(x=j, y=i, fill=E), show.legend=FALSE) + 
+  scale_fill_viridis_c() +
+  theme_void() +
+  geom_raster(data=df |> filter(nn != 1), 
+              aes(x=j, y=i), fill='#ffffff22') 
+
+end.rcode-->
+
+
+<h2>Some parameter sweeps</h2>
+
+<p><b>Varying the refractive index of the walls</b>
+
+<!--begin.rcode, eval=FALSE, include=FALSE
+
+nn_vec = seq(1,3,.1)
+nn_res = parallel::mclapply(nn_vec, \(nn_) calc_E(nn_wall = nn_), mc.cores=6)
+names(nn_res) = sprintf('%1.1f', nn_vec)
+Emax = nn_res |> map_dbl(~max(.$E)) |> max()
+plt = list()
+for (nn_ in names(nn_res)) {
+  df = nn_res[[ nn_ ]]
+  df$nn[-i_wall] = NA
+  plt[[ nn_ ]] = ggplot() + 
+    geom_raster(data=df,aes(x=j, y=i, fill=E), show.legend=FALSE) + 
+    scale_fill_viridis_c(limits = c(0, Emax)) +
+    theme_void() +
+    geom_raster(data=df |> filter(!is.na(nn)), aes(x=j, y=i), fill='#ffffff22') +
+    labs(title=paste('n =', nn_))
+}
+for (nn_ in names(plt)) {
+  ggsave(
+    file.path(tempdir(), paste('nn_', nn_, '.png',sep='')),
+    plt[[ nn_ ]], width=2, height=2, bg='white')
+}
+system(paste('convert -delay 20 -loop 0 ', tempdir(), '/nn_*.png fig/helmholtz-n-sweep.gif', sep=''))
+
+end.rcode-->
+
+<img src="fig/helmholtz-n-sweep.gif">
+
+
+<br>
+<p><b>Varying the damping coefficient</b>
+
+<!--begin.rcode, eval=FALSE, include=FALSE
+
+dd_vec = seq(1,5,.2)
+dd_res = parallel::mclapply(dd_vec, \(dd_) calc_E(dd_wall = dd_), mc.cores=6)
+names(dd_res) = sprintf('%1.1f', dd_vec)
+Emax = dd_res |> map_dbl(~max(.$E)) |> max()
+plt = list()
+for (dd_ in names(dd_res)) {
+  df = dd_res[[ dd_ ]]
+  df$nn[-i_wall] = NA
+  plt[[ dd_ ]] = ggplot() + 
+    geom_raster(data=df,aes(x=j, y=i, fill=E), show.legend=FALSE) + 
+    scale_fill_viridis_c(limits = c(0, Emax)) +
+    theme_void() +
+    geom_raster(data=df |> filter(!is.na(nn)), aes(x=j, y=i), fill='#ffffff22') +
+    labs(title=paste('d =', dd_))
+}
+for (dd_ in names(plt)) {
+  ggsave(
+    file.path(tempdir(), paste('dd_', dd_, '.png',sep='')),
+    plt[[ dd_ ]], width=2, height=2, bg='white')
+}
+system(paste('convert -delay 10 -loop 0 ', tempdir(), '/dd_*.png fig/helmholtz-d-sweep.gif', sep=''))
+
+end.rcode-->
+
+<p><img src="fig/helmholtz-d-sweep.gif">
+
+<br>
+
+<p><b>Varying position</b>
+
+<!--begin.rcode, eval=FALSE, include=FALSE
+
+jj_vec = seq(15, 85, 5)
+jj_res = parallel::mclapply(jj_vec, \(jj_) calc_E(j_source = jj_), mc.cores=6)
+names(jj_res) = sprintf('%1.1f', jj_vec)
+Emax = jj_res |> map_dbl(~max(.$E)) |> max()
+plt = list()
+for (jj_ in names(jj_res)) {
+  df = jj_res[[ jj_ ]]
+  df$nn[-i_wall] = NA
+  plt[[ jj_ ]] = ggplot() + 
+    geom_raster(data=df,aes(x=j, y=i, fill=E), show.legend=FALSE) + 
+    scale_fill_viridis_c(limits = c(0, Emax)) +
+    theme_void() +
+    geom_raster(data=df |> filter(!is.na(nn)), aes(x=j, y=i), fill='#ffffff22')
+}
+for (jj_ in names(plt)) {
+  ggsave(
+    file.path(tempdir(), paste('jj_', jj_, '.png',sep='')),
+    plt[[ jj_ ]], width=2, height=2, bg='white')
+}
+system(paste('convert -delay 10 -loop 0 ', tempdir(), '/jj_*.png fig/helmholtz-j-sweep.gif', sep=''))
+
+end.rcode-->
+
+<p><img src="fig/helmholtz-j-sweep.gif">
+
