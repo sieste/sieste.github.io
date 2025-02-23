@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang=en>
+<head>
+<meta charset=utf-8>
+<title>Stefan Siegert</title>
+<link rel=stylesheet href=/style.css>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
+
+<h2>Quick Bayesian updating via the "skeptic's conversion number"</h2>
+
+You have prior odds for a hypothesis, and observe a new piece of evidence or information in favor of that hypothesis. Think of the number n of independent pieces of evidence of the same "strength" that would convert you from a skeptic to a believer of the hypothesis. Update your prior odds as follows:
+
+<ul>
+<li> If n is about 10, increase your prior odds by 100%.
+<li> If n is about 100, increase your prior odds by 10%.
+<li> If n is about 1000, increase your prior odds by 1%.
+</ul>
+
+
+<h3>Explanation:</h3> 
+
+In Bayesian updating of beliefs about a hypothesis \(G\) based on evidence \(D\) we have to calculate
+
+\[\frac{P(G|D)}{P(G'|D)} = \frac{P(D|G)}{P(D|G')} \times \frac{P(G)}{P(G')}\]
+
+<p>The prior odds \(P(G)/P(G')\) is something we have to specify subjectively, and I assume that has been done. I want to focus on a way to reason about the likelihood ratio \[L = P(D|G)/P(D|G').\] The likelihood ratio quantifies how much more likely the observation of \(D\) is if \(G\) is true compared to if \(G\) is false. \(L\) is the multiplicative updating factor that transforms your prior odds into your posterior odds. I generally find \(L\) quite hard to reason about when thinking on my feet was looking for a mental shortcut.
+
+
+<p>Bayesian updating is sequential, which means that if we observe \(n\) independent pieces of evidence \(D\) that all have the same likelihood ratio, the Bayesian update is
+
+\[\frac{P(G|D)}{P(G'|D)} = L^n \times \frac{P(G)}{P(G')}\]
+
+<p>It turns out we can use that relationship to reason about \(L\) for a given piece of evidence more easily. To evaluate the evidence \(D\) we can ask what is the <strong>"skeptic's conversion number"</strong> corresponding to \(D\). That is, what is the number \(n\) of independent observations with the same likelihood ratio as \(D\) that would lead a "moderate skeptic" with low prior probability \(P(G) = 0.05\) to update enough to become a "moderate believer" with high posterior probability \(P(G|D_1, \dots, D_n) = 0.95\). 
+
+<p>Plugging these probabilities in we have \(19 = L^n / 19\) and solving for \(L\) we get the likelihood ratio corresponding to \(n\) as
+
+\[L = 19^{2/n}\]
+
+<p>For \(n = 10, 100, 1000\) we have \(L \approx 1.8, 1.06, 1.01\).
+
+
+<p>If we change the definition of "skeptic" and "believer" to mean probabilities \(0.01\) and \(0.99\) the corresponding likelihood ratios for \(n=10,100,1000\) become \(L \approx 2.5, 1.1, 1.01\) and for skeptic \(0.1\) and believer \(0.9\) we get \(L \approx 1.6, 1.05, 1.004\). None of these lead exactly to the updating rules stated at the beginning, for a quick and dirty mental calculation \(L \approx 2, 1.1, 1.01\) will be good enough.
+
+
+
+<!--begin.rcode init, echo=FALSE
+  set.seed(123)
+  prefix = paste('fig/', knitr::current_input(dir=FALSE), '-', sep='')
+  knitr::opts_chunk$set(fig.width=7, fig.height=7, fig.path=prefix)
+end.rcode-->
+
+
+
