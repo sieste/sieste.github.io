@@ -2,21 +2,264 @@
 <html lang=en>
 <head>
 <meta charset=utf-8>
-<title>Stefan Siegert</title>
+<meta name=viewport content="width=device-width, initial-scale=1">
+<title>Stefan Siegert: Academic CV</title>
+<meta name=description content="Stefan Siegert, Associate Professor of Data Science, University of Exeter: research, publications, teaching and career.">
 <link rel=stylesheet href=/style.css>
 </head>
 <body>
+
 <h1><a href=/ title="Stefan Siegert">Stefan Siegert</a></h1>
 
-<h2>Education</h2>
+<p>Associate Professor of Data Science<br>
+Department of Mathematics and Statistics, University of Exeter<br>
+<span class=sub><a href=https://orcid.org/0000-0001-8938-2823>ORCID 0000-0001-8938-2823</a> &middot; <a href=https://github.com/sieste>github.com/sieste</a></span>
 
-<h2>Projects and Grants</h2>
+<nav class=toc>
+<a href=#summary>Summary</a> &middot;
+<a href=#research>Research</a> &middot;
+<a href=#publications>Publications</a> &middot;
+<a href=#software>Software</a> &middot;
+<a href=#funding>Projects and funding</a> &middot;
+<a href=#engagement>Industry and policy</a> &middot;
+<a href=#teaching>Teaching</a> &middot;
+<a href=#group>Group</a> &middot;
+<a href=#service>Service</a> &middot;
+<a href=#career>Career</a>
+</nav>
 
-<h2>Teaching</h2>
 
-<h2>Publications</h2>
+<h2 id=summary>Summary</h2>
 
-<h2>PhD students</h2>
+<p>I am a statistician and data scientist working on evaluating and improving forecasts of weather and climate. My earlier work developed methods for forecast verification, recalibration and Bayesian inference. Since 2025 my research has centred on AI weather prediction, combining rigorous verification with modern deep learning, largely in partnership with the Met Office.
+
+<p>As Director of Business Engagement and Innovation I lead the department's work with industry and government, including Knowledge Transfer Partnerships, Met Office research and executive education, and the 195th European Study Group with Industry, which I brought to Exeter in 2026. I am a Turing Fellow of the Alan Turing Institute.
 
 
+<h2 id=research>Research</h2>
 
+<p>My research develops statistical and machine-learning methods to evaluate and improve forecasts from complex computer models of weather and climate. A central aim is to quantify forecast skill and uncertainty rigorously, so that forecasts can be trusted by the people who use them.
+
+<h3>AI weather prediction and high-impact weather</h3>
+<p>Running AI weather models at reduced numerical precision; adding AI model ensembles to the Met Office's operational IMPROVER blend; neural-network prediction of Saharan dust and of North Atlantic dry intrusions; impact-based forecasting of windstorms and tropical cyclones.
+
+<h3>Forecast verification and post-processing</h3>
+<p>Statistical tests, scoring rules and Bayesian frameworks for verifying and recalibrating ensemble forecasts, and the R package SpecsVerification. This work is the basis of my chapters in both editions of the reference text <i>Sub-seasonal to Seasonal Prediction</i> (Elsevier, 2019 and 2025).
+
+<h3>Bayesian inference for environmental data</h3>
+<p>With colleagues at the University of Iceland I co-developed Max-and-Smooth, a fast two-step method for approximate Bayesian inference in latent Gaussian models, applied to flood frequency analysis and spatial forecast post-processing. Related work includes Gaussian vector fields on meshes for downscaling, and dynamic linear models for SARS-CoV-2 surveillance in wastewater.
+
+<h3>Current directions</h3>
+<p>AI foundation models for weather and climate; uncertainty quantification for AI forecasts; formally verified software for AI safety.
+
+
+<h2 id=publications>Publications</h2>
+
+<p class=sub>Most recent first. Also on <a href=https://orcid.org/0000-0001-8938-2823>ORCID</a>.
+
+<h3>Journal articles</h3>
+<ol class=pubs reversed>
+<li>Maddison, J., Catto, J.L., Hansen, S., Ng, C.H.J., <b>Siegert, S.</b> (2026). Using seasonal forecasts to enhance our understanding of extreme wind and precipitation impacts from extratropical cyclones. <i>Natural Hazards and Earth System Sciences</i> 26, 827&ndash;844. <a href=https://doi.org/10.5194/nhess-26-827-2026>doi</a>
+<li>Gillan, M., <b>Siegert, S.</b>, Youngman, B.D. (2026). Discrete Gaussian vector fields on meshes. <i>Stochastic Environmental Research and Risk Assessment</i> 40, 161. <a href=https://doi.org/10.1007/s00477-026-03292-1>doi</a>
+<li>Harris, O., Catto, J.L., <b>Siegert, S.</b>, Raveh-Rubin, S. (2025). High impact weather in the mid-latitudes: a neural network approach to identifying North Atlantic dry intrusion outflows. <i>Meteorological Applications</i> 32, e70128. <a href=https://doi.org/10.1002/met.70128>doi</a>
+<li>Galloway, E., Catto, J.L., Luo, C., <b>Siegert, S.</b> (2025). Tropical cyclone impact data in the Philippines: implications for disaster risk research. <i>Natural Hazards</i> 121, 15275&ndash;15296. <a href=https://doi.org/10.1007/s11069-025-07394-x>doi</a>
+<li>Nowak, T.E., Augousti, A.T., Simmons, B.I., <b>Siegert, S.</b> (2025). DustNet (v1): skilful neural network predictions of dust aerosols over the Saharan desert. <i>Geoscientific Model Development</i> 18, 3509&ndash;3532. <a href=https://doi.org/10.5194/gmd-18-3509-2025>doi</a>
+<li>Collins, M., Beverley, J.D., Bracegirdle, T.J., et al., <b>Siegert, S.</b>, et al. (2024). Emerging signals of climate change from the equator to the poles: new insights into a warming world. <i>Frontiers in Science</i> 2, 1340323. <a href=https://doi.org/10.3389/fsci.2024.1340323>doi</a>
+<li>Lewis-Borrell, L., Irving, J., Lilley, C.J., Courbariaux, M., Nuel, G., Danon, L., O'Reilly, K.M., Grimsley, J.M.S., Wade, M.J., <b>Siegert, S.</b> (2023). Robust smoothing of left-censored time series data with a dynamic linear model to infer SARS-CoV-2 RNA concentrations in wastewater. <i>AIMS Mathematics</i> 8, 16790&ndash;16824. <a href=https://doi.org/10.3934/math.2023859>doi</a>
+<li>Jóhannesson, Á.V., <b>Siegert, S.</b>, Huser, R., Bakka, H., Hrafnkelsson, B. (2022). Approximate Bayesian inference for analysis of spatiotemporal flood frequency data. <i>Annals of Applied Statistics</i> 16, 905&ndash;935. <a href=https://doi.org/10.1214/21-AOAS1525>doi</a>
+<li>Hrafnkelsson, B., <b>Siegert, S.</b>, Huser, R., Bakka, H., Jóhannesson, Á.V. (2021). Max-and-Smooth: a two-step approach for approximate Bayesian inference in latent Gaussian models. <i>Bayesian Analysis</i> 16, 611&ndash;638. <a href=https://doi.org/10.1214/20-BA1219>doi</a>
+<li>Hemri, S., Bhend, J., Liniger, M.A., Manzanas, R., <b>Siegert, S.</b>, Stephenson, D.B., Gutiérrez, J.M., Brookshaw, A., Doblas-Reyes, F.J. (2020). How to create an operational multi-model of seasonal forecasts? <i>Climate Dynamics</i> 55, 1141&ndash;1157. <a href=https://doi.org/10.1007/s00382-020-05314-2>doi</a>
+<li><b>Siegert, S.</b>, Ferro, C.A.T., Stephenson, D.B., Leutbecher, M. (2019). The ensemble-adjusted Ignorance Score for forecasts issued as normal distributions. <i>Quarterly Journal of the Royal Meteorological Society</i> 145 (S1), 129&ndash;139. <a href=https://doi.org/10.1002/qj.3447>doi</a>
+<li><b>Siegert, S.</b>, Bellprat, O., Ménégoz, M., Stephenson, D.B., Doblas-Reyes, F.J. (2017). Detecting improvements in forecast correlation skill: statistical testing and power analysis. <i>Monthly Weather Review</i> 145, 437&ndash;450. <a href=https://doi.org/10.1175/MWR-D-16-0037.1>doi</a>
+<li><b>Siegert, S.</b> (2017). Simplifying and generalising Murphy's Brier score decomposition. <i>Quarterly Journal of the Royal Meteorological Society</i> 143, 1178&ndash;1183. <a href=https://doi.org/10.1002/qj.2985>doi</a>
+<li>Bellprat, O., Massonnet, F., <b>Siegert, S.</b>, Prodhomme, C., Macias-Gómez, D., Guemas, V., Doblas-Reyes, F.J. (2017). Uncertainty propagation in observational references to climate model scales. <i>Remote Sensing of Environment</i> 203, 101&ndash;108. <a href=https://doi.org/10.1016/j.rse.2017.06.034>doi</a>
+<li><b>Siegert, S.</b>, Stephenson, D.B., Sansom, P.G., Scaife, A.A., Eade, R., Arribas, A. (2016). A Bayesian framework for verification and recalibration of ensemble forecasts: how uncertain is NAO predictability? <i>Journal of Climate</i> 29, 995&ndash;1012. <a href=https://doi.org/10.1175/JCLI-D-15-0196.1>doi</a>
+<li><b>Siegert, S.</b>, Sansom, P.G., Williams, R.M. (2016). Parameter uncertainty in forecast recalibration. <i>Quarterly Journal of the Royal Meteorological Society</i> 142, 1213&ndash;1221. <a href=https://doi.org/10.1002/qj.2716>doi</a>
+<li>Gundermann, J., <b>Siegert, S.</b>, Kantz, H. (2014). Improved predictions of rare events using the Crooks fluctuation theorem. <i>Physical Review E</i> 89, 032112. <a href=https://doi.org/10.1103/PhysRevE.89.032112>doi</a>
+<li><b>Siegert, S.</b> (2014). Variance estimation for Brier score decomposition. <i>Quarterly Journal of the Royal Meteorological Society</i> 140, 1771&ndash;1777. <a href=https://doi.org/10.1002/qj.2228>doi</a>
+<li><b>Siegert, S.</b>, Bröcker, J., Kantz, H. (2012). Rank histograms of stratified Monte Carlo ensembles. <i>Monthly Weather Review</i> 140, 1558&ndash;1571. <a href=https://doi.org/10.1175/MWR-D-11-00302.1>doi</a>
+<li><b>Siegert, S.</b>, Bröcker, J., Kantz, H. (2012). On the predictability of outliers in ensemble forecasts. <i>Advances in Science and Research</i> 8, 53&ndash;57. <a href=https://doi.org/10.5194/asr-8-53-2012>doi</a>
+<li><b>Siegert, S.</b>, Bröcker, J., Kantz, H. (2011). Predicting outliers in ensemble forecasts. <i>Quarterly Journal of the Royal Meteorological Society</i> 137, 1887&ndash;1897. <a href=https://doi.org/10.1002/qj.868>doi</a>
+<li>Bröcker, J., <b>Siegert, S.</b>, Kantz, H. (2011). Comments on "Conditional exceedance probabilities". <i>Monthly Weather Review</i> 139, 3322&ndash;3324. <a href=https://doi.org/10.1175/2011MWR3658.1>doi</a>
+</ol>
+
+<h3>Book chapters</h3>
+<ol class=pubs reversed>
+<li><b>Siegert, S.</b>, Atureta, V., Bell, P., Irons, T., Stephenson, D.B. (2025). Forecast recalibration and multimodel combination. In Robertson, A.W., Vitart, F. (eds), <i>Sub-seasonal to Seasonal Prediction: The Gap Between Weather and Climate Forecasting</i>, 2nd edition. Elsevier, 477&ndash;501. <a href=https://doi.org/10.1016/B978-0-443-31538-1.00020-8>doi</a>
+<li>Lovegrove, J., <b>Siegert, S.</b> (2023). Improving numerical weather forecasts by Bayesian hierarchical modelling. In Hrafnkelsson, B. (ed.), <i>Statistical Modeling Using Bayesian Latent Gaussian Models</i>. Springer, 193&ndash;218. <a href=https://doi.org/10.1007/978-3-031-39791-2_6>doi</a>
+<li><b>Siegert, S.</b>, Stephenson, D.B. (2019). Forecast recalibration and multimodel combination. In Robertson, A.W., Vitart, F. (eds), <i>Sub-seasonal to Seasonal Prediction: The Gap Between Weather and Climate Forecasting</i>. Elsevier, 321&ndash;336. <a href=https://doi.org/10.1016/B978-0-12-811714-9.00015-2>doi</a>
+<li><b>Siegert, S.</b>, Kantz, H. (2016). Prediction of complex dynamics: who cares about chaos? In Skokos, Ch., Gottwald, G.A., Laskar, J. (eds), <i>Chaos Detection and Predictability</i>, Lecture Notes in Physics 915. Springer, 249&ndash;269. <a href=https://doi.org/10.1007/978-3-662-48410-4_8>doi</a>
+<li><b>Siegert, S.</b>, Bröcker, J., Kantz, H. (2015). Skill of data-based predictions versus dynamical models: a case study on extreme temperature anomalies. In Chavez, M., Ghil, M., Urrutia-Fucugauchi, J. (eds), <i>Extreme Events: Observations, Modeling, and Economics</i>, Geophysical Monograph 214. AGU and Wiley, 35&ndash;50. <a href=https://doi.org/10.1002/9781119157052.ch4>doi</a>
+</ol>
+
+<h3>Conference papers</h3>
+<ol class=pubs reversed>
+<li>Krishnaraj-Nejikar, A., Contreras Garcia, M., Campos Martín, S., <b>Siegert, S.</b>, Costa, F. (2026). Scalable and accurate document dispatcher for planning applications. <i>Advances in Intelligent Systems and Computing</i>, Springer, 207&ndash;219. <a href=https://doi.org/10.1007/978-3-032-07938-1_18>doi</a>
+<li>Thomas, M.L., Shaddick, G., Topping, D., et al., <b>Siegert, S.</b>, et al. (2022). A data integration approach to estimating personal exposures to air pollution. <i>IEEE International Conference on Big Data</i>, 4551&ndash;4559. <a href=https://doi.org/10.1109/BigData55660.2022.10020701>doi</a>
+</ol>
+
+<h3>Preprints and reports</h3>
+<ol class=pubs reversed>
+<li><b>Siegert, S.</b> (2026). Half-precision inference of AI weather prediction models: negligible loss of skill at a fraction of the cost. <a href=https://doi.org/10.48550/arXiv.2611.09573>arXiv:2611.09573</a>
+<li>Sop Nkuiate, H., Evans, G., Ferro, C.A.T., Kwasniok, F., Bain, C.L., <b>Siegert, S.</b> (2026). Value of adding AI weather model ensembles to a multi-model probabilistic blend. <a href=https://doi.org/10.48550/arXiv.2610.42130>arXiv:2610.42130</a>
+<li>Bearup, D.J., Richer, N., Cairns, G., et al., <b>Siegert, S.</b>, et al. (2026). Growth projections for trees, hedges, and tree groups. ESGI 195 study group report, <i>Mathematics in Industry Reports</i>. <a href=https://doi.org/10.33774/miir-2026-32f3m>doi</a>
+<li>Bell, P., Catto, J.L., Jones, A., <b>Siegert, S.</b> (2025). Developing and evaluating a Bayesian weather generator for UK precipitation conditioned on discrete storm types. <a href=https://doi.org/10.5194/egusphere-2025-4110>EGUsphere preprint</a>
+<li>Atureta, V., Jasin, R.P., <b>Siegert, S.</b> (2025). A curated UK rain radar data set for training and benchmarking nowcasting models. <a href=https://doi.org/10.48550/arXiv.2512.17924>arXiv:2512.17924</a>
+<li>Alhashim, N., Ferreira, M., <b>Siegert, S.</b>, et al. (2025). First-year vegetation effects of protection and watering of hyper-arid lowland desert in NEOM, Tabuk Province, Kingdom of Saudi Arabia. <a href=https://doi.org/10.2139/ssrn.5258577>SSRN preprint</a>
+<li><b>Siegert, S.</b>, Hooper, B., Lovegrove, J., Thomson, T., Hrafnkelsson, B. (2022). Spatial forecast postprocessing: the Max-and-Smooth approach. <a href=https://doi.org/10.48550/arXiv.2209.00477>arXiv:2209.00477</a>
+<li>Sansom, P.G., Cummins, D.P., <b>Siegert, S.</b>, Stephenson, D.B. (2021). Towards reliable probabilistic time-series projections of global mean surface temperature. <a href=https://doi.org/10.21203/rs.3.rs-1103739/v1>Research Square preprint</a>
+<li>Challen, R., Dyson, L., Overton, C.E., et al., <b>Siegert, S.</b>, et al. (2021). Early epidemiological signatures of novel SARS-CoV-2 variants: establishment of B.1.617.2 in England. <a href=https://doi.org/10.1101/2021.06.05.21258365>medRxiv preprint</a>
+<li><b>Siegert, S.</b>, Ferro, C.A.T., Stephenson, D.B. (2014). Evaluating ensemble forecasts by the Ignorance score: correcting the finite-ensemble bias. <a href=https://doi.org/10.48550/arXiv.1410.8249>arXiv:1410.8249</a>
+</ol>
+
+
+<h2 id=software>Software and data</h2>
+
+<ul>
+<li><a href=https://doi.org/10.32614/CRAN.package.SpecsVerification>SpecsVerification</a> (R package on CRAN, 2014 to present): forecast verification routines for ensemble forecasts of weather and climate.
+<li><a href=https://doi.org/10.32614/CRAN.package.pROC>pROC</a> (R package on CRAN): contributor of the fast DeLong algorithm for comparing ROC curves.
+<li><a href=https://doi.org/10.32614/CRAN.package.sonify>sonify</a> (R package on CRAN, with R.M. Williams, 2017): turning data into sound.
+<li>Half-precision inference of AI weather prediction models (2026): <a href=https://doi.org/10.5281/zenodo.23888733>code</a> and <a href=https://doi.org/10.5281/zenodo.23887143>results</a> on Zenodo.
+<li><a href=https://github.com/sieste/nimrod>nimrod.R</a>: R functions to extract and visualise UK NIMROD rain-radar data.
+</ul>
+
+
+<h2 id=funding>Projects and funding</h2>
+
+<h3>Principal investigator</h3>
+<ul class=cv>
+<li><span class=yr>2026&ndash;2028</span><br>Met Office executive education: <i>Practical Statistics for Weather and Climate</i> and <i>Foundations of Machine Learning</i> (academic lead).
+<li><span class=yr>2025&ndash;2026</span><br>Met Office: <i>Machine Learning for Weather Forecasting: AI NWP Blending</i>.
+<li><span class=yr>2025&ndash;2026</span><br>Met Office: <i>Deep Learning for Weather and Climate Applications</i>.
+<li><span class=yr>2023&ndash;2025</span><br>ESRC, UKRI Policy Fellowship with Defra: <i>Building a Green Future: Data Science and Agriculture</i>.
+<li><span class=yr>2022&ndash;2026</span><br>EPSRC Industrial CASE studentship with IBM: <i>Bayesian Methods for Climate Impact Uncertainty Quantification</i>.
+<li><span class=yr>2021&ndash;2022</span><br>Department of Health and Social Care, Joint Biosecurity Centre: statistics for wastewater-based Covid-19 surveillance (secondment).
+<li><span class=yr>2017</span><br>University of Exeter ReCoVER seed fund (EPSRC): <i>Fast statistical inference for climate projections with INLA</i>.
+</ul>
+
+<h3>Co-investigator</h3>
+<ul class=cv>
+<li><span class=yr>2026&ndash;2028</span><br>Met Office: <i>Investigating the value of adding diverse ML models to the IMPROVER blend</i> (work package lead).
+<li><span class=yr>2025&ndash;2026</span><br>Met Office: <i>Evaluating 14-day Weather Forecasts</i>.
+<li><span class=yr>2024&ndash;2026</span><br>Innovate UK Knowledge Transfer Partnership with Agile Applications (IEG group): graph neural networks and large language models for planning drawings. Graded Outstanding by Innovate UK.
+<li><span class=yr>2022&ndash;2025</span><br>NEOM (Saudi Arabia): design and scientific secretariat of the Long-Term Environmental Monitoring Programme (data science lead).
+<li><span class=yr>2022&ndash;2023</span><br>Guy Carpenter: <i>Estimating worst-case storms and seasons using seasonal forecasts</i>.
+<li><span class=yr>2021&ndash;2022</span><br>EPSRC: <i>Uncertainty Quantification for Expensive COVID-19 Simulation Models (UQ4Covid)</i>.
+<li><span class=yr>2020&ndash;2022</span><br>Innovate UK Knowledge Transfer Partnerships with Agile Applications (AI for planning applications) and SRK Exploration Services (statistical modelling for mineral exploration).
+<li><span class=yr>2019&ndash;2020</span><br>Innovate UK and Geospatial Commission: <i>Learning how crowdsourcing data could change the geospatial sector</i>.
+</ul>
+
+
+<h2 id=engagement>Industry, policy and public engagement</h2>
+
+<ul>
+<li><b>European Study Group with Industry.</b> Lead organiser of ESGI 195, Exeter, 20&ndash;24 July 2026: 110 participants working on eight industrial challenges from the Donkey Sanctuary, NATS, DNV, IEG group, Kestrel Institute, ATASS Sports, NEOM Nature and SRK Exploration. Member of the steering committee for ESGI 2027 (Warwick).
+<li><b>Met Office.</b> Research on AI weather prediction, executive education for Met Office scientists, and joint supervision of Met Office staff on PhD studentships.
+<li><b>Knowledge Transfer Partnerships.</b> Three KTPs with Innovate UK (2020 to 2026), one graded Outstanding. KTP associates from two of them were taken on full-time by the company partners.
+<li><b>Policy.</b> UKRI Policy Fellow with Defra (2023 to 2025), modelling UK agricultural systems under climate change to inform tree-planting policy. Secondment to the Joint Biosecurity Centre (2021 to 2022), with contributions to SAGE (2021) and UKHSA (2022) on Covid-19 variant and prevalence modelling.
+<li><b>Environmental monitoring.</b> Data science lead of the NEOM Scientific Secretariat, the Exeter-led independent advisory board for the long-term environmental monitoring programme of the NEOM nature reserve (2022 to 2025).
+<li><b>Consultancy</b> for intelligentAI, the Met Office, and ECMWF / Copernicus Climate Change Service (QA4Seas, quality assurance for seasonal forecasts).
+<li><b>Workshops.</b> Organiser of a workshop on physics-informed machine learning in atmospheric science (Exeter, 2025, more than 50 participants).
+<li><b>Public engagement.</b> Introduction to machine learning for small businesses (Somerset Council, 2022); public lecture on uncertainty in weather prediction (Dresden Long Night of Science, 2011); co-organiser of the Exeter R User Group (2014 to 2019).
+</ul>
+
+
+<h2 id=teaching>Teaching</h2>
+
+<h3>University of Exeter modules</h3>
+<ul class=cv>
+<li><span class=yr>2026&ndash;</span><br>Mathematics of Machine Learning and AI (MTH2015), designed and lead.
+<li><span class=yr>2024&ndash;2025</span><br>Uncertainty Quantification (MTHM063), designed and lead.
+<li><span class=yr>2020&ndash;2023</span><br>Applications of Data Science and Statistics (MTHM503), designed and lead; supervision of more than 50 MSc dissertations.
+<li><span class=yr>2020&ndash;2024</span><br>Probability, Statistics and Data (MTH1004), designed and lead; Foundations (MTH1000).
+<li><span class=yr>2019&ndash;2020</span><br>Statistical Inference (MTH3028).
+<li><span class=yr>2018&ndash;2019</span><br>Advanced Statistical Modelling (ECM3904), designed and lead.
+</ul>
+
+<h3>Courses and workshops</h3>
+<ul>
+<li>Met Office executive education: Practical Statistics for Weather and Climate; Foundations of Machine Learning; Machine Learning Foundation Course; Deep Neural Networks.
+<li>Advanced Statistics Training for Climate Research, CHESS international PhD research school, University of Bergen (2017 to 2022).
+<li>Coding for Reproducible Research, University of Exeter (2022 to 2023).
+<li>Machine Learning with Neural Networks (2023).
+</ul>
+
+
+<h2 id=group>Group</h2>
+
+<h3>PhD students</h3>
+<ul>
+<li>Benjamin Jones (2026&ndash;): machine-learning prediction of sea surface temperature and sea ice from direct observations. With the Met Office.
+<li>Charles Benoist (2025&ndash;): probabilistic machine learning for climate extremes.
+<li>Joana da Silva Rodriguez (2024&ndash;, co-supervised): physics-informed machine learning in weather and climate. With the Met Office.
+<li>Michael Gillan (2023&ndash;, co-supervised): Gaussian vector fields for downscaling.
+<li>Brynjólfur Gauti Guðrúnar Jónsson (2023&ndash;, University of Iceland, co-supervised): Bayesian hierarchical modelling for extreme precipitation.
+<li>Paul Bell (2022&ndash;): Bayesian weather generators for UK precipitation. EPSRC Industrial CASE with IBM.
+<li>Tommy Irons (2022&ndash;): Bayesian hierarchical modelling for spatial extremes.
+<li>Morgan Sparey (2022&ndash;, co-supervised): physics-informed machine learning for cloud parametrisation.
+<li>Vivian Atureta (2022&ndash;2026, submitted): radar nowcasting with statistical and machine-learning models.
+</ul>
+
+<h3>Completed PhDs</h3>
+<ul>
+<li>Trish Nowak (2025): neural-network prediction of Saharan dust aerosols.
+<li>Owain Harris (2025, co-supervised): machine-learning identification of North Atlantic dry intrusion outflows.
+<li>Lizzie Galloway (2025, co-supervised): tropical cyclone impacts in the Philippines.
+<li>Roman Aguirre Perez (2022): <a href=https://hdl.handle.net/10871/129934>areal downscaling of population counts</a> with Bayesian hierarchical models.
+</ul>
+
+<h3>Postdoctoral researchers and KTP associates</h3>
+<ul>
+<li>Dr Harris Sop Nkuiate (2025&ndash;): AI weather model ensembles in the Met Office IMPROVER blend. I first supervised Harris as an MSc student at the African Institute for Mathematical Sciences, Cameroon (2021).
+<li>Aneesh Krishnaraj-Nejikar (KTP associate, 2024&ndash;2026), now at IEG4.
+<li>Ehsanollah Baninajar (KTP associate, 2020&ndash;2022), now at SRK Exploration.
+<li>Rucha Dalwadi (KTP associate, 2020&ndash;2022).
+</ul>
+
+
+<h2 id=service>Leadership and service</h2>
+
+<ul>
+<li>Director of Business Engagement and Innovation, Department of Mathematics and Statistics (2023 to present).
+<li>Member of the University Business Engagement and Innovation Committee.
+<li>Theme Lead for Executive Education and Business Engagement, Centre for Environmental Intelligence (2025 to 2026).
+<li>Exeter Champion, Knowledge Exchange Hub for Mathematical Sciences (2024 to 2025).
+<li>Organiser of the Statistical Science group seminar (2021 to present).
+<li>Internal examiner for seven PhD theses.
+<li>Reviewer for the Quarterly Journal of the Royal Meteorological Society, Journal of the Royal Statistical Society Series C, Environmetrics, Climate Dynamics and Monthly Weather Review.
+</ul>
+
+
+<h2 id=career>Career</h2>
+
+<h3>Positions</h3>
+<ul class=cv>
+<li><span class=yr>2024&ndash;</span><br>Associate Professor of Data Science, University of Exeter.
+<li><span class=yr>2023&ndash;</span><br>Director of Business Engagement and Innovation, Department of Mathematics and Statistics.
+<li><span class=yr>2023&ndash;2025</span><br>UKRI Policy Fellow with Defra.
+<li><span class=yr>2023&ndash;2024</span><br>Senior Lecturer, University of Exeter.
+<li><span class=yr>2021&ndash;2022</span><br>Secondment to the Joint Biosecurity Centre, Department of Health and Social Care.
+<li><span class=yr>2018&ndash;2023</span><br>Lecturer in Statistics, University of Exeter.
+<li><span class=yr>2013&ndash;2018</span><br>Associate Research Fellow, then Research Fellow, University of Exeter.
+<li><span class=yr>2013</span><br>Research Associate, Max Planck Institute for the Physics of Complex Systems, Dresden.
+</ul>
+
+<h3>Education and qualifications</h3>
+<ul class=cv>
+<li><span class=yr>2012</span><br>Dr. rer. nat. in Physics, summa cum laude, TU Dresden (Max Planck Institute for the Physics of Complex Systems). Thesis: <i>Rank Statistics of Forecast Ensembles</i>.
+<li><span class=yr>2009</span><br>MSc in Computational Science, with Distinction, TU Chemnitz.
+<li><span class=yr>2007</span><br>BSc in Computational Science, TU Chemnitz.
+<li><span class=yr>2020</span><br>Postgraduate Certificate in Academic Practice, University of Exeter; Fellow of the Higher Education Academy.
+</ul>
+
+<h3>Fellowships and awards</h3>
+<ul>
+<li>Turing Fellow, The Alan Turing Institute (2024 to present).
+<li>Knowledge Transfer Partnership with Agile Applications graded Outstanding by Innovate UK (2026).
+<li>Shortlisted, Outstanding Research Support, University of Exeter Teaching Awards (2022).
+<li>UKRI Policy Fellowship (2023).
+</ul>
+
+
+<p style="margin-bottom:3em;"> </p>
+<p class=sub><a href=/>&larr; Home</a></p>

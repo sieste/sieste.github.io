@@ -42,3 +42,33 @@ a:hover{
 }
 
 
+
+/* Additions for the professional pages */
+.sub{
+  font-size:0.9em;
+  color:#444
+}
+ul.cv{
+  list-style:none;
+  padding-left:0
+}
+ul.cv li{
+  margin-bottom:0.5em
+}
+.yr{
+  color:#666;
+  font-family:sans-serif;
+  font-size:0.8em
+}
+ol.pubs{
+  font-size:0.85em;
+  line-height:1.5em;
+  padding-left:2em
+}
+ol.pubs li{
+  margin-bottom:0.6em
+}
+nav.toc{
+  font-family:sans-serif;
+  font-size:0.8em
+}
